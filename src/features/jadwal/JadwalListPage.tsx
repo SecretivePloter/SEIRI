@@ -72,7 +72,7 @@ export function JadwalListPage() {
       render: (j) => (
         <div>
           <div className="flex items-center gap-2">
-            <p className="font-body-md text-body-md text-on-surface">{j.kelas?.nama_kelas ?? '—'}</p>
+            <p className="font-body-md text-body-md text-on-surface">{j.kelas?.nama_kelas ?? '-'}</p>
             {j.kelas && <JenisBadge jenis={j.kelas.jenis} />}
           </div>
           <p className="font-label-sm text-label-sm text-secondary">{jadwalLabel(j)}</p>
@@ -82,14 +82,14 @@ export function JadwalListPage() {
     {
       key: 'sensei',
       header: 'Sensei',
-      render: (j) => <span className="font-body-md text-body-md text-on-surface">{j.sensei?.nama ?? '—'}</span>,
+      render: (j) => <span className="font-body-md text-body-md text-on-surface">{j.sensei?.nama ?? '-'}</span>,
     },
     {
       key: 'jam',
       header: 'Jam',
       render: (j) => (
         <span className="whitespace-nowrap font-body-md text-body-md text-on-surface">
-          {formatJam(j.jam_mulai)}–{formatJam(j.jam_selesai)}
+          {formatJam(j.jam_mulai)}-{formatJam(j.jam_selesai)}
         </span>
       ),
     },

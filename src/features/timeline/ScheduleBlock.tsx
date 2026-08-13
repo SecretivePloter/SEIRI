@@ -33,7 +33,7 @@ export function ScheduleBlock({
     <button
       type="button"
       onClick={onClick}
-      title={`${jadwal.kelas_nama} • ${formatJam(jadwal.jam_mulai)}–${formatJam(jadwal.jam_selesai)} • ${lokasiLabel(jadwal)}`}
+      title={`${jadwal.kelas_nama} • ${formatJam(jadwal.jam_mulai)}-${formatJam(jadwal.jam_selesai)} • ${lokasiLabel(jadwal)}`}
       className={`relative flex h-full w-full flex-col justify-center overflow-hidden rounded-card border-l-4 ${s.bg} ${s.border} ${dim} ${
         compact ? 'px-2 py-1 text-left' : 'px-2.5 py-1.5 text-left'
       } transition-opacity hover:opacity-80`}
@@ -43,7 +43,7 @@ export function ScheduleBlock({
       </p>
       {!compact && (
         <p className={`truncate font-label-sm text-label-sm ${s.text} opacity-80`}>
-          {formatJam(jadwal.jam_mulai)}–{formatJam(jadwal.jam_selesai)}
+          {formatJam(jadwal.jam_mulai)}-{formatJam(jadwal.jam_selesai)}
         </p>
       )}
       <p className="truncate font-label-sm text-label-sm text-on-surface-variant">

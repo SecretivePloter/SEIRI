@@ -8,6 +8,7 @@ import { Input, Field } from '@/components/ui/Input';
 import { Icon } from '@/components/ui/Icon';
 import { login } from '@/lib/api/auth';
 import { useAuthStore } from '@/stores/authStore';
+import logoUrl from '@/assets/logo.png';
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -35,9 +36,10 @@ export function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-6">
       <div className="w-full max-w-sm rounded-card border border-outline-variant bg-surface-container-lowest p-8 shadow-floating">
-        <div className="mb-6 text-center">
-          <h1 className="font-headline-md text-headline-md font-bold text-primary">Jadwal Sensei</h1>
-          <p className="mt-1 font-body-md text-body-md text-secondary">School Admin — PT Ichikara</p>
+        <div className="mb-6 flex flex-col items-center text-center">
+          <img src={logoUrl} alt="Logo Ichikara" className="h-16 w-16 object-contain" />
+          <h1 className="mt-3 font-headline-md text-headline-md font-bold text-primary">Jadwal Sensei</h1>
+          <p className="mt-1 font-body-md text-body-md text-secondary">School Admin PT Ichikara</p>
         </div>
 
         <form onSubmit={(e) => void submit(e)} className="flex flex-col gap-4">

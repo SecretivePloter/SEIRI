@@ -104,7 +104,7 @@ export function AdminKlienTab({ isAdmin }: { isAdmin: boolean }) {
         </span>
       ),
     },
-    { key: 'kontak', header: 'Kontak', render: (k) => <span className="font-body-md text-body-md text-on-surface">{k.kontak ?? '—'}</span> },
+    { key: 'kontak', header: 'Kontak', render: (k) => <span className="font-body-md text-body-md text-on-surface">{k.kontak ?? '-'}</span> },
     {
       key: 'kelas',
       header: 'Kelas',
@@ -195,7 +195,7 @@ export function AdminKlienTab({ isAdmin }: { isAdmin: boolean }) {
         title={`Hapus klien "${targetHapus?.nama ?? ''}"?`}
         description={
           targetHapus && jumlahKelas(targetHapus.id) > 0
-            ? `Klien ini masih punya ${jumlahKelas(targetHapus.id)} kelas — penghapusan akan ditolak server. Kelola kelasnya terlebih dahulu.`
+            ? `Klien ini masih punya ${jumlahKelas(targetHapus.id)} kelas, penghapusan akan ditolak server. Kelola kelasnya terlebih dahulu.`
             : 'Klien akan dihapus permanen. Aksi ini tidak bisa dibatalkan.'
         }
         confirmLabel="Hapus"

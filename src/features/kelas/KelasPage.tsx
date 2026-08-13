@@ -54,7 +54,7 @@ export function KelasPage() {
       header: 'Klien / Murid',
       render: (k) => (
         <div>
-          <p className="font-body-md text-body-md text-on-surface">{k.klien?.nama ?? '—'}</p>
+          <p className="font-body-md text-body-md text-on-surface">{k.klien?.nama ?? '-'}</p>
           {k.klien && <p className="font-label-sm text-label-sm text-secondary capitalize">{k.klien.jenis}</p>}
         </div>
       ),

@@ -327,6 +327,15 @@ Setiap halaman dibungkus `RequireAuth` → `AppShell` → `RouteErrorBoundary`.
     argumen by-name via supabase.rpc, jadi tidak ada dampak fungsional).
     Aturan utk function baru: jika ada argumen opsional, letakkan di akhir
     atau jangan pakai default sama sekali.
+13. **Mode one-off/rutin di form jadwal harus membersihkan nilai sisa** —
+    `DEFAULT_FORM.tanggal = todayWIB()`; jika user pindah ke mode 'rutin'
+    tanpa membersihkan `tanggal`, Zod menolak di path `tanggal` yang tidak
+    ter-render (field merah tidak terlihat, toast membingungkan). Sudah
+    diperbaiki: `switchMode()` di `FormInputJadwal.tsx` membersihkan
+    `tanggal` (→rutin) atau `hari_rutin`/`berlaku_sampai` (→one-off), dan
+    load mode edit juga mengisi `tanggal: null` utk slot rutin. Aturan: jika
+    menambah field yang hanya valid di mode tertentu, pastikan nilainya
+    dibersihkan saat pindah mode dan di-load mode edit.
 
 ---
 
@@ -340,6 +349,15 @@ Setiap halaman dibungkus `RequireAuth` → `AppShell` → `RouteErrorBoundary`.
   3. `tailwind.config.ts` — kunci duplikat `'on-surface'` dihapus.
   4. `src/vite-env.d.ts` dibuat (typing env).
   5. `TimelineRuanganPage.tsx` — import `startOfWeek` tak terpakai dihapus.
+- ✅ Bug pasca-implementasi (fase deploy/polish):
+  1. `FormInputJadwal.tsx` — "Form belum lengkap" tanpa field merah saat
+     simpan jadwal rutin (stale `tanggal`). Fix: `switchMode()` + load
+     mode edit + `set()` sekarang membersihkan error field saat berubah;
+     toast submit menampilkan pesan error pertama yang spesifik.
+  2. Branding: logo di `src/assets/logo.png` (dari `logo.png` root) tampil
+     di LoginPage & Sidebar; judul sidebar → "Jadwal Sensei Ichikara";
+     subtitle "School Admin" dihapus; semua em/en dash di string UI diganti
+     (sisa hanya di komentar kode); title di `index.html` disesuaikan.
 - ✅ Edge case §9 diverifikasi PASS (lihat bukti di laporan audit).
 - 📋 Yang mungkin masih perlu dari user: buat Supabase project baru → isi
   `.env.local` → jalankan migrations 0001–0004 berurutan → buat user auth

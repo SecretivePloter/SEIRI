@@ -26,12 +26,12 @@ export function AdminPage() {
 
   return (
     <>
-      <TopBar title="Admin — Manajemen Data" subtitle="Kelola master data sistem" />
+      <TopBar title="Admin: Manajemen Data" subtitle="Kelola master data sistem" />
       <main className="flex-1 overflow-y-auto p-container-padding">
         <div className="mx-auto flex max-w-[1200px] flex-col gap-4">
           {!isAdmin && (
             <p className="rounded border border-outline-variant bg-surface-container-low px-4 py-2 font-body-md text-body-md text-secondary">
-              Mode viewer — hanya melihat data. Aksi tulis membutuhkan role admin.
+              Mode viewer: hanya melihat data. Aksi tulis membutuhkan role admin.
             </p>
           )}
 

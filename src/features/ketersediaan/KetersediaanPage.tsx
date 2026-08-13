@@ -121,7 +121,7 @@ export function KetersediaanPage() {
                 <div className="flex flex-wrap items-center gap-3">
                   <p className="font-headline-sm text-headline-sm text-on-surface">
                     {namaSensei}: {ringkasan.tersedia} dari {ringkasan.total} hari{' '}
-                    {jamMulai && jamSelesai ? `tersedia di ${jamMulai}–${jamSelesai}` : 'kosong'}
+                    {jamMulai && jamSelesai ? `tersedia di ${jamMulai}-${jamSelesai}` : 'kosong'}
                   </p>
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-cat-bimbel px-3 py-1 font-label-md text-label-md text-cat-bimbel-text">
                     <Icon name="check_circle" size={16} /> {ringkasan.tersedia} tersedia

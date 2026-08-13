@@ -125,7 +125,7 @@ export function AdminKelasTab({ isAdmin }: { isAdmin: boolean }) {
     {
       key: 'klien',
       header: 'Klien / Murid',
-      render: (k) => <span className="font-body-md text-body-md text-on-surface">{k.klien?.nama ?? '—'}</span>,
+      render: (k) => <span className="font-body-md text-body-md text-on-surface">{k.klien?.nama ?? '-'}</span>,
     },
     {
       key: 'status',
@@ -223,7 +223,7 @@ export function AdminKelasTab({ isAdmin }: { isAdmin: boolean }) {
               <option value="Private">Private</option>
             </Select>
           </Field>
-          <Field label="Klien / murid" hint="Opsional — wajib utk kelas perusahaan/private">
+          <Field label="Klien / murid" hint="Opsional, wajib utk kelas perusahaan/private">
             <Select value={form.klien_id ?? ''} onChange={(e) => setForm((f) => ({ ...f, klien_id: e.target.value || null }))}>
               <option value="">Tanpa klien</option>
               {klienQ.data?.map((k) => (
@@ -253,7 +253,7 @@ export function AdminKelasTab({ isAdmin }: { isAdmin: boolean }) {
       >
         <p className="font-body-md text-body-md text-on-surface-variant">
           {jadwalTerdampak.length > 0
-            ? `Kelas ini punya ${jadwalTerdampak.length} slot jadwal aktif. Kelas tidak akan muncul lagi di pilihan form jadwal baru, tetapi jadwal yang sudah ada TETAP berjalan — nonaktifkan jadwalnya manual di halaman Jadwal jika perlu.`
+            ? `Kelas ini punya ${jadwalTerdampak.length} slot jadwal aktif. Kelas tidak akan muncul lagi di pilihan form jadwal baru, tetapi jadwal yang sudah ada TETAP berjalan. Nonaktifkan jadwalnya manual di halaman Jadwal jika perlu.`
             : 'Kelas akan ditandai nonaktif dan tidak muncul di pilihan form jadwal. Riwayat tetap utuh.'}
         </p>
         {jadwalTerdampak.length > 0 && (
@@ -264,7 +264,7 @@ export function AdminKelasTab({ isAdmin }: { isAdmin: boolean }) {
                 {j.tanggal
                   ? formatTanggalPendek(j.tanggal)
                   : (j.hari_rutin ?? []).join(', ')}{' '}
-                • {formatJam(j.jam_mulai)}–{formatJam(j.jam_selesai)}
+                • {formatJam(j.jam_mulai)}-{formatJam(j.jam_selesai)}
               </li>
             ))}
             {jadwalTerdampak.length > 6 && (

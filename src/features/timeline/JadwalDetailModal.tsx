@@ -96,7 +96,7 @@ export function JadwalDetailModal({
               <div>
                 <p className="font-label-sm text-label-sm text-secondary">Jam</p>
                 <p className="text-on-surface">
-                  {formatJam(jadwal.jam_mulai)}–{formatJam(jadwal.jam_selesai)} WIB
+                  {formatJam(jadwal.jam_mulai)}-{formatJam(jadwal.jam_selesai)} WIB
                 </p>
               </div>
               <div className="col-span-2">

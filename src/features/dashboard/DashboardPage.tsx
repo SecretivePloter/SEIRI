@@ -61,7 +61,7 @@ export function DashboardPage() {
   const avg = rows.length > 0 ? totalJam / rows.length : 0;
   const overTarget = rows.filter((r) => r.target_jam_minggu != null && r.total_jam > (r.target_jam_minggu / 7) * daysInRange).length;
 
-  const periodLabel = mode === 'minggu' ? `${formatTanggalPendek(from)} – ${formatTanggalPendek(to)}` : formatBulan(from);
+  const periodLabel = mode === 'minggu' ? `${formatTanggalPendek(from)} - ${formatTanggalPendek(to)}` : formatBulan(from);
 
   return (
     <>

@@ -150,7 +150,7 @@ export function AdminSenseiTab({ isAdmin }: { isAdmin: boolean }) {
     {
       key: 'jlpt',
       header: 'JLPT',
-      render: (s) => <span className="font-body-md text-body-md text-on-surface">{s.jlpt_level ?? '—'}</span>,
+      render: (s) => <span className="font-body-md text-body-md text-on-surface">{s.jlpt_level ?? '-'}</span>,
     },
     {
       key: 'bahasa',
@@ -171,7 +171,7 @@ export function AdminSenseiTab({ isAdmin }: { isAdmin: boolean }) {
     {
       key: 'target',
       header: 'Target Jam/Minggu',
-      render: (s) => <span className="font-body-md text-body-md text-on-surface">{s.target_jam_minggu ?? '—'}</span>,
+      render: (s) => <span className="font-body-md text-body-md text-on-surface">{s.target_jam_minggu ?? '-'}</span>,
     },
     {
       key: 'status',
@@ -296,7 +296,7 @@ export function AdminSenseiTab({ isAdmin }: { isAdmin: boolean }) {
           <Field label="Kontak">
             <Input value={form.kontak ?? ''} onChange={(e) => setForm((f) => ({ ...f, kontak: e.target.value || null }))} />
           </Field>
-          <Field label="Target jam / minggu" hint="Opsional — utk badge over/under target di dashboard">
+          <Field label="Target jam / minggu" hint="Opsional, utk badge over/under target di dashboard">
             <Input
               type="number"
               min={1}
@@ -333,7 +333,7 @@ export function AdminSenseiTab({ isAdmin }: { isAdmin: boolean }) {
         title={`Nonaktifkan ${targetNonaktif?.nama ?? ''}?`}
         description={
           jumlahMendatang && jumlahMendatang > 0
-            ? `Sensei ini masih punya ${jumlahMendatang} jadwal aktif mendatang. Nonaktifkan sensei TIDAK menghapus data & riwayat — tetapi pilih apakah jadwal mendatang ikut dinonaktifkan.`
+            ? `Sensei ini masih punya ${jumlahMendatang} jadwal aktif mendatang. Nonaktifkan sensei TIDAK menghapus data & riwayat. Pilih apakah jadwal mendatang ikut dinonaktifkan.`
             : 'Sensei akan ditandai nonaktif. Data & riwayat jam mengajar tetap utuh dan bisa diaktifkan kembali kapan saja.'
         }
         confirmLabel="Nonaktifkan"

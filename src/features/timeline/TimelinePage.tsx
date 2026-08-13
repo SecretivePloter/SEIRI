@@ -74,7 +74,7 @@ export function TimelinePage() {
     mode === 'today'
       ? formatTanggalPendek(anchorDate)
       : mode === 'weekly'
-        ? `${formatTanggalPendek(from)} — ${formatTanggalPendek(to)}`
+        ? `${formatTanggalPendek(from)} - ${formatTanggalPendek(to)}`
         : formatBulan(anchorDate);
 
   const senseiRows: TimelineRow[] = useMemo(

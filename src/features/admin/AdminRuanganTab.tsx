@@ -121,7 +121,7 @@ export function AdminRuanganTab({ isAdmin }: { isAdmin: boolean }) {
     {
       key: 'kapasitas',
       header: 'Kapasitas',
-      render: (r) => <span className="font-body-md text-body-md text-on-surface">{r.kapasitas ? `${r.kapasitas} orang` : '—'}</span>,
+      render: (r) => <span className="font-body-md text-body-md text-on-surface">{r.kapasitas ? `${r.kapasitas} orang` : '-'}</span>,
     },
     {
       key: 'status',
@@ -229,7 +229,7 @@ export function AdminRuanganTab({ isAdmin }: { isAdmin: boolean }) {
         title={`Nonaktifkan ruangan "${targetNonaktif?.nama ?? ''}"?`}
         description={
           jumlahMendatang && jumlahMendatang > 0
-            ? `Ruangan ini masih dipakai ${jumlahMendatang} jadwal aktif mendatang. Data & riwayat tetap utuh — pilih apakah jadwal mendatang ikut dinonaktifkan.`
+            ? `Ruangan ini masih dipakai ${jumlahMendatang} jadwal aktif mendatang. Data & riwayat tetap utuh. Pilih apakah jadwal mendatang ikut dinonaktifkan.`
             : 'Ruangan akan ditandai nonaktif dan tidak muncul di pilihan form jadwal. Bisa diaktifkan kembali kapan saja.'
         }
         confirmLabel="Nonaktifkan"

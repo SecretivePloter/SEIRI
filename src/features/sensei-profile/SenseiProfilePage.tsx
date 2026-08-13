@@ -114,11 +114,11 @@ export function SenseiProfilePage() {
 
           {/* Info cards */}
           <div className="grid gap-3 sm:grid-cols-3">
-            <InfoCard icon="call" label="Kontak" value={s.kontak ?? '—'} />
+            <InfoCard icon="call" label="Kontak" value={s.kontak ?? '-'} />
             <InfoCard
               icon="calendar_month"
               label="Bergabung"
-              value={s.tanggal_bergabung ? formatTanggalPanjang(s.tanggal_bergabung) : '—'}
+              value={s.tanggal_bergabung ? formatTanggalPanjang(s.tanggal_bergabung) : '-'}
             />
             <InfoCard
               icon="target"
@@ -131,7 +131,7 @@ export function SenseiProfilePage() {
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="rounded-card border border-outline-variant bg-surface-container-lowest p-5">
               <p className="font-label-sm text-label-sm uppercase tracking-wider text-secondary">
-                Jam mengajar {formatTanggalPendek(weekStart)} – {formatTanggalPendek(weekEnd)}
+                Jam mengajar {formatTanggalPendek(weekStart)} - {formatTanggalPendek(weekEnd)}
               </p>
               <p className="mt-1 font-display-lg text-display-lg text-on-surface">
                 {jamMinggu.loading ? '…' : `${jam?.total_jam ?? 0} jam`}
@@ -169,7 +169,7 @@ export function SenseiProfilePage() {
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-outline-variant p-4">
               <h3 className="font-headline-sm text-headline-sm text-on-surface">Kalender Mingguan</h3>
               <PeriodNav
-                label={`${formatTanggalPendek(weekStart)} – ${formatTanggalPendek(weekEnd)}`}
+                label={`${formatTanggalPendek(weekStart)} - ${formatTanggalPendek(weekEnd)}`}
                 onPrev={() => setWeekStart(addDays(weekStart, -7))}
                 onNext={() => setWeekStart(addDays(weekStart, 7))}
               />
@@ -191,7 +191,7 @@ export function SenseiProfilePage() {
                       </div>
                       <div className="flex flex-col gap-1.5 p-2">
                         {items.length === 0 ? (
-                          <p className="py-2 text-center font-label-sm text-label-sm text-outline-variant">—</p>
+                          <p className="py-2 text-center font-label-sm text-label-sm text-outline-variant">-</p>
                         ) : (
                           items.map((j) => (
                             <ScheduleBlock key={j.slot_id} jadwal={j} compact onClick={() => setSelected(j)} />
@@ -209,7 +209,7 @@ export function SenseiProfilePage() {
           <section className="rounded-card border border-outline-variant bg-surface-container-lowest">
             <div className="border-b border-outline-variant p-4">
               <h3 className="font-headline-sm text-headline-sm text-on-surface">
-                Jam Mengajar per Kelas — {formatBulan(monthStart)}
+                Jam Mengajar per Kelas: {formatBulan(monthStart)}
               </h3>
             </div>
             {jamPerKelas.loading ? (

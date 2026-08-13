@@ -69,7 +69,9 @@ export function FormInputJadwal() {
           sensei_id: slot.sensei_id,
           kelas_id: slot.kelas_id,
           mode: slot.hari_rutin ? 'rutin' : 'one_off',
-          tanggal: slot.tanggal ?? todayWIB(),
+          // Jadwal rutin tidak memakai tanggal — jangan tinggalkan nilai sisa
+          // (kalau terisi, validasi Zod menolak: 'rutin tidak memakai tanggal').
+          tanggal: slot.hari_rutin ? null : (slot.tanggal ?? todayWIB()),
           hari_rutin: slot.hari_rutin,
           berlaku_sampai: slot.berlaku_sampai,
           jam_mulai: slot.jam_mulai.slice(0, 5),
@@ -91,6 +93,33 @@ export function FormInputJadwal() {
 
   const set = <K extends keyof JadwalFormValues>(key: K, value: JadwalFormValues[K]) => {
     setForm((f) => ({ ...f, [key]: value }));
+    // Bersihkan error field ini saat user mengubahnya, supaya pesan error
+    // dari submit sebelumnya tidak menempel padahal nilainya sudah berubah.
+    setErrors((e) => {
+      if (!e[key]) return e;
+      const next = { ...e };
+      delete next[key];
+      return next;
+    });
+  };
+
+  // Ganti mode one-off <-> rutin sambil membuang nilai sisa dari mode
+  // sebelumnya. Tanpa ini, tanggal default (todayWIB) yang tersisa saat
+  // pindah ke 'rutin' membuat validasi gagal tanpa field merah yang terlihat.
+  const switchMode = (mode: 'one_off' | 'rutin') => {
+    if (mode === form.mode) return;
+    if (mode === 'one_off') {
+      setForm((f) => ({ ...f, mode, hari_rutin: null, berlaku_sampai: null, tanggal: f.tanggal ?? todayWIB() }));
+    } else {
+      setForm((f) => ({ ...f, mode, tanggal: null }));
+    }
+    setErrors((e) => {
+      const next = { ...e };
+      delete next['tanggal'];
+      delete next['hari_rutin'];
+      delete next['berlaku_sampai'];
+      return next;
+    });
   };
 
   // --- Pre-check bentrok real-time (debounce 400ms) ---
@@ -135,8 +164,10 @@ export function FormInputJadwal() {
   const submit = async () => {
     const parsed = jadwalFormSchema.safeParse(form);
     if (!parsed.success) {
-      setErrors(flattenZodErrors(parsed.error));
-      toast.error('Form belum lengkap', 'Periksa field yang ditandai merah.');
+      const flat = flattenZodErrors(parsed.error);
+      setErrors(flat);
+      const firstError = Object.values(flat)[0];
+      toast.error('Form belum lengkap', firstError ?? 'Periksa field yang ditandai merah.');
       return;
     }
     setErrors({});
@@ -216,7 +247,7 @@ export function FormInputJadwal() {
               <div className="flex gap-2">
                 <button
                   type="button"
-                  onClick={() => set('mode', 'one_off')}
+                  onClick={() => switchMode('one_off')}
                   className={`rounded px-4 py-2 font-label-md text-label-md transition-colors ${
                     form.mode === 'one_off'
                       ? 'bg-primary text-on-primary'
@@ -227,7 +258,7 @@ export function FormInputJadwal() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => set('mode', 'rutin')}
+                  onClick={() => switchMode('rutin')}
                   className={`rounded px-4 py-2 font-label-md text-label-md transition-colors ${
                     form.mode === 'rutin'
                       ? 'bg-primary text-on-primary'
@@ -411,7 +442,7 @@ export function FormInputJadwal() {
               </div>
             )}
             <p className="font-label-sm text-label-sm text-secondary">
-              Batas jam bersentuhan (selesai 14:00, mulai 14:00) dihitung valid — bukan bentrok.
+              Batas jam bersentuhan (selesai 14:00, mulai 14:00) dihitung valid, bukan bentrok.
             </p>
           </aside>
         </div>

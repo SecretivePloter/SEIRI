@@ -5,6 +5,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { Icon } from '@/components/ui/Icon';
 import { logout } from '@/lib/api/auth';
 import { useAuthStore } from '@/stores/authStore';
+import logoUrl from '@/assets/logo.png';
 
 const NAV_ITEMS = [
   { to: '/timeline', icon: 'calendar_view_day', label: 'Timeline' },
@@ -24,8 +25,10 @@ export function Sidebar() {
   return (
     <aside className="fixed left-0 top-0 z-20 hidden h-screen w-sidebar-width flex-col border-r border-outline-variant bg-surface-container-lowest py-base md:flex">
       <div className="mb-6 flex flex-col items-center px-gutter pt-4">
-        <h1 className="font-headline-md text-headline-md font-bold text-primary">Jadwal Sensei</h1>
-        <p className="mt-1 font-label-md text-label-md text-secondary">School Admin — Ichikara</p>
+        <img src={logoUrl} alt="Logo Ichikara" className="h-14 w-14 object-contain" />
+        <h1 className="mt-2 text-center font-headline-md text-headline-md font-bold text-primary">
+          Jadwal Sensei Ichikara
+        </h1>
         <button
           onClick={() => navigate('/jadwal/new')}
           className="mt-4 w-full rounded-lg bg-primary px-4 py-2 font-label-md text-label-md text-on-primary transition-colors hover:bg-primary-container hover:text-on-primary-container"
