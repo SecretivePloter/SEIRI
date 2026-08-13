@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Jadwal Sensei - Add Schedule</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts: Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "outline": "#757683",
+                      "on-secondary": "#ffffff",
+                      "on-surface-variant": "#454652",
+                      "on-primary-fixed": "#001257",
+                      "secondary": "#5a5f68",
+                      "on-secondary-fixed-variant": "#424750",
+                      "surface-container-low": "#eff4ff",
+                      "on-secondary-container": "#60656e",
+                      "primary-container": "#2e44a3",
+                      "inverse-on-surface": "#eaf1ff",
+                      "on-primary-container": "#adbaff",
+                      "secondary-fixed-dim": "#c2c6d1",
+                      "surface-bright": "#f8f9ff",
+                      "on-tertiary-fixed": "#331200",
+                      "on-error-container": "#93000a",
+                      "background": "#f8f9ff",
+                      "surface": "#f8f9ff",
+                      "error-container": "#ffdad6",
+                      "error": "#ba1a1a",
+                      "primary-fixed-dim": "#b9c3ff",
+                      "tertiary-fixed-dim": "#ffb68f",
+                      "primary": "#102b8c",
+                      "surface-tint": "#4157b6",
+                      "surface-container-high": "#dce9ff",
+                      "on-primary": "#ffffff",
+                      "inverse-primary": "#b9c3ff",
+                      "secondary-fixed": "#dee2ed",
+                      "on-tertiary": "#ffffff",
+                      "surface-variant": "#d3e4fe",
+                      "tertiary-fixed": "#ffdbca",
+                      "secondary-container": "#dee2ed",
+                      "primary-fixed": "#dde1ff",
+                      "inverse-surface": "#213145",
+                      "on-background": "#0b1c30",
+                      "on-primary-fixed-variant": "#273d9d",
+                      "on-tertiary-container": "#ffaa7b",
+                      "on-surface": "#0b1c30",
+                      "surface-dim": "#cbdbf5",
+                      "surface-container": "#e5eeff",
+                      "on-secondary-fixed": "#171c23",
+                      "surface-container-lowest": "#ffffff",
+                      "tertiary": "#5d2600",
+                      "on-tertiary-fixed-variant": "#773200",
+                      "tertiary-container": "#813700",
+                      "surface-container-highest": "#d3e4fe",
+                      "on-error": "#ffffff",
+                      "outline-variant": "#c5c5d4"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "gutter": "16px",
+                      "container-padding": "24px",
+                      "timeline-row-height": "64px",
+                      "base": "4px",
+                      "sidebar-width": "260px"
+              },
+              "fontFamily": {
+                      "headline-md": ["Inter"],
+                      "body-md": ["Inter"],
+                      "display-lg": ["Inter"],
+                      "headline-sm": ["Inter"],
+                      "label-md": ["Inter"],
+                      "label-sm": ["Inter"],
+                      "headline-md-mobile": ["Inter"],
+                      "body-lg": ["Inter"]
+              },
+              "fontSize": {
+                      "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                      "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                      "label-sm": ["11px", {"lineHeight": "14px", "fontWeight": "600"}],
+                      "headline-md-mobile": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                      "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for aesthetic */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background-color: #c5c5d4;
+            border-radius: 4px;
+        }
+        
+        /* Modal Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; backdrop-filter: blur(0px); }
+            to { opacity: 1; backdrop-filter: blur(4px); }
+        }
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .modal-backdrop-anim {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+        .modal-content-anim {
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* Hide default checkbox visually but keep it accessible */
+        .day-checkbox input[type="checkbox"] {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+        /* Custom chip styling for checked state */
+        .day-checkbox input[type="checkbox"]:checked ~ .chip {
+            background-color: #dde1ff; /* primary-fixed */
+            color: #001257; /* on-primary-fixed */
+            border-color: #102b8c; /* primary */
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex font-body-md text-body-md overflow-hidden">
+<!-- Shell: SideNavBar -->
+<aside class="hidden md:flex w-[260px] h-screen fixed left-0 top-0 border-r border-outline-variant bg-surface-container-lowest flex-col py-base z-20">
+<div class="px-gutter mb-6 pt-4 flex flex-col items-center">
+<img class="w-12 h-12 rounded-full mb-2 object-cover" data-alt="A clean, minimalist abstract logo design for a Japanese language school, featuring subtle geometric shapes resembling a rising sun and an open book, utilizing a refined color palette of deep indigo and soft white, in a modern vector style suitable for a corporate dashboard." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3aa8x2sndlKXAb4i_Y1zBml-0dKKSl8OKT6VzUhhbQBArtXxiFPvV1bOLWtiCkgCQ3rHo2mKuOj0kYQjVGhp9Bo5bIQ2ZyypvWA7vI-pDuigfjFTDOrroAuyKF83j2T-PYfZc-b0gjONTa822ads-w__1DOtTDdKjXVh90Si6gP35QniUMLmW5d-MhTEWDUMTh99FmHRJL8kO7UFvLAwSnjPtjh0OA585SdcAMADhYD0rNqu84wLZ"/>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">Jadwal Sensei</h1>
+<p class="font-label-md text-label-md text-secondary mt-1">School Admin</p>
+<button class="mt-4 w-full bg-primary text-on-primary font-label-md text-label-md rounded-lg py-2 px-4 hover:bg-primary-container hover:text-on-primary-container transition-colors duration-200">New Schedule</button>
+</div>
+<nav class="flex-1 px-4 space-y-1">
+<a class="flex items-center gap-3 text-secondary px-4 py-3 rounded-lg hover:bg-surface-container-low transition-colors duration-200 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">calendar_view_day</span>
+                Timeline
+            </a>
+<a class="flex items-center gap-3 bg-primary-container text-on-primary-container rounded-lg px-4 py-3 border-l-4 border-primary font-label-md text-label-md active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined">school</span>
+                Students
+            </a>
+<a class="flex items-center gap-3 text-secondary px-4 py-3 rounded-lg hover:bg-surface-container-low transition-colors duration-200 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">person_search</span>
+                Sensei
+            </a>
+<a class="flex items-center gap-3 text-secondary px-4 py-3 rounded-lg hover:bg-surface-container-low transition-colors duration-200 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">analytics</span>
+                Analytics
+            </a>
+<a class="flex items-center gap-3 text-secondary px-4 py-3 rounded-lg hover:bg-surface-container-low transition-colors duration-200 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">event_available</span>
+                Availability
+            </a>
+<a class="flex items-center gap-3 text-secondary px-4 py-3 rounded-lg hover:bg-surface-container-low transition-colors duration-200 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">settings_applications</span>
+                Admin
+            </a>
+</nav>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col min-w-0 h-screen relative md:ml-[260px]">
+<!-- Shell: TopNavBar -->
+<header class="w-full h-16 sticky top-0 z-40 border-b border-outline-variant bg-surface/80 backdrop-blur-md flex justify-between items-center px-gutter">
+<!-- Left: Context / Search -->
+<div class="flex items-center gap-4">
+<button class="md:hidden text-on-surface-variant p-2 rounded-lg hover:bg-surface-container-high">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<div class="hidden sm:flex items-center gap-6">
+<a class="text-primary font-bold border-b-2 border-primary py-5" href="#">Today</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors py-5" href="#">Weekly</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors py-5" href="#">Monthly</a>
+</div>
+</div>
+<!-- Right: Actions -->
+<div class="flex items-center gap-3">
+<button class="text-on-surface-variant hover:bg-surface-container-high p-2 rounded-full transition-colors">
+<span class="material-symbols-outlined">search</span>
+</button>
+<button class="text-on-surface-variant hover:bg-surface-container-high p-2 rounded-full transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="text-on-surface-variant hover:bg-surface-container-high p-2 rounded-full transition-colors mr-2">
+<span class="material-symbols-outlined">help</span>
+</button>
+<div class="w-[1px] h-8 bg-outline-variant mx-1"></div>
+<button class="bg-primary text-on-primary font-label-md text-label-md px-4 py-2 rounded-lg shadow-sm hover:bg-surface-tint transition-colors flex items-center gap-2 ml-2">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                    New Schedule
+                </button>
+<img alt="User Avatar" class="w-8 h-8 rounded-full ml-3 border border-outline-variant object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYg63hsU325UOocxWWMw8_j17ax0TigwtW6o_C1UiL3FDuxCxH1l-xkk3l-FS8DySfRfwWm1EKm9Jww2iplHzObhBI2KEumdFESlLxcMiGOyOmsCer6N05Y498HhEce6kzmP75Jk3SieeFCdFtri965wYqtmwoAKHPmR_G2C5wyOEpMh4-hY8W1v8IDKZpD9ppibZPIVgzTrncVA0IVPUF2aBMSABoOEshBlxrPUXdDlIjPsNd4skd"/>
+</div>
+</header>
+<!-- Canvas Content (Simulated Background) -->
+<div class="flex-1 p-container-padding overflow-auto bg-surface relative z-0 opacity-50 pointer-events-none">
+<!-- Simulated grid for context -->
+<div class="grid grid-cols-7 gap-4 h-full border border-outline-variant rounded-xl bg-surface-container-lowest p-4">
+<div class="col-span-1 border-r border-outline-variant"></div>
+<div class="col-span-1 border-r border-outline-variant"></div>
+<div class="col-span-1 border-r border-outline-variant"></div>
+<div class="col-span-1 border-r border-outline-variant relative">
+<div class="absolute top-20 left-2 right-2 h-timeline-row-height bg-surface-container-high rounded border border-outline-variant"></div>
+</div>
+<div class="col-span-1 border-r border-outline-variant"></div>
+<div class="col-span-1 border-r border-outline-variant"></div>
+<div class="col-span-1"></div>
+</div>
+</div>
+<!-- ========================================== -->
+<!-- MODAL OVERLAY: Add Schedule Form           -->
+<!-- ========================================== -->
+<div class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-gutter bg-on-background/20 modal-backdrop-anim">
+<!-- Modal Container -->
+<div class="w-full max-w-[560px] bg-surface-container-lowest rounded-xl border border-outline-variant shadow-[0px_8px_24px_rgba(0,0,0,0.1)] flex flex-col max-h-[90vh] modal-content-anim overflow-hidden">
+<!-- Modal Header -->
+<div class="flex items-center justify-between px-6 py-4 border-b border-outline-variant bg-surface-container-lowest">
+<div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Add New Schedule</h2>
+<p class="font-body-md text-body-md text-secondary mt-0.5">Configure class timing and details</p>
+</div>
+<button aria-label="Close modal" class="text-on-surface-variant hover:bg-surface-container p-2 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<!-- Modal Body (Scrollable) -->
+<div class="flex-1 overflow-y-auto px-6 py-5 flex flex-col gap-6 bg-surface-bright">
+<!-- Alert Banner: Simulated Conflict -->
+<div class="bg-error-container text-on-error-container rounded-lg p-3 flex items-start gap-3 border border-error/20">
+<span class="material-symbols-outlined text-error mt-0.5">error</span>
+<div class="flex-1">
+<h4 class="font-label-md text-label-md font-bold text-error">Schedule Conflict Detected</h4>
+<p class="font-body-md text-body-md mt-1">Bentrok dengan kelas PT NOK jam 13:00-16:00.</p>
+</div>
+</div>
+<!-- Form Section: Assignment -->
+<div class="flex flex-col gap-4">
+<h3 class="font-label-md text-label-md text-on-surface uppercase tracking-wider text-secondary border-b border-outline-variant pb-2">Assignment Details</h3>
+<!-- Sensei Selection -->
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-on-surface" for="sensei">Sensei Selection</label>
+<div class="relative">
+<select class="w-full appearance-none bg-surface-container-lowest border border-outline-variant rounded-lg px-3 py-2.5 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-shadow" id="sensei">
+<option disabled="" selected="" value="">Select a Sensei...</option>
+<option value="1">Tanaka Sensei</option>
+<option value="2">Yamamoto Sensei</option>
+<option value="3">Sato Sensei</option>
+<option value="4">Suzuki Sensei</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-2.5 text-outline pointer-events-none">arrow_drop_down</span>
+</div>
+</div>
+<!-- Class/Client Selection -->
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-on-surface" for="client">Class / Client</label>
+<div class="relative flex gap-2">
+<div class="relative flex-1">
+<span class="material-symbols-outlined absolute left-3 top-2.5 text-outline text-[20px]">search</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg pl-10 pr-3 py-2.5 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-shadow placeholder:text-outline-variant" id="client" placeholder="Search clients or classes..." type="text"/>
+</div>
+<button class="flex-shrink-0 flex items-center justify-center gap-1 bg-surface-container-low text-primary border border-outline-variant rounded-lg px-3 py-2.5 hover:bg-surface-container-high transition-colors font-label-md text-label-md whitespace-nowrap" type="button">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                                    Create New
+                                </button>
+</div>
+</div>
+</div>
+<!-- Form Section: Class Specs -->
+<div class="flex flex-col gap-4 mb-2"><h3 class="font-label-md text-label-md text-on-surface uppercase tracking-wider text-secondary border-b border-outline-variant pb-2">Location Type</h3><div class="flex flex-wrap gap-4"><label class="flex items-center gap-2 cursor-pointer"><input checked="" class="w-4 h-4 text-primary border-outline-variant focus:ring-primary/20" name="locationType" type="radio" value="internal"/><span class="font-body-md text-body-md text-on-surface">Ruangan Internal</span></label><label class="flex items-center gap-2 cursor-pointer"><input class="w-4 h-4 text-primary border-outline-variant focus:ring-primary/20" name="locationType" type="radio" value="corporate"/><span class="font-body-md text-body-md text-on-surface">Kelas Perusahaan</span></label><label class="flex items-center gap-2 cursor-pointer"><input class="w-4 h-4 text-primary border-outline-variant focus:ring-primary/20" name="locationType" type="radio" value="home"/><span class="font-body-md text-body-md text-on-surface">Kelas Rumah Murid</span></label></div><div class="flex flex-col gap-1.5"><label class="font-label-md text-label-md text-on-surface" for="roomSelect">Pilih Ruangan</label><div class="relative"><select class="w-full appearance-none bg-surface-container-lowest border border-error rounded-lg px-3 py-2.5 font-body-md text-body-md text-on-surface focus:outline-none focus:border-error focus:ring-2 focus:ring-error/10 transition-shadow" id="roomSelect"><option value="Besar">Besar</option><option value="Haru">Haru</option><option selected="" value="Aki">Aki</option><option value="Natsu">Natsu</option><option value="Fuyu 1">Fuyu 1</option><option value="Fuyu 2">Fuyu 2</option></select><span class="material-symbols-outlined absolute right-3 top-2.5 text-outline pointer-events-none">arrow_drop_down</span></div><span class="text-error font-label-sm text-label-sm mt-0.5 ml-1">Ruangan Aki sudah dipakai kelas PT Sindengen jam 16:00-18:00</span></div><div class="hidden flex-col gap-1.5"><label class="font-label-md text-label-md text-on-surface" for="companyName">Nama Perusahaan Tujuan</label><input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-3 py-2.5 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-shadow" id="companyName" placeholder="Masukkan nama perusahaan..." type="text"/></div><div class="hidden flex-col gap-1.5"><label class="font-label-md text-label-md text-on-surface" for="studentAddress">Alamat/Nama Murid Tujuan</label><input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-3 py-2.5 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-shadow" id="studentAddress" placeholder="Masukkan alamat atau nama murid..." type="text"/></div></div><div class="grid grid-cols-1 gap-4">
+<!-- Location -->
+<!-- Class Type -->
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-on-surface" for="classType">Class Type</label>
+<div class="relative">
+<select class="w-full appearance-none bg-surface-container-lowest border border-outline-variant rounded-lg px-3 py-2.5 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-shadow" id="classType">
+<option value="CLT">CLT (Corporate Language Training)</option>
+<option value="Bimbel">Bimbel (Bimbingan Belajar)</option>
+<option value="SSW">SSW (Specified Skilled Worker)</option>
+<option value="Private">Private Tutoring</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-2.5 text-outline pointer-events-none">arrow_drop_down</span>
+</div>
+</div>
+</div>
+<!-- Form Section: Timing -->
+<div class="flex flex-col gap-4">
+<h3 class="font-label-md text-label-md text-on-surface uppercase tracking-wider text-secondary border-b border-outline-variant pb-2">Timing &amp; Routine</h3>
+<!-- Day Selection (Multi-select pills) -->
+<div class="flex flex-col gap-2">
+<label class="font-label-md text-label-md text-on-surface">Recurrence Days</label>
+<div class="flex flex-wrap gap-2">
+<label class="day-checkbox relative">
+<input name="days" type="checkbox" value="mon"/>
+<span class="chip inline-flex items-center justify-center px-4 py-1.5 rounded-full border border-outline-variant bg-surface-container-lowest text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-high transition-colors select-none">Mon</span>
+</label>
+<label class="day-checkbox relative">
+<input checked="" name="days" type="checkbox" value="tue"/>
+<span class="chip inline-flex items-center justify-center px-4 py-1.5 rounded-full border border-outline-variant bg-surface-container-lowest text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-high transition-colors select-none">Tue</span>
+</label>
+<label class="day-checkbox relative">
+<input name="days" type="checkbox" value="wed"/>
+<span class="chip inline-flex items-center justify-center px-4 py-1.5 rounded-full border border-outline-variant bg-surface-container-lowest text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-high transition-colors select-none">Wed</span>
+</label>
+<label class="day-checkbox relative">
+<input checked="" name="days" type="checkbox" value="thu"/>
+<span class="chip inline-flex items-center justify-center px-4 py-1.5 rounded-full border border-outline-variant bg-surface-container-lowest text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-high transition-colors select-none">Thu</span>
+</label>
+<label class="day-checkbox relative">
+<input name="days" type="checkbox" value="fri"/>
+<span class="chip inline-flex items-center justify-center px-4 py-1.5 rounded-full border border-outline-variant bg-surface-container-lowest text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-high transition-colors select-none">Fri</span>
+</label>
+<label class="day-checkbox relative">
+<input name="days" type="checkbox" value="sat"/>
+<span class="chip inline-flex items-center justify-center px-4 py-1.5 rounded-full border border-outline-variant bg-surface-container-lowest text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-high transition-colors select-none">Sat</span>
+</label>
+</div>
+</div>
+<!-- Time Pickers -->
+<div class="grid grid-cols-2 gap-4">
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-on-surface" for="startTime">Start Time</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-2.5 text-outline text-[20px]">schedule</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg pl-10 pr-3 py-2.5 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-shadow" id="startTime" type="time" value="13:00"/>
+</div>
+</div>
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-on-surface" for="endTime">End Time</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-2.5 text-outline text-[20px]">schedule</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg pl-10 pr-3 py-2.5 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-shadow border-error focus:border-error focus:ring-error/10" id="endTime" type="time" value="16:00"/>
+</div>
+<span class="text-error font-label-sm text-label-sm mt-0.5 ml-1">Conflicts with existing slot</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Modal Footer -->
+<div class="px-6 py-4 border-t border-outline-variant bg-surface-container-lowest flex items-center justify-end gap-3">
+<button class="px-4 py-2 rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20" type="button">
+                        Cancel
+                    </button>
+<button class="px-5 py-2 rounded-lg font-label-md text-label-md bg-primary text-on-primary hover:bg-surface-tint shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-50 flex items-center gap-2" type="button">
+<span class="material-symbols-outlined text-[18px]">check</span>
+                        Submit Schedule
+                    </button>
+</div>
+</div>
+</div>
+</main>
+</body></html>

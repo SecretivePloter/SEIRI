@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Timeline Ruangan - Jadwal Sensei</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed": "#001257",
+                        "on-primary-container": "#adbaff",
+                        "surface-tint": "#4157b6",
+                        "error-container": "#ffdad6",
+                        "on-primary-fixed-variant": "#273d9d",
+                        "inverse-primary": "#b9c3ff",
+                        "secondary-fixed-dim": "#c2c6d1",
+                        "on-background": "#0b1c30",
+                        "primary-container": "#2e44a3",
+                        "primary-fixed-dim": "#b9c3ff",
+                        "surface-container-high": "#dce9ff",
+                        "on-secondary": "#ffffff",
+                        "surface-dim": "#cbdbf5",
+                        "surface-container": "#e5eeff",
+                        "surface-variant": "#d3e4fe",
+                        "on-tertiary-fixed-variant": "#773200",
+                        "tertiary": "#5d2600",
+                        "background": "#f8f9ff",
+                        "surface-container-low": "#eff4ff",
+                        "outline-variant": "#c5c5d4",
+                        "primary": "#102b8c",
+                        "on-secondary-fixed": "#171c23",
+                        "on-secondary-container": "#60656e",
+                        "tertiary-fixed": "#ffdbca",
+                        "surface-container-highest": "#d3e4fe",
+                        "on-secondary-fixed-variant": "#424750",
+                        "error": "#ba1a1a",
+                        "outline": "#757683",
+                        "primary-fixed": "#dde1ff",
+                        "secondary-container": "#dee2ed",
+                        "surface": "#f8f9ff",
+                        "tertiary-container": "#813700",
+                        "secondary": "#5a5f68",
+                        "inverse-surface": "#213145",
+                        "on-surface": "#0b1c30",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-container": "#ffaa7b",
+                        "secondary-fixed": "#dee2ed",
+                        "tertiary-fixed-dim": "#ffb68f",
+                        "on-tertiary-fixed": "#331200",
+                        "surface-bright": "#f8f9ff",
+                        "on-primary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "on-error": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "on-surface-variant": "#454652"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "container-padding": "24px",
+                        "gutter": "16px",
+                        "base": "4px",
+                        "timeline-row-height": "64px",
+                        "sidebar-width": "260px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "headline-md-mobile": ["Inter"],
+                        "label-md": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-md-mobile": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-sm": ["11px", { "lineHeight": "14px", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+        
+        /* Custom scrollbar for timeline */
+        .timeline-scroll::-webkit-scrollbar {
+            height: 8px;
+            width: 8px;
+        }
+        .timeline-scroll::-webkit-scrollbar-track {
+            background: theme('colors.surface'); 
+        }
+        .timeline-scroll::-webkit-scrollbar-thumb {
+            background: theme('colors.outline-variant'); 
+            border-radius: theme('borderRadius.full');
+        }
+        .timeline-scroll::-webkit-scrollbar-thumb:hover {
+            background: theme('colors.outline'); 
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface flex min-h-screen font-sans">
+<!-- SideNavBar (Shared Component) -->
+<nav class="flex flex-col fixed left-0 top-0 h-full w-[260px] z-40 bg-surface-container-lowest border-r border-outline-variant">
+<div class="p-container-padding flex items-center gap-3">
+<img alt="School Logo" class="w-10 h-10 rounded-lg object-cover bg-surface-container-low" data-alt="A minimalist logo for a Japanese language school featuring a geometric sakura blossom in a deep professional indigo color, set against a pristine white background. The style is modern corporate, exuding organized serenity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-ahST8RrIgFkeDMmmgiimpwNmLu1vMnuLIwmi3ed0Bsvyg_ABX1RGO4erQBfXGpyFIeU-bgQNPpxvJbcp46Bonm1Y0NmeO50_dMrgteh_UN8WBuG9F6aIuJVxpy1xGWOIS79vTcFrvkqI1xJWJ2n4pw1-yn6ZDwqPz5cvxgKP1EPRjTRPTwOB6MXiaIbnr27-fGqGCizeXTKWTVMBKcLdoa8ba_5ZAr8X-AYkKWTe7LadOA3pSFFF"/>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">Jadwal Sensei</h1>
+<p class="font-label-md text-label-md text-on-surface-variant">Management Portal</p>
+</div>
+</div>
+<div class="flex-1 px-4 py-2 space-y-1">
+<!-- Active Tab -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-primary-container text-on-primary-container font-semibold border-l-4 border-primary transition-colors duration-200" href="#">
+<span class="material-symbols-outlined fill-icon">calendar_view_day</span>
+<span class="font-body-md text-body-md">Timeline</span>
+</a>
+<!-- Inactive Tabs -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-secondary hover:bg-surface-container-high transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined">school</span>
+<span class="font-body-md text-body-md">Students</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-secondary hover:bg-surface-container-high transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined">record_voice_over</span>
+<span class="font-body-md text-body-md">Sensei</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-secondary hover:bg-surface-container-high transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-body-md text-body-md">Analytics</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-secondary hover:bg-surface-container-high transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined">event_available</span>
+<span class="font-body-md text-body-md">Availability</span>
+</a>
+</div>
+<div class="p-4 mt-auto">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-secondary hover:bg-surface-container-high transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined">admin_panel_settings</span>
+<span class="font-body-md text-body-md">Admin</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Wrapper -->
+<div class="flex-1 ml-[260px] flex flex-col min-w-0">
+<!-- TopNavBar (Shared Component) -->
+<header class="flex justify-between items-center w-full h-16 px-gutter bg-surface border-b border-outline-variant sticky top-0 z-30">
+<div class="flex-1 flex items-center max-w-md">
+<div class="relative w-full focus-within:ring-2 focus-within:ring-primary rounded-lg transition-all">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg pl-10 pr-4 py-2 font-body-md text-body-md text-on-surface focus:outline-none" placeholder="Search..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4 ml-auto">
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-all">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-all">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-all">
+<span class="material-symbols-outlined">help</span>
+</button>
+<div class="h-8 w-8 rounded-full bg-surface-container-high border border-outline-variant overflow-hidden ml-2">
+<img alt="Administrator Profile" class="w-full h-full object-cover" data-alt="A professional headshot of an administrator for a Japanese language school. The subject has a warm, welcoming expression, lit by soft, bright natural light characteristic of a modern office environment. High resolution." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhgNvSMeazwcQfjMGe2941n2Bj-VNJEwpMOe5jwpAOTFzIi-AwPpJrziU7-SMFiAHifCjUcHqERWPN5u8J71mbmxjZg91YC3GwxD37sMgP3xLNSvjvD_X7eBeG8SlIVO2rQxiCo5gU85mWPKnE8-7S6-Sa_sUSBYjCKb-fKHwYzVhD0lxqREMJjpN0IXxidAi9cOZjKptaUDQGzuy74mI9rNdR3P49WJXiYQ4PyBaGY3-ED_0WkhTo"/>
+</div>
+</div>
+</header>
+<!-- Page Content Canvas -->
+<main class="flex-1 p-container-padding flex flex-col h-[calc(100vh-64px)] overflow-hidden bg-background">
+<!-- Page Header Controls -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 shrink-0">
+<div>
+<h2 class="font-display-lg text-display-lg text-on-surface">Timeline Ruangan</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">Resource allocation and room scheduling overview.</p>
+</div>
+<div class="flex items-center gap-3 bg-surface-container-lowest p-1.5 rounded-lg border border-outline-variant shadow-sm">
+<button class="p-1.5 text-on-surface-variant hover:bg-surface-container-low rounded-md transition-colors">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<div class="flex items-center gap-2 px-3 font-body-lg text-body-lg text-on-surface font-medium min-w-[140px] justify-center">
+<span class="material-symbols-outlined text-primary">calendar_month</span>
+                        October 24, 2023
+                    </div>
+<button class="p-1.5 text-on-surface-variant hover:bg-surface-container-low rounded-md transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Bento Box / Glassmorphism Container for Timeline -->
+<div class="flex-1 bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden flex flex-col shadow-sm relative">
+<!-- Timeline Scrollable Area -->
+<div class="flex-1 overflow-auto timeline-scroll relative">
+<!-- Inner grid forcing a minimum width to enable scrolling -->
+<div class="min-w-[1000px] relative">
+<!-- Top Time Header Axis -->
+<div class="flex sticky top-0 z-20 bg-surface-container-lowest border-b border-outline-variant h-10 items-center">
+<!-- Empty corner for Room labels -->
+<div class="w-32 shrink-0 bg-surface-container-lowest border-r border-outline-variant h-full sticky left-0 z-30"></div>
+<!-- Hour markers (08:00 to 18:00 - 10 hours) -->
+<div class="flex-1 flex text-on-surface-variant font-label-md text-label-md px-2">
+<div class="flex-1 border-l border-outline-variant/30 pl-2 h-full flex items-center">08:00</div>
+<div class="flex-1 border-l border-outline-variant/30 pl-2 h-full flex items-center">09:00</div>
+<div class="flex-1 border-l border-outline-variant/30 pl-2 h-full flex items-center">10:00</div>
+<div class="flex-1 border-l border-outline-variant/30 pl-2 h-full flex items-center">11:00</div>
+<div class="flex-1 border-l border-outline-variant/30 pl-2 h-full flex items-center">12:00</div>
+<div class="flex-1 border-l border-outline-variant/30 pl-2 h-full flex items-center">13:00</div>
+<div class="flex-1 border-l border-outline-variant/30 pl-2 h-full flex items-center">14:00</div>
+<div class="flex-1 border-l border-outline-variant/30 pl-2 h-full flex items-center">15:00</div>
+<div class="flex-1 border-l border-outline-variant/30 pl-2 h-full flex items-center">16:00</div>
+<div class="flex-1 border-l border-outline-variant/30 pl-2 h-full flex items-center">17:00</div>
+</div>
+</div>
+<!-- Grid Background Lines -->
+<div class="absolute top-10 bottom-0 left-32 right-0 flex pointer-events-none z-0">
+<div class="flex-1 border-l border-outline-variant/20"></div>
+<div class="flex-1 border-l border-outline-variant/20"></div>
+<div class="flex-1 border-l border-outline-variant/20"></div>
+<div class="flex-1 border-l border-outline-variant/20"></div>
+<div class="flex-1 border-l border-outline-variant/20 bg-surface-container-low/30"></div> <!-- Lunch hour hint -->
+<div class="flex-1 border-l border-outline-variant/20"></div>
+<div class="flex-1 border-l border-outline-variant/20"></div>
+<div class="flex-1 border-l border-outline-variant/20"></div>
+<div class="flex-1 border-l border-outline-variant/20"></div>
+<div class="flex-1 border-l border-outline-variant/20"></div>
+</div>
+<!-- Timeline Rows Container -->
+<div class="flex flex-col">
+<!-- Row: Besar -->
+<div class="flex border-b border-outline-variant/50 h-[64px] relative group hover:bg-surface-container-low/50 transition-colors">
+<!-- Sticky Row Header -->
+<div class="w-32 shrink-0 bg-surface-container-lowest border-r border-outline-variant sticky left-0 z-10 flex items-center px-4 group-hover:bg-surface-container-lowest transition-colors">
+<span class="font-body-md text-body-md font-medium text-on-surface">Besar</span>
+</div>
+<!-- Row Track (100% width represents 10 hours from 08:00 to 18:00) -->
+<div class="flex-1 relative z-10 mx-2">
+<!-- Event Block: 10:00 - 12:00 (Starts at 20%, width 20%) -->
+<div class="absolute top-1 bottom-1 left-[20%] w-[20%] bg-surface-variant border-l-4 border-primary rounded-r-md px-3 py-1 shadow-sm overflow-hidden flex flex-col justify-center cursor-pointer hover:brightness-95 transition-all">
+<p class="font-label-sm text-label-sm text-on-primary-fixed-variant truncate">JLPT N2 Intensive</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant truncate">Tanaka Sensei</p>
+</div>
+<!-- Event Block: 14:00 - 16:30 (Starts at 60%, width 25%) -->
+<div class="absolute top-1 bottom-1 left-[60%] w-[25%] bg-surface-container-highest border-l-4 border-on-surface-variant rounded-r-md px-3 py-1 shadow-sm overflow-hidden flex flex-col justify-center cursor-pointer hover:brightness-95 transition-all">
+<p class="font-label-sm text-label-sm text-on-surface truncate">Business Japanese</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant truncate">Sato Sensei</p>
+</div>
+</div>
+</div>
+<!-- Row: Haru -->
+<div class="flex border-b border-outline-variant/50 h-[64px] relative group hover:bg-surface-container-low/50 transition-colors">
+<div class="w-32 shrink-0 bg-surface-container-lowest border-r border-outline-variant sticky left-0 z-10 flex items-center px-4 group-hover:bg-surface-container-lowest transition-colors">
+<span class="font-body-md text-body-md font-medium text-on-surface">Haru</span>
+</div>
+<div class="flex-1 relative z-10 mx-2">
+<!-- Event Block: 09:00 - 10:30 (Starts at 10%, width 15%) -->
+<div class="absolute top-1 bottom-1 left-[10%] w-[15%] bg-tertiary-fixed border-l-4 border-tertiary rounded-r-md px-3 py-1 shadow-sm overflow-hidden flex flex-col justify-center cursor-pointer hover:brightness-95 transition-all">
+<p class="font-label-sm text-label-sm text-on-tertiary-fixed-variant truncate">Beginner A1</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant truncate">Suzuki Sensei</p>
+</div>
+<!-- Event Block: 13:00 - 15:00 (Starts at 50%, width 20%) -->
+<div class="absolute top-1 bottom-1 left-[50%] w-[20%] bg-surface-variant border-l-4 border-primary rounded-r-md px-3 py-1 shadow-sm overflow-hidden flex flex-col justify-center cursor-pointer hover:brightness-95 transition-all">
+<p class="font-label-sm text-label-sm text-on-primary-fixed-variant truncate">Intermediate B1</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant truncate">Takahashi Sensei</p>
+</div>
+</div>
+</div>
+<!-- Row: Aki -->
+<div class="flex border-b border-outline-variant/50 h-[64px] relative group hover:bg-surface-container-low/50 transition-colors">
+<div class="w-32 shrink-0 bg-surface-container-lowest border-r border-outline-variant sticky left-0 z-10 flex items-center px-4 group-hover:bg-surface-container-lowest transition-colors">
+<span class="font-body-md text-body-md font-medium text-on-surface">Aki</span>
+</div>
+<div class="flex-1 relative z-10 mx-2">
+<!-- Event Block: 10:30 - 12:00 (Starts at 25%, width 15%) -->
+<div class="absolute top-1 bottom-1 left-[25%] w-[15%] bg-surface-container-highest border-l-4 border-outline rounded-r-md px-3 py-1 shadow-sm overflow-hidden flex flex-col justify-center cursor-pointer hover:brightness-95 transition-all">
+<p class="font-label-sm text-label-sm text-on-surface truncate">Conversation Club</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant truncate">Nakamura Sensei</p>
+</div>
+</div>
+</div>
+<!-- Row: Natsu -->
+<div class="flex border-b border-outline-variant/50 h-[64px] relative group hover:bg-surface-container-low/50 transition-colors">
+<div class="w-32 shrink-0 bg-surface-container-lowest border-r border-outline-variant sticky left-0 z-10 flex items-center px-4 group-hover:bg-surface-container-lowest transition-colors">
+<span class="font-body-md text-body-md font-medium text-on-surface">Natsu</span>
+</div>
+<div class="flex-1 relative z-10 mx-2">
+<!-- Event Block: 08:30 - 11:30 (Starts at 5%, width 30%) -->
+<div class="absolute top-1 bottom-1 left-[5%] w-[30%] bg-tertiary-fixed border-l-4 border-tertiary rounded-r-md px-3 py-1 shadow-sm overflow-hidden flex flex-col justify-center cursor-pointer hover:brightness-95 transition-all">
+<p class="font-label-sm text-label-sm text-on-tertiary-fixed-variant truncate">JLPT N3 Prep</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant truncate">Kobayashi Sensei</p>
+</div>
+<!-- Event Block: 15:30 - 17:30 (Starts at 75%, width 20%) -->
+<div class="absolute top-1 bottom-1 left-[75%] w-[20%] bg-surface-variant border-l-4 border-primary rounded-r-md px-3 py-1 shadow-sm overflow-hidden flex flex-col justify-center cursor-pointer hover:brightness-95 transition-all">
+<p class="font-label-sm text-label-sm text-on-primary-fixed-variant truncate">Kanji Workshop</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant truncate">Tanaka Sensei</p>
+</div>
+</div>
+</div>
+<!-- Row: Fuyu 1 -->
+<div class="flex border-b border-outline-variant/50 h-[64px] relative group hover:bg-surface-container-low/50 transition-colors">
+<div class="w-32 shrink-0 bg-surface-container-lowest border-r border-outline-variant sticky left-0 z-10 flex items-center px-4 group-hover:bg-surface-container-lowest transition-colors">
+<span class="font-body-md text-body-md font-medium text-on-surface">Fuyu 1</span>
+</div>
+<div class="flex-1 relative z-10 mx-2">
+<!-- Event Block: 13:00 - 16:00 (Starts at 50%, width 30%) -->
+<div class="absolute top-1 bottom-1 left-[50%] w-[30%] bg-surface-container-highest border-l-4 border-outline rounded-r-md px-3 py-1 shadow-sm overflow-hidden flex flex-col justify-center cursor-pointer hover:brightness-95 transition-all">
+<p class="font-label-sm text-label-sm text-on-surface truncate">Cultural Studies</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant truncate">Guest Lecturer</p>
+</div>
+</div>
+</div>
+<!-- Row: Fuyu 2 -->
+<div class="flex h-[64px] relative group hover:bg-surface-container-low/50 transition-colors">
+<div class="w-32 shrink-0 bg-surface-container-lowest border-r border-outline-variant sticky left-0 z-10 flex items-center px-4 group-hover:bg-surface-container-lowest transition-colors">
+<span class="font-body-md text-body-md font-medium text-on-surface">Fuyu 2</span>
+</div>
+<div class="flex-1 relative z-10 mx-2">
+<!-- Empty row placeholder text if needed, or leave blank -->
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

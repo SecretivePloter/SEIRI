@@ -1,0 +1,373 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Jadwal Sensei - Cek Ketersediaan Sensei</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "outline": "#757683",
+                      "on-secondary": "#ffffff",
+                      "on-surface-variant": "#454652",
+                      "on-primary-fixed": "#001257",
+                      "secondary": "#5a5f68",
+                      "on-secondary-fixed-variant": "#424750",
+                      "surface-container-low": "#eff4ff",
+                      "on-secondary-container": "#60656e",
+                      "primary-container": "#2e44a3",
+                      "inverse-on-surface": "#eaf1ff",
+                      "on-primary-container": "#adbaff",
+                      "secondary-fixed-dim": "#c2c6d1",
+                      "surface-bright": "#f8f9ff",
+                      "on-tertiary-fixed": "#331200",
+                      "on-error-container": "#93000a",
+                      "background": "#f8f9ff",
+                      "surface": "#f8f9ff",
+                      "error-container": "#ffdad6",
+                      "error": "#ba1a1a",
+                      "primary-fixed-dim": "#b9c3ff",
+                      "tertiary-fixed-dim": "#ffb68f",
+                      "primary": "#102b8c",
+                      "surface-tint": "#4157b6",
+                      "surface-container-high": "#dce9ff",
+                      "on-primary": "#ffffff",
+                      "inverse-primary": "#b9c3ff",
+                      "secondary-fixed": "#dee2ed",
+                      "on-tertiary": "#ffffff",
+                      "surface-variant": "#d3e4fe",
+                      "tertiary-fixed": "#ffdbca",
+                      "secondary-container": "#dee2ed",
+                      "primary-fixed": "#dde1ff",
+                      "inverse-surface": "#213145",
+                      "on-background": "#0b1c30",
+                      "on-primary-fixed-variant": "#273d9d",
+                      "on-tertiary-container": "#ffaa7b",
+                      "on-surface": "#0b1c30",
+                      "surface-dim": "#cbdbf5",
+                      "surface-container": "#e5eeff",
+                      "on-secondary-fixed": "#171c23",
+                      "surface-container-lowest": "#ffffff",
+                      "tertiary": "#5d2600",
+                      "on-tertiary-fixed-variant": "#773200",
+                      "tertiary-container": "#813700",
+                      "surface-container-highest": "#d3e4fe",
+                      "on-error": "#ffffff",
+                      "outline-variant": "#c5c5d4"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "gutter": "16px",
+                      "container-padding": "24px",
+                      "timeline-row-height": "64px",
+                      "base": "4px",
+                      "sidebar-width": "260px"
+              },
+              "fontFamily": {
+                      "headline-md": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "display-lg": [
+                              "Inter"
+                      ],
+                      "headline-sm": [
+                              "Inter"
+                      ],
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "label-sm": [
+                              "Inter"
+                      ],
+                      "headline-md-mobile": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-sm": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-md": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "label-sm": [
+                              "11px",
+                              {
+                                      "lineHeight": "14px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md-mobile": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+          font-variation-settings:
+          'FILL' 0,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 24
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md min-h-screen flex">
+<!-- SideNavBar -->
+<aside class="w-sidebar-width h-screen sticky top-0 left-0 bg-surface dark:bg-inverse-surface border-r border-outline-variant dark:border-outline flex flex-col h-full p-4 gap-2 hidden md:flex shrink-0">
+<div class="px-gutter mb-6 pt-4 flex flex-col items-center"><img class="w-12 h-12 rounded-full mb-2 object-cover" data-alt="A clean, minimalist abstract logo design for a Japanese language school, featuring subtle geometric shapes resembling a rising sun and an open book, utilizing a refined color palette of deep indigo and soft white, in a modern vector style suitable for a corporate dashboard." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3aa8x2sndlKXAb4i_Y1zBml-0dKKSl8OKT6VzUhhbQBArtXxiFPvV1bOLWtiCkgCQ3rHo2mKuOj0kYQjVGhp9Bo5bIQ2ZyypvWA7vI-pDuigfjFTDOrroAuyKF83j2T-PYfZc-b0gjONTa822ads-w__1DOtTDdKjXVh90Si6gP35QniUMLmW5d-MhTEWDUMTh99FmHRJL8kO7UFvLAwSnjPtjh0OA585SdcAMADhYD0rNqu84wLZ"><h1 class="font-headline-md text-headline-md font-bold text-primary">Jadwal Sensei</h1><p class="font-label-md text-label-md text-secondary mt-1">School Admin</p><button class="mt-4 w-full bg-primary text-on-primary font-label-md text-label-md rounded-lg py-2 px-4 hover:bg-primary-container hover:text-on-primary-container transition-colors duration-200">New Schedule</button></div>
+<nav class="flex flex-col gap-2 flex-1"><a class="flex items-center gap-3 text-secondary px-4 py-3 rounded-lg hover:bg-surface-container-low transition-colors duration-200 font-label-md text-label-md" href="#"><span class="material-symbols-outlined">calendar_view_day</span>Timeline</a><a class="flex items-center gap-3 text-secondary px-4 py-3 rounded-lg hover:bg-surface-container-low transition-colors duration-200 font-label-md text-label-md" href="#"><span class="material-symbols-outlined">school</span>Students</a><a class="flex items-center gap-3 text-secondary px-4 py-3 rounded-lg hover:bg-surface-container-low transition-colors duration-200 font-label-md text-label-md" href="#"><span class="material-symbols-outlined">person_search</span>Sensei</a><a class="flex items-center gap-3 text-secondary px-4 py-3 rounded-lg hover:bg-surface-container-low transition-colors duration-200 font-label-md text-label-md" href="#"><span class="material-symbols-outlined">analytics</span>Analytics</a><a class="flex items-center gap-3 bg-primary-container text-on-primary-container rounded-lg px-4 py-3 border-l-4 border-primary font-label-md text-label-md active:scale-95 transition-transform" href="#"><span class="material-symbols-outlined">event_available</span>Availability</a><a class="flex items-center gap-3 text-secondary px-4 py-3 rounded-lg hover:bg-surface-container-low transition-colors duration-200 font-label-md text-label-md" href="#"><span class="material-symbols-outlined">settings_applications</span>Admin</a></nav>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col min-w-0">
+<!-- TopNavBar -->
+<header class="w-full h-16 sticky top-0 z-50 border-b border-outline-variant dark:border-outline flex justify-between items-center px-gutter w-full bg-surface/80 backdrop-blur-md">
+<div class="flex items-center gap-4">
+<!-- Mobile Menu Button -->
+<button class="md:hidden text-on-surface-variant p-2 rounded-full hover:bg-surface-container-high">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<div class="md:hidden font-headline-sm text-headline-sm font-bold text-primary dark:text-primary-fixed">
+                    Jadwal Sensei
+                </div>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-primary transition-colors p-2 rounded-full hover:bg-surface-container-high">
+<span class="material-symbols-outlined">search</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors p-2 rounded-full hover:bg-surface-container-high">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors p-2 rounded-full hover:bg-surface-container-high">
+<span class="material-symbols-outlined">help</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-secondary-container overflow-hidden ml-2">
+<img alt="User Avatar" class="w-full h-full object-cover" data-alt="A professional headshot portrait of an administrator in a modern office setting. The lighting is soft and flattering, casting gentle shadows. The administrator is dressed smartly, exuding a welcoming yet authoritative presence. The background is slightly blurred, showing a bright, contemporary workspace with subtle hints of blue and white, perfectly matching the Jadwal Sensei platform's organized, calm aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQtY8eOFOfN88jk0qyX-u4EyjhosQleu83LXWeGqGqYhYCdJ1fAkCL9y4IJanFyou20-57nFq8Fg6gbWxu_q0soNA2Y4cYFXufWWNK6RchtvPHXmUTWmDBwaimVubRxRS9QLe5lwF0ALAxFwLApzThLfpDtptUYxDOTVwmzC1xdXy0vaSFapx6wKkb8eM0Fy4IGGubTTXHy5xlq51sqZHlEbSGMr41IzKeyww6mfhfecU1mhjLReCU">
+</div>
+</div>
+</header>
+<div class="p-container-padding flex-1 flex flex-col gap-6 overflow-y-auto">
+<div class="flex flex-col gap-2">
+<h2 class="font-headline-md text-headline-md text-on-surface">Cek Ketersediaan Sensei</h2>
+<p class="text-on-surface-variant">Filter to find available slots for instructors.</p>
+</div>
+<!-- Filter Section -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 flex flex-col md:flex-row gap-4 items-end shadow-sm">
+<div class="flex-1 w-full flex flex-col gap-2">
+<label class="font-label-md text-label-md text-on-surface-variant">Sensei</label>
+<div class="relative">
+<select class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 appearance-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary font-body-md text-on-surface">
+<option>Tanaka Sensei</option>
+<option>Sato Sensei</option>
+<option>Suzuki Sensei</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-3 pointer-events-none text-on-surface-variant">arrow_drop_down</span>
+</div>
+</div>
+<div class="flex-1 w-full flex flex-col gap-2">
+<label class="font-label-md text-label-md text-on-surface-variant">Date</label>
+<div class="relative">
+<input class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary font-body-md text-on-surface" type="date" value="2023-10-25">
+</div>
+</div>
+<div class="flex-1 w-full flex flex-col gap-2">
+<label class="font-label-md text-label-md text-on-surface-variant">Time Range</label>
+<div class="flex gap-2 items-center">
+<input class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary font-body-md text-on-surface" type="time" value="13:00">
+<span class="text-on-surface-variant">-</span>
+<input class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary font-body-md text-on-surface" type="time" value="15:00">
+</div>
+</div>
+<button class="bg-primary text-on-primary font-label-md text-label-md px-6 py-2.5 rounded-lg hover:bg-on-primary-fixed-variant transition-colors flex items-center justify-center gap-2 w-full md:w-auto h-[46px]">
+<span class="material-symbols-outlined text-[18px]">search</span>
+                    Check
+                </button>
+</div>
+<!-- Results Section -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<!-- Status Card (Left Column) -->
+<div class="lg:col-span-1 flex flex-col gap-4">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 flex flex-col gap-4 shadow-sm">
+<div class="flex items-center gap-4 border-b border-outline-variant pb-4">
+<div class="w-14 h-14 rounded-full bg-surface-container-highest overflow-hidden">
+<img alt="Tanaka Sensei" class="w-full h-full object-cover" data-alt="A professional headshot of a Japanese language instructor (Sensei). He has a calm, approachable demeanor, wearing a neat, understated button-down shirt. The background is a minimalist classroom setting with soft natural light coming from a window, emphasizing the educational warmth of the Jadwal Sensei brand." src="https://lh3.googleusercontent.com/aida-public/AB6AXuChutmrhiWMfXJq5C8b1zQg1ICAjhQaJluV-jrGHX-zSyCI2W1Q5UuR_hQWTRg9k7BV22OX_K5ZZzRHLiIRbQI_pMxh5G-6OfzknUF4gvPoWaZDYtnEiYxP-q14anACWTyxK01-NuZfHivsqK88vysQQqllcmglxMW_UZQ53MXbhmt-VWK-A--cnV7wyPNC24FtXjgU2Lgo1XijQWKtW51UbuL3dsSdaP3Llmi-WllUepo7z9FA2sSE">
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Tanaka Sensei</h3>
+<p class="text-on-surface-variant font-label-md text-label-md">N3 / N2 Instructor</p>
+</div>
+</div>
+<div class="flex flex-col gap-3 py-2">
+<div class="flex justify-between items-center">
+<span class="text-on-surface-variant font-label-md text-label-md">Requested Time:</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">13:00 - 15:00</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-on-surface-variant font-label-md text-label-md">Date:</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">Oct 25, 2023</span>
+</div>
+</div>
+<!-- Status Alert: Conflict -->
+<div class="bg-error-container rounded-lg p-4 flex gap-3 items-start border-l-4 border-error">
+<span class="material-symbols-outlined text-error fill mt-0.5">error</span>
+<div class="flex flex-col gap-1">
+<span class="font-label-md text-label-md font-bold text-on-error-container uppercase tracking-wider">Tidak tersedia</span>
+<p class="text-on-error-container font-body-md text-sm">Bentrok dengan: Kelas SSW Gifu (14:00 - 16:00)</p>
+</div>
+</div>
+</div>
+<!-- Alternative Action -->
+<div class="bg-surface-container border border-outline-variant rounded-xl p-5 flex flex-col gap-3 shadow-sm">
+<h4 class="font-label-md text-label-md text-on-surface font-semibold">Suggested Action</h4>
+<p class="text-on-surface-variant text-sm">Tanaka Sensei is available earlier or you can check another instructor.</p>
+<div class="flex gap-2 mt-2">
+<button class="flex-1 bg-surface-container-lowest border border-primary text-primary font-label-md text-label-md px-4 py-2 rounded-lg hover:bg-surface-variant transition-colors text-center">
+                                Change Time
+                            </button>
+<button class="flex-1 bg-surface-container-lowest border border-primary text-primary font-label-md text-label-md px-4 py-2 rounded-lg hover:bg-surface-variant transition-colors text-center">
+                                Find Other
+                            </button>
+</div>
+</div>
+</div>
+<!-- Timeline Preview (Right Columns) -->
+<div class="lg:col-span-2 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden flex flex-col">
+<div class="px-6 py-4 border-b border-outline-variant bg-surface-bright flex justify-between items-center">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Daily Schedule Preview</h3>
+<span class="text-on-surface-variant font-label-md text-label-md">Oct 25, 2023</span>
+</div>
+<div class="p-6 flex-1 overflow-y-auto max-h-[500px]">
+<div class="relative min-h-[400px]">
+<!-- Time Grid Lines -->
+<div class="absolute inset-0 flex flex-col">
+<div class="h-timeline-row-height border-t border-outline-variant/30 flex w-full">
+<div class="w-16 shrink-0 text-right pr-4 text-on-surface-variant font-label-sm text-label-sm py-2">09:00</div>
+<div class="flex-1 relative"></div>
+</div>
+<div class="h-timeline-row-height border-t border-outline-variant/30 flex w-full">
+<div class="w-16 shrink-0 text-right pr-4 text-on-surface-variant font-label-sm text-label-sm py-2">10:00</div>
+<div class="flex-1 relative"></div>
+</div>
+<div class="h-timeline-row-height border-t border-outline-variant/30 flex w-full">
+<div class="w-16 shrink-0 text-right pr-4 text-on-surface-variant font-label-sm text-label-sm py-2">11:00</div>
+<div class="flex-1 relative"></div>
+</div>
+<div class="h-timeline-row-height border-t border-outline-variant/30 flex w-full">
+<div class="w-16 shrink-0 text-right pr-4 text-on-surface-variant font-label-sm text-label-sm py-2">12:00</div>
+<div class="flex-1 relative">
+<!-- Free Slot Indicator -->
+<div class="absolute top-0 left-0 w-full h-full bg-surface-variant/30 border border-dashed border-primary/40 rounded flex items-center justify-center">
+<span class="text-primary font-label-sm text-label-sm">Tersedia</span>
+</div>
+</div>
+</div>
+<div class="h-timeline-row-height border-t border-outline-variant/30 flex w-full bg-error-container/10">
+<div class="w-16 shrink-0 text-right pr-4 text-on-surface-variant font-label-sm text-label-sm py-2">13:00</div>
+<div class="flex-1 relative">
+<!-- Requested Highlight Area (Conflict zone) -->
+<div class="absolute inset-0 bg-error/5 border-l-4 border-error/50 pointer-events-none"></div>
+</div>
+</div>
+<div class="h-timeline-row-height border-t border-outline-variant/30 flex w-full bg-error-container/10">
+<div class="w-16 shrink-0 text-right pr-4 text-on-surface-variant font-label-sm text-label-sm py-2">14:00</div>
+<div class="flex-1 relative">
+<!-- Requested Highlight Area (Conflict zone) -->
+<div class="absolute inset-0 bg-error/5 border-l-4 border-error/50 pointer-events-none"></div>
+</div>
+</div>
+<div class="h-timeline-row-height border-t border-outline-variant/30 flex w-full">
+<div class="w-16 shrink-0 text-right pr-4 text-on-surface-variant font-label-sm text-label-sm py-2">15:00</div>
+<div class="flex-1 relative"></div>
+</div>
+<div class="h-timeline-row-height border-t border-outline-variant/30 flex w-full">
+<div class="w-16 shrink-0 text-right pr-4 text-on-surface-variant font-label-sm text-label-sm py-2">16:00</div>
+<div class="flex-1 relative"></div>
+</div>
+</div>
+<!-- Scheduled Events (Absolute Positioning based on time) -->
+<!-- Event 1: 09:30 - 11:30 -->
+<div class="absolute left-16 right-4 top-[32px] h-[128px] bg-surface-container border-l-4 border-primary rounded shadow-sm p-3 overflow-hidden">
+<h4 class="font-label-md text-label-md text-on-surface font-bold">N3 Preparation Class</h4>
+<p class="text-xs text-on-surface-variant mt-1">09:30 - 11:30</p>
+<p class="text-xs text-on-surface-variant">Room A</p>
+</div>
+<!-- Event 2 (The Conflict): 14:00 - 16:00 -->
+<div class="absolute left-16 right-4 top-[320px] h-[128px] bg-error-container/40 border-l-4 border-error rounded shadow-sm p-3 overflow-hidden z-10">
+<h4 class="font-label-md text-label-md text-on-error-container font-bold">Kelas SSW Gifu</h4>
+<p class="text-xs text-on-error-container mt-1">14:00 - 16:00</p>
+<p class="text-xs text-on-error-container">Online Zoom</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+
+
+</body></html>

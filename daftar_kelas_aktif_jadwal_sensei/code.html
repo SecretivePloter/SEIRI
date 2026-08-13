@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Jadwal Sensei - Daftar Kelas Aktif</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary": "#5d2600",
+                      "on-primary-fixed-variant": "#273d9d",
+                      "on-secondary-fixed": "#171c23",
+                      "error-container": "#ffdad6",
+                      "on-error": "#ffffff",
+                      "outline": "#757683",
+                      "surface-dim": "#cbdbf5",
+                      "secondary-fixed": "#dee2ed",
+                      "on-error-container": "#93000a",
+                      "surface-container-highest": "#d3e4fe",
+                      "on-tertiary-container": "#ffaa7b",
+                      "on-secondary": "#ffffff",
+                      "on-surface-variant": "#454652",
+                      "secondary": "#5a5f68",
+                      "error": "#ba1a1a",
+                      "secondary-fixed-dim": "#c2c6d1",
+                      "surface-bright": "#f8f9ff",
+                      "on-secondary-fixed-variant": "#424750",
+                      "secondary-container": "#dee2ed",
+                      "surface-container-lowest": "#ffffff",
+                      "tertiary-fixed": "#ffdbca",
+                      "surface-container-low": "#eff4ff",
+                      "on-tertiary-fixed-variant": "#773200",
+                      "tertiary-container": "#813700",
+                      "on-secondary-container": "#60656e",
+                      "primary-fixed": "#dde1ff",
+                      "on-background": "#0b1c30",
+                      "on-primary-fixed": "#001257",
+                      "surface-container-high": "#dce9ff",
+                      "on-surface": "#0b1c30",
+                      "on-primary-container": "#adbaff",
+                      "on-tertiary-fixed": "#331200",
+                      "surface-tint": "#4157b6",
+                      "background": "#f8f9ff",
+                      "on-tertiary": "#ffffff",
+                      "surface-container": "#e5eeff",
+                      "primary": "#102b8c",
+                      "inverse-primary": "#b9c3ff",
+                      "surface": "#f8f9ff",
+                      "inverse-on-surface": "#eaf1ff",
+                      "on-primary": "#ffffff",
+                      "tertiary-fixed-dim": "#ffb68f",
+                      "primary-fixed-dim": "#b9c3ff",
+                      "primary-container": "#2e44a3",
+                      "inverse-surface": "#213145",
+                      "surface-variant": "#d3e4fe",
+                      "outline-variant": "#c5c5d4"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "timeline-row-height": "64px",
+                      "gutter": "16px",
+                      "base": "4px",
+                      "sidebar-width": "260px",
+                      "container-padding": "24px"
+              },
+              "fontFamily": {
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "label-sm": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "display-lg": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Inter"
+                      ],
+                      "headline-md-mobile": [
+                              "Inter"
+                      ],
+                      "headline-sm": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "label-md": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "label-sm": [
+                              "11px",
+                              {
+                                      "lineHeight": "14px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md-mobile": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-sm": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+      </style>
+</head>
+<body class="bg-surface text-on-surface flex w-full h-screen overflow-hidden">
+<!-- SideNavBar -->
+<aside class="hidden md:flex w-[260px] h-screen fixed left-0 top-0 border-r border-outline-variant bg-surface-container-lowest flex-col py-base z-20">
+<div class="px-gutter mb-6 pt-4 flex flex-col items-center">
+<img class="w-12 h-12 rounded-full mb-2 object-cover" data-alt="A clean, minimalist abstract logo design for a Japanese language school, featuring subtle geometric shapes resembling a rising sun and an open book, utilizing a refined color palette of deep indigo and soft white, in a modern vector style suitable for a corporate dashboard." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3aa8x2sndlKXAb4i_Y1zBml-0dKKSl8OKT6VzUhhbQBArtXxiFPvV1bOLWtiCkgCQ3rHo2mKuOj0kYQjVGhp9Bo5bIQ2ZyypvWA7vI-pDuigfjFTDOrroAuyKF83j2T-PYfZc-b0gjONTa822ads-w__1DOtTDdKjXVh90Si6gP35QniUMLmW5d-MhTEWDUMTh99FmHRJL8kO7UFvLAwSnjPtjh0OA585SdcAMADhYD0rNqu84wLZ"/>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">Jadwal Sensei</h1>
+<p class="font-label-md text-label-md text-secondary mt-1">School Admin</p>
+<button class="mt-4 w-full bg-primary text-on-primary font-label-md text-label-md rounded-lg py-2 px-4 hover:bg-primary-container hover:text-on-primary-container transition-colors duration-200">New Schedule</button>
+</div>
+<nav class="flex-1 px-4 space-y-1">
+<a class="flex items-center gap-3 text-secondary px-4 py-3 rounded-lg hover:bg-surface-container-low transition-colors duration-200 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_view_day">calendar_view_day</span>
+                Timeline
+            </a>
+<a class="flex items-center gap-3 bg-primary-container text-on-primary-container rounded-lg px-4 py-3 border-l-4 border-primary font-label-md text-label-md active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="school">school</span>
+                Students
+            </a>
+<a class="flex items-center gap-3 text-secondary px-4 py-3 rounded-lg hover:bg-surface-container-low transition-colors duration-200 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="person_search">person_search</span>
+                Sensei
+            </a>
+<a class="flex items-center gap-3 text-secondary px-4 py-3 rounded-lg hover:bg-surface-container-low transition-colors duration-200 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+                Analytics
+            </a>
+<a class="flex items-center gap-3 text-secondary px-4 py-3 rounded-lg hover:bg-surface-container-low transition-colors duration-200 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="event_available">event_available</span>
+                Availability
+            </a>
+<a class="flex items-center gap-3 text-secondary px-4 py-3 rounded-lg hover:bg-surface-container-low transition-colors duration-200 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="settings_applications">settings_applications</span>
+                Admin
+            </a>
+</nav>
+</aside>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col md:ml-[260px] h-screen overflow-hidden bg-background">
+<!-- TopNavBar -->
+<header class="h-16 bg-surface border-b border-outline-variant flex justify-between items-center px-gutter shrink-0 z-10 w-full">
+<div class="flex-1 flex items-center">
+<h2 class="font-headline-sm text-headline-sm font-semibold text-on-surface block md:hidden">Jadwal Sensei</h2>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary text-sm">search</span>
+<input class="pl-9 pr-4 py-1.5 bg-surface-container-lowest border border-outline-variant rounded-full font-body-md text-body-md focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 w-64 text-on-surface" placeholder="Search..." type="text"/>
+</div>
+<button class="text-secondary hover:text-primary transition-colors cursor-pointer active:opacity-70">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-secondary hover:text-primary transition-colors cursor-pointer active:opacity-70">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+</button>
+<img class="w-8 h-8 rounded-full border border-outline-variant object-cover cursor-pointer" data-alt="A professional headshot of a friendly school administrator in a modern office setting. She is wearing a neat light blue blouse, smiling warmly at the camera. The lighting is soft and natural, emphasizing approachability and competence. High-resolution corporate portrait style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZXBMjoa8tgPJ3ZIp4fSVyDDG5Vj3QhMdSo51v5I3XoWtSKFFY-rzT-tkSpB52pijbrVlzF2f3Rw5JyR_TMHBVtRSCnfQn4_TfE5a_AnTGuO6FXuaQeMOMBxFa4z87EbeYAlAFcT2iPtRNo3baIqPR7yhXGpKGFe9n-ub7o25yhjZRpluW65UNEMv6w5gPvgqKB7JZ7mguvtX8noPvROhwiPzarRW5B15YRp3XKfvK8TFVj7WgS8E_"/>
+</div>
+</header>
+<!-- Page Content -->
+<main class="flex-1 overflow-y-auto p-container-padding">
+<!-- Page Header -->
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+<div>
+<h2 class="font-headline-md text-headline-md font-semibold text-on-surface">Daftar Kelas Aktif</h2>
+<p class="font-body-md text-body-md text-secondary mt-1">Manage and view all ongoing classes and programs.</p>
+</div>
+<button class="bg-primary text-on-primary font-label-md text-label-md px-4 py-2 rounded-lg hover:bg-primary-container hover:text-on-primary-container transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">add</span>
+                    New Class
+                </button>
+</div>
+<!-- Summary Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 flex items-center gap-4 shadow-sm">
+<div class="w-12 h-12 rounded-full bg-primary-container/20 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">class</span>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-secondary uppercase tracking-wider">Total Kelas Aktif</p>
+<p class="font-display-lg text-display-lg text-on-surface mt-1">42</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 flex items-center gap-4 shadow-sm">
+<div class="w-12 h-12 rounded-full bg-tertiary-container/20 flex items-center justify-center text-tertiary-container">
+<span class="material-symbols-outlined">groups</span>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-secondary uppercase tracking-wider">Total Siswa</p>
+<p class="font-display-lg text-display-lg text-on-surface mt-1">156</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 flex items-center gap-4 shadow-sm">
+<div class="w-12 h-12 rounded-full bg-surface-tint/20 flex items-center justify-center text-surface-tint">
+<span class="material-symbols-outlined">meeting_room</span>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-secondary uppercase tracking-wider">Ruangan Terpakai</p>
+<p class="font-display-lg text-display-lg text-on-surface mt-1">8/10</p>
+</div>
+</div>
+</div>
+<!-- Main Table Section -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden flex flex-col">
+<!-- Table Header / Controls -->
+<div class="p-4 border-b border-outline-variant flex flex-col sm:flex-row justify-between items-center gap-4 bg-surface">
+<div class="relative w-full sm:w-72">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary text-sm">search</span>
+<input class="w-full pl-9 pr-4 py-2 bg-surface-container-lowest border border-outline-variant rounded-lg font-body-md text-body-md focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 text-on-surface" placeholder="Search classes or clients..." type="text"/>
+</div>
+<div class="flex gap-2 w-full sm:w-auto">
+<select class="bg-surface-container-lowest border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary">
+<option value="">All Programs</option>
+<option value="clt">CLT</option>
+<option value="bimbel">Bimbel</option>
+<option value="ssw">SSW</option>
+<option value="private">Private</option>
+</select>
+<select class="bg-surface-container-lowest border border-outline-variant rounded-lg px-3 py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary">
+<option value="">All Sensei</option>
+<option value="tanaka">Tanaka Sensei</option>
+<option value="suzuki">Suzuki Sensei</option>
+<option value="watanabe">Watanabe Sensei</option>
+</select>
+<button class="border border-outline-variant rounded-lg px-3 py-2 text-secondary hover:bg-surface-container-low hover:text-on-surface transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined text-sm">filter_list</span>
+</button>
+</div>
+</div>
+<!-- Table -->
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse min-w-[800px]">
+<thead>
+<tr class="bg-surface-container-low font-label-sm text-label-sm text-secondary uppercase tracking-wider">
+<th class="p-4 font-semibold">Nama Kelas / Klien</th>
+<th class="p-4 font-semibold">Tipe Program</th>
+<th class="p-4 font-semibold">Sensei Pengampu</th>
+<th class="p-4 font-semibold">Jadwal Rutin</th>
+<th class="p-4 font-semibold">Lokasi/Ruang</th>
+<th class="p-4 font-semibold">Status</th>
+<th class="p-4 font-semibold text-right">Aksi</th>
+</tr>
+</thead>
+<tbody class="font-body-md text-body-md text-on-surface">
+<!-- Row 1 -->
+<tr class="border-b border-outline-variant hover:bg-surface-bright transition-colors h-[52px]">
+<td class="p-4 font-medium">Nihongo N4 - Batch 12</td>
+<td class="p-4">
+<span class="inline-flex items-center px-2 py-1 rounded-md bg-blue-100 text-blue-800 text-xs font-semibold border border-blue-200">SSW</span>
+</td>
+<td class="p-4 flex items-center gap-2">
+<img class="w-6 h-6 rounded-full object-cover" data-alt="A small circular avatar of a professional Japanese language teacher, a man with glasses, smiling warmly, wearing a neat button-down shirt. Clean, bright background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGDwbbuA0i81bmIkWg5ktDleW0y5YuBYNSzkZ8shzVQg1mJJaNsFTdo6hg0ntbz-7bDlvE2qNZu7bt87mgYjz8opWx3TC7-h7I-dK19JxiJgDqZnJHI60XAOhQqC2y0DqwLeUTnOHjdEwhP7d6ZQn42xseBeXXAZuZYxZf0Yackrz5gjCaK4rviwNJUpd6DOeiJiUVtb0oFG5l4saQ4xKP5ZeF8lQx3KBlzqen_WyG1jl3TDzgErHp"/>
+                                    Tanaka Sensei
+                                </td>
+<td class="p-4 text-secondary">Senin &amp; Rabu, 10:00-12:00</td>
+<td class="p-4">Ruang Sakura (R1)</td>
+<td class="p-4">
+<span class="inline-flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-green-500"></span>
+                                        On Progress
+                                    </span>
+</td>
+<td class="p-4 text-right">
+<button class="text-primary hover:bg-primary-container/50 p-1.5 rounded-md transition-colors"><span class="material-symbols-outlined text-sm">edit</span></button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="border-b border-outline-variant hover:bg-surface-bright transition-colors h-[52px]">
+<td class="p-4 font-medium">PT. Toyota Motor - Corporate</td>
+<td class="p-4">
+<span class="inline-flex items-center px-2 py-1 rounded-md bg-purple-100 text-purple-800 text-xs font-semibold border border-purple-200">CLT</span>
+</td>
+<td class="p-4 flex items-center gap-2">
+<img class="w-6 h-6 rounded-full object-cover" data-alt="A small circular avatar of a professional Japanese language teacher, a woman with short dark hair, smiling gently, wearing a professional blouse. Clean, light background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAB-iMrZPmQ0EY-_Q0kWde_g_3MyF8Qv3MmLAa9DjVgOps4R5mMFJNux7_94hWwrCZN50qRtMtKQePlDDSvtdn8IgIBIwuHM7CtvGv8K9KOPZh6T4OAOZbWNT_0VRQxET_m1sUgP1nhttXhDuRzHfYTKcFbi2rOCDsU2zztS5LB5_sqsYJyM06ZlpKLGOZ8Nj6mqgkynVI2Es_w1XvBAoyrAf9cVSjAo1U3zT5S6WZXAHoOo5O2V4VM"/>
+                                    Suzuki Sensei
+                                </td>
+<td class="p-4 text-secondary">Selasa &amp; Kamis, 14:00-16:00</td>
+<td class="p-4">Online (Zoom)</td>
+<td class="p-4">
+<span class="inline-flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                                        Near End
+                                    </span>
+</td>
+<td class="p-4 text-right">
+<button class="text-primary hover:bg-primary-container/50 p-1.5 rounded-md transition-colors"><span class="material-symbols-outlined text-sm">edit</span></button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="border-b border-outline-variant hover:bg-surface-bright transition-colors h-[52px]">
+<td class="p-4 font-medium">Private N3 - Budi S.</td>
+<td class="p-4">
+<span class="inline-flex items-center px-2 py-1 rounded-md bg-orange-100 text-orange-800 text-xs font-semibold border border-orange-200">Private</span>
+</td>
+<td class="p-4 flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-tertiary-container flex items-center justify-center text-on-tertiary-container text-xs font-bold">W</div>
+                                    Watanabe Sensei
+                                </td>
+<td class="p-4 text-secondary">Jumat, 16:00-18:00</td>
+<td class="p-4">Ruang Fuji (R3)</td>
+<td class="p-4">
+<span class="inline-flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-green-500"></span>
+                                        On Progress
+                                    </span>
+</td>
+<td class="p-4 text-right">
+<button class="text-primary hover:bg-primary-container/50 p-1.5 rounded-md transition-colors"><span class="material-symbols-outlined text-sm">edit</span></button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="border-b border-outline-variant hover:bg-surface-bright transition-colors h-[52px]">
+<td class="p-4 font-medium">Intensive N5 Bimbel</td>
+<td class="p-4">
+<span class="inline-flex items-center px-2 py-1 rounded-md bg-emerald-100 text-emerald-800 text-xs font-semibold border border-emerald-200">Bimbel</span>
+</td>
+<td class="p-4 flex items-center gap-2">
+<img class="w-6 h-6 rounded-full object-cover" data-alt="A small circular avatar of a professional Japanese language teacher, a man with glasses, smiling warmly, wearing a neat button-down shirt. Clean, bright background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBHRRoltjFKBRF7Xn1KO0MXxeF2xGFbpYENyGogfpfYz-wg8jler2CuwWbnR5_xB9aN8nkEj0Q6ockdKimYEno4Mt0r_16IZr6Fi-wkaVJ_GEMjUu1eqqrSsv88XhL2TkcpQzQkO9c3OgOESzWP4nhgriS-QpR5cZcdAqwmb9pcaIGWoMHS1Ieg3CqlVoIwmO-TXIMbgbOzVcmJ3vAyvOYW4az7xw9xEKdWzBwE2KGiW26IaIthZSQI"/>
+                                    Tanaka Sensei
+                                </td>
+<td class="p-4 text-secondary">Sabtu, 09:00-13:00</td>
+<td class="p-4">Ruang Ume (R2)</td>
+<td class="p-4">
+<span class="inline-flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-green-500"></span>
+                                        On Progress
+                                    </span>
+</td>
+<td class="p-4 text-right">
+<button class="text-primary hover:bg-primary-container/50 p-1.5 rounded-md transition-colors"><span class="material-symbols-outlined text-sm">edit</span></button>
+</td>
+</tr>
+<!-- Row 5 -->
+<tr class="border-b border-outline-variant hover:bg-surface-bright transition-colors h-[52px]">
+<td class="p-4 font-medium">JPO Pre-Departure Prep</td>
+<td class="p-4">
+<span class="inline-flex items-center px-2 py-1 rounded-md bg-blue-100 text-blue-800 text-xs font-semibold border border-blue-200">SSW</span>
+</td>
+<td class="p-4 flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container text-xs font-bold">K</div>
+                                    Kobayashi Sensei
+                                </td>
+<td class="p-4 text-secondary">Sen &amp; Kam, 19:00-21:00</td>
+<td class="p-4">Ruang Sakura (R1)</td>
+<td class="p-4">
+<span class="inline-flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-green-500"></span>
+                                        On Progress
+                                    </span>
+</td>
+<td class="p-4 text-right">
+<button class="text-primary hover:bg-primary-container/50 p-1.5 rounded-md transition-colors"><span class="material-symbols-outlined text-sm">edit</span></button>
+</td>
+</tr>
+<!-- Row 6 -->
+<tr class="border-b border-outline-variant hover:bg-surface-bright transition-colors h-[52px]">
+<td class="p-4 font-medium">Kids Nihongo - Lvl 1</td>
+<td class="p-4">
+<span class="inline-flex items-center px-2 py-1 rounded-md bg-emerald-100 text-emerald-800 text-xs font-semibold border border-emerald-200">Bimbel</span>
+</td>
+<td class="p-4 flex items-center gap-2">
+<img class="w-6 h-6 rounded-full object-cover" data-alt="A small circular avatar of a professional Japanese language teacher, a woman with short dark hair, smiling gently, wearing a professional blouse. Clean, light background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBzWcskjZCvCjERyZJo9p_0ixjlunEaTE-2Z7XwnddpzqodGQHaDfCPqkc7DfqbecKZMyp-1iAnRl4ls0QPFK9WSpJ5QVoub8SPoejq3ph6Ug9FVt4AiYSkl0wjsJ53MFOi2Uxd638WzObXziSk8zj5N7qgQ2hpK_LFTIGUo51uMWSOLfqc7jInJ1g_x_jYNcD94OYRP4rlsAPHpBVeUg6zujUIpLY5XOgOB0Q0qevVEVvVXE8Zc8cM"/>
+                                    Suzuki Sensei
+                                </td>
+<td class="p-4 text-secondary">Minggu, 10:00-11:30</td>
+<td class="p-4">Ruang Kiku (R4)</td>
+<td class="p-4">
+<span class="inline-flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                                        Near End
+                                    </span>
+</td>
+<td class="p-4 text-right">
+<button class="text-primary hover:bg-primary-container/50 p-1.5 rounded-md transition-colors"><span class="material-symbols-outlined text-sm">edit</span></button>
+</td>
+</tr>
+<!-- Row 7 -->
+<tr class="border-b border-outline-variant hover:bg-surface-bright transition-colors h-[52px]">
+<td class="p-4 font-medium">Business Japanese - PT. Aisin</td>
+<td class="p-4">
+<span class="inline-flex items-center px-2 py-1 rounded-md bg-purple-100 text-purple-800 text-xs font-semibold border border-purple-200">CLT</span>
+</td>
+<td class="p-4 flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-tertiary-container flex items-center justify-center text-on-tertiary-container text-xs font-bold">W</div>
+                                    Watanabe Sensei
+                                </td>
+<td class="p-4 text-secondary">Rabu, 15:00-17:00</td>
+<td class="p-4">Online (Teams)</td>
+<td class="p-4">
+<span class="inline-flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-green-500"></span>
+                                        On Progress
+                                    </span>
+</td>
+<td class="p-4 text-right">
+<button class="text-primary hover:bg-primary-container/50 p-1.5 rounded-md transition-colors"><span class="material-symbols-outlined text-sm">edit</span></button>
+</td>
+</tr>
+<!-- Row 8 -->
+<tr class="hover:bg-surface-bright transition-colors h-[52px]">
+<td class="p-4 font-medium">Private N2 - Andi</td>
+<td class="p-4">
+<span class="inline-flex items-center px-2 py-1 rounded-md bg-orange-100 text-orange-800 text-xs font-semibold border border-orange-200">Private</span>
+</td>
+<td class="p-4 flex items-center gap-2">
+<img class="w-6 h-6 rounded-full object-cover" data-alt="A small circular avatar of a professional Japanese language teacher, a man with glasses, smiling warmly, wearing a neat button-down shirt. Clean, bright background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDVfjChRM5egg_SmOP8fw_B8yub09St_eCOqy6rOYkrxLGyrVsnl6e_7DI3qL3XhA47MvE2iQrZjbsR0WXdaNgMcZLYYptE85jkSjLAiYDy3Nfqkvx7Fqhw2GkGFjjzIds9CDWXP7msNkMF9OT9uHm5tKfBIiz0N3f6s3seSo6fJugCtkx6K0gDUM63JNWtDo7xw8Dqjf6Gr9mUZuT2kAnfgz04GuQBNq9ZVSYMYtnQdadiThMiq5J7"/>
+                                    Tanaka Sensei
+                                </td>
+<td class="p-4 text-secondary">Kamis, 19:30-21:00</td>
+<td class="p-4">Ruang Fuji (R3)</td>
+<td class="p-4">
+<span class="inline-flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-green-500"></span>
+                                        On Progress
+                                    </span>
+</td>
+<td class="p-4 text-right">
+<button class="text-primary hover:bg-primary-container/50 p-1.5 rounded-md transition-colors"><span class="material-symbols-outlined text-sm">edit</span></button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="p-4 border-t border-outline-variant bg-surface flex justify-between items-center text-sm text-secondary">
+<span>Showing 1 to 8 of 42 entries</span>
+<div class="flex gap-1">
+<button class="px-2 py-1 border border-outline-variant rounded hover:bg-surface-container-low disabled:opacity-50" disabled="">&lt;</button>
+<button class="px-2 py-1 border border-primary bg-primary text-on-primary rounded">1</button>
+<button class="px-2 py-1 border border-outline-variant rounded hover:bg-surface-container-low">2</button>
+<button class="px-2 py-1 border border-outline-variant rounded hover:bg-surface-container-low">3</button>
+<span class="px-2 py-1">...</span>
+<button class="px-2 py-1 border border-outline-variant rounded hover:bg-surface-container-low">&gt;</button>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

@@ -1,0 +1,338 @@
+<!DOCTYPE html><html lang="id"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Manajemen Data - Jadwal Sensei</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline": "#757683",
+                        "on-secondary": "#ffffff",
+                        "on-surface-variant": "#454652",
+                        "on-primary-fixed": "#001257",
+                        "secondary": "#5a5f68",
+                        "on-secondary-fixed-variant": "#424750",
+                        "surface-container-low": "#eff4ff",
+                        "on-secondary-container": "#60656e",
+                        "primary-container": "#2e44a3",
+                        "inverse-on-surface": "#eaf1ff",
+                        "on-primary-container": "#adbaff",
+                        "secondary-fixed-dim": "#c2c6d1",
+                        "surface-bright": "#f8f9ff",
+                        "on-tertiary-fixed": "#331200",
+                        "on-error-container": "#93000a",
+                        "background": "#f8f9ff",
+                        "surface": "#f8f9ff",
+                        "error-container": "#ffdad6",
+                        "error": "#ba1a1a",
+                        "primary-fixed-dim": "#b9c3ff",
+                        "tertiary-fixed-dim": "#ffb68f",
+                        "primary": "#102b8c",
+                        "surface-tint": "#4157b6",
+                        "surface-container-high": "#dce9ff",
+                        "on-primary": "#ffffff",
+                        "inverse-primary": "#b9c3ff",
+                        "secondary-fixed": "#dee2ed",
+                        "on-tertiary": "#ffffff",
+                        "surface-variant": "#d3e4fe",
+                        "tertiary-fixed": "#ffdbca",
+                        "secondary-container": "#dee2ed",
+                        "primary-fixed": "#dde1ff",
+                        "inverse-surface": "#213145",
+                        "on-background": "#0b1c30",
+                        "on-primary-fixed-variant": "#273d9d",
+                        "on-tertiary-container": "#ffaa7b",
+                        "on-surface": "#0b1c30",
+                        "surface-dim": "#cbdbf5",
+                        "surface-container": "#e5eeff",
+                        "on-secondary-fixed": "#171c23",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary": "#5d2600",
+                        "on-tertiary-fixed-variant": "#773200",
+                        "tertiary-container": "#813700",
+                        "surface-container-highest": "#d3e4fe",
+                        "on-error": "#ffffff",
+                        "outline-variant": "#c5c5d4"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "gutter": "16px",
+                        "container-padding": "24px",
+                        "timeline-row-height": "64px",
+                        "base": "4px",
+                        "sidebar-width": "260px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter"],
+                        "body-md": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "label-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-md-mobile": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "label-sm": ["11px", { "lineHeight": "14px", "fontWeight": "600" }],
+                        "headline-md-mobile": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #dee2ed;
+            border-radius: 10px;
+        }
+        [x-cloak] { display: none !important; }
+    </style>
+<!-- Alpine.js for lightweight interactions -->
+<script defer="" src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased overflow-hidden flex h-screen" x-data="{ activeTab: 'sensei', showEditModal: false }">
+<!-- Sidebar (from Shared Components JSON) -->
+<aside class="hidden md:flex w-[260px] h-screen fixed left-0 top-0 border-r border-outline-variant bg-surface-container-lowest flex-col py-base z-20">
+<div class="px-gutter mb-6 pt-4 flex flex-col items-center">
+<img class="w-12 h-12 rounded-full mb-2 object-cover" data-alt="A clean, minimalist abstract logo design for a Japanese language school, featuring subtle geometric shapes resembling a rising sun and an open book, utilizing a refined color palette of deep indigo and soft white, in a modern vector style suitable for a corporate dashboard." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3aa8x2sndlKXAb4i_Y1zBml-0dKKSl8OKT6VzUhhbQBArtXxiFPvV1bOLWtiCkgCQ3rHo2mKuOj0kYQjVGhp9Bo5bIQ2ZyypvWA7vI-pDuigfjFTDOrroAuyKF83j2T-PYfZc-b0gjONTa822ads-w__1DOtTDdKjXVh90Si6gP35QniUMLmW5d-MhTEWDUMTh99FmHRJL8kO7UFvLAwSnjPtjh0OA585SdcAMADhYD0rNqu84wLZ">
+<h1 class="font-headline-md text-headline-md font-bold text-primary">Jadwal Sensei</h1>
+<p class="font-label-md text-label-md text-secondary mt-1">School Admin</p>
+<button class="mt-4 w-full bg-primary text-on-primary font-label-md text-label-md rounded-lg py-2 px-4 hover:bg-primary-container hover:text-on-primary-container transition-colors duration-200">New Schedule</button>
+</div>
+<nav class="flex flex-col gap-1 flex-1 font-label-md text-label-md"><a class="flex items-center gap-3 text-secondary px-4 py-3 rounded-lg hover:bg-surface-container-low transition-colors duration-200 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_view_day">calendar_view_day</span>
+                Timeline
+            </a>
+<a class="flex items-center gap-3 text-secondary px-4 py-3 rounded-lg hover:bg-surface-container-low transition-colors duration-200 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="school">school</span>
+                Students
+            </a>
+<a class="flex items-center gap-3 text-secondary px-4 py-3 rounded-lg hover:bg-surface-container-low transition-colors duration-200 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="person_search">person_search</span>
+                Sensei
+            </a>
+<a class="flex items-center gap-3 text-secondary px-4 py-3 rounded-lg hover:bg-surface-container-low transition-colors duration-200 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+                Analytics
+            </a>
+<a class="flex items-center gap-3 text-secondary px-4 py-3 rounded-lg hover:bg-surface-container-low transition-colors duration-200 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="event_available">event_available</span>
+                Availability
+            </a>
+<a class="flex items-center gap-3 bg-primary-container text-on-primary-container rounded-lg px-4 py-3 border-l-4 border-primary font-label-md text-label-md active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="settings_applications">settings_applications</span>
+                Admin
+            </a></nav>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col h-screen overflow-hidden relative">
+<!-- TopAppBar (from Shared Components JSON - adapted for Mobile & Context) -->
+<header class="w-full h-16 sticky top-0 z-30 border-b border-outline-variant dark:border-outline bg-surface/80 backdrop-blur-md flex justify-between items-center px-gutter md:px-container-padding transition-all duration-200">
+<!-- Mobile Menu Toggle & Title -->
+<div class="flex items-center gap-3 md:hidden">
+<button class="p-2 -ml-2 text-on-surface hover:bg-surface-container-high rounded-full transition-colors">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<h1 class="font-headline-sm text-headline-sm font-bold text-primary">Admin</h1>
+</div>
+<!-- Desktop Header Title -->
+<div class="hidden md:block">
+<h2 class="font-headline-md text-headline-md text-on-surface">Manajemen Data</h2>
+</div>
+<!-- Top Nav Links (Hidden on small screens per rule) -->
+<nav class="hidden md:flex gap-6 absolute left-1/2 -translate-x-1/2 h-full items-center font-body-md text-body-md">
+<button :class="{ 'text-primary font-bold border-b-2 border-primary': activeTab === 'sensei', 'text-on-surface-variant hover:text-primary transition-colors': activeTab !== 'sensei' }" @click="activeTab = 'sensei'" class="h-full px-2 flex items-center text-primary font-bold border-b-2 border-primary">Sensei</button>
+<button :class="{ 'text-primary font-bold border-b-2 border-primary': activeTab === 'siswa', 'text-on-surface-variant hover:text-primary transition-colors': activeTab !== 'siswa' }" @click="activeTab = 'siswa'" class="h-full px-2 flex items-center text-on-surface-variant hover:text-primary transition-colors">Siswa/Murid</button>
+<button :class="{ 'text-primary font-bold border-b-2 border-primary': activeTab === 'jadwal', 'text-on-surface-variant hover:text-primary transition-colors': activeTab !== 'jadwal' }" @click="activeTab = 'jadwal'" class="h-full px-2 flex items-center text-on-surface-variant hover:text-primary transition-colors">Jadwal</button>
+</nav>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-primary transition-colors p-2 rounded-full hover:bg-surface-container-high hidden sm:block">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors p-2 rounded-full hover:bg-surface-container-high relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<img alt="User Avatar" class="w-8 h-8 rounded-full object-cover border border-outline-variant ml-2" data-alt="A small, professional user avatar portrait of an administrative staff member. Bright, clean lighting against a soft, light-blue studio background. Corporate, friendly, approachable aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0M0oCI21T9ycH7123vJehB0dOvVij4XqGJ_zJQYBlxM9g68HR9B3OocbxIVfaw2IUl4IA8laThqAo_KaKWI6edjcqBrqkVbBZ3R4x8OX0B-6CKpJc0TyFkC7GMCqLeztjGlV4YZRJhjwIA4nezq7c5Kr3JBWoKZJmnYHqWCZoMImZ5kvNN0zqULIPYGlOmL5HFfB3lCmyVYtld5oC8niLNCxh1LZMSkHM94UCT33FmU4J1CJYKMMk">
+</div>
+</header>
+<!-- Page Content -->
+<div class="flex-1 overflow-y-auto p-4 md:p-container-padding bg-surface custom-scrollbar">
+<!-- Toolbar: Search & Filters -->
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+<!-- Search -->
+<div class="relative w-full sm:w-96">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline" data-icon="search">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-md text-on-surface placeholder:text-outline focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all" placeholder="Cari nama, kelas, atau bahasa..." type="text">
+</div>
+<!-- Filters & Action -->
+<div class="flex items-center gap-3 w-full sm:w-auto">
+<div class="flex bg-surface-container-high rounded-lg p-1">
+<button class="px-3 py-1.5 text-label-md font-label-md rounded bg-surface-container-lowest text-primary shadow-sm border border-outline-variant/50">Aktif</button>
+<button class="px-3 py-1.5 text-label-md font-label-md rounded text-secondary hover:text-on-surface transition-colors">Tidak Aktif</button>
+<button class="px-3 py-1.5 text-label-md font-label-md rounded text-secondary hover:text-on-surface transition-colors">Planning</button>
+</div>
+<button class="bg-primary hover:bg-primary/90 text-on-primary font-label-md text-label-md px-4 py-2 rounded-lg flex items-center gap-2 transition-colors ml-auto shadow-sm">
+<span class="material-symbols-outlined text-[18px]" data-icon="add">add</span>
+<span x-text="activeTab === 'sensei' ? 'Add Sensei' : (activeTab === 'siswa' ? 'Add Student' : 'New Schedule')" class="">Add Sensei</span>
+</button>
+</div>
+</div>
+<!-- Tab Content Area -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+<!-- Sensei Table -->
+<div class="w-full overflow-x-auto" x-show="activeTab === 'sensei'">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-outline-variant">
+<th class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider py-3 px-4 font-semibold">Nama</th>
+<th class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider py-3 px-4 font-semibold">Status</th>
+<th class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider py-3 px-4 font-semibold">Bahasa</th>
+<th class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider py-3 px-4 font-semibold">JLPT Level</th>
+<th class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider py-3 px-4 font-semibold text-right">Aksi</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/50 font-body-md text-body-md text-on-surface">
+<tr class="hover:bg-surface-bright transition-colors group">
+<td class="py-3 px-4 flex items-center gap-3">
+<img alt="Tanaka Sensei" class="w-8 h-8 rounded-full object-cover" data-alt="Professional headshot of an Asian male language instructor in his 30s. Wearing a smart casual shirt. Clean, bright lighting, soft white background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWNc_NkdWFP6rp2vyIMhv7JBSi5eXCxhK3PIaR4ONsEI25DaVmbOEMsFRKpROzbciB3D7fczWwPdFfNcGAOp-T0LhQhcmFwQzN2s-uc3ZZVgtlpLBZbx1kEmdhSeyJhi4XtU0QWLjylsFyBBmSNCwV7PgONJu2m4ta7vGnUKhshUIYd6_IEaryRYbh_p-NCRH8_26U9jQt1uqRrmxeGEdSdyJOcWjnHJNUB0rSyBxGuwRKg7rVYUsC">
+<span class="font-medium">Tanaka Sensei</span>
+</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-surface-variant text-primary-fixed-dim text-xs font-medium border border-primary/20 text-primary">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span> Aktif
+                                    </span>
+</td>
+<td class="py-3 px-4">Jepang</td>
+<td class="py-3 px-4">
+<span class="px-2 py-1 bg-surface-container-high text-on-surface-variant rounded text-xs font-medium">N1</span>
+</td>
+<td class="py-3 px-4 text-right">
+<button @click="showEditModal = true" class="text-secondary hover:text-primary transition-colors p-1 rounded hover:bg-surface-container-high opacity-0 group-hover:opacity-100">
+<span class="material-symbols-outlined text-[20px]" data-icon="edit">edit</span>
+</button>
+<button class="text-secondary hover:text-error transition-colors p-1 rounded hover:bg-error-container opacity-0 group-hover:opacity-100 ml-1">
+<span class="material-symbols-outlined text-[20px]" data-icon="delete">delete</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-bright transition-colors group">
+<td class="py-3 px-4 flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-primary font-medium text-sm">SK</div>
+<span class="font-medium">Sato Kenji</span>
+</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-surface-variant text-primary-fixed-dim text-xs font-medium border border-primary/20 text-primary">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span> Aktif
+                                    </span>
+</td>
+<td class="py-3 px-4">Jepang</td>
+<td class="py-3 px-4">
+<span class="px-2 py-1 bg-surface-container-high text-on-surface-variant rounded text-xs font-medium">N2</span>
+</td>
+<td class="py-3 px-4 text-right">
+<button class="text-secondary hover:text-primary transition-colors p-1 rounded hover:bg-surface-container-high opacity-0 group-hover:opacity-100">
+<span class="material-symbols-outlined text-[20px]" data-icon="edit">edit</span>
+</button>
+<button class="text-secondary hover:text-error transition-colors p-1 rounded hover:bg-error-container opacity-0 group-hover:opacity-100 ml-1">
+<span class="material-symbols-outlined text-[20px]" data-icon="delete">delete</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Siswa Table (Placeholder) -->
+<div class="w-full p-8 text-center text-secondary" x-show="activeTab === 'siswa'" style="display: none;">
+<span class="material-symbols-outlined text-4xl mb-2 opacity-50" data-icon="group">group</span>
+<p class="font-body-md text-body-md">Data Siswa/Murid akan ditampilkan di sini.</p>
+</div>
+<!-- Jadwal Table (Placeholder) -->
+<div class="w-full p-8 text-center text-secondary" x-show="activeTab === 'jadwal'" style="display: none;">
+<span class="material-symbols-outlined text-4xl mb-2 opacity-50" data-icon="calendar_month">calendar_month</span>
+<p class="font-body-md text-body-md">Data Jadwal akan ditampilkan di sini.</p>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navbar for Mobile -->
+<nav class="md:hidden fixed bottom-0 w-full bg-surface border-t border-outline-variant flex justify-around py-3 z-50">
+<button :class="{ 'text-primary': activeTab === 'sensei', 'text-on-surface-variant': activeTab !== 'sensei' }" @click="activeTab = 'sensei'" class="flex flex-col items-center gap-1 transition-colors text-primary">
+<span :data-weight="activeTab === 'sensei' ? 'fill' : ''" class="material-symbols-outlined" data-icon="person_4" x-bind:style="activeTab === 'sensei' ? 'font-variation-settings: \'FILL\' 1;' : ''" data-weight="fill" style="font-variation-settings: 'FILL' 1;">person_4</span>
+<span class="font-label-sm text-[10px]">Sensei</span>
+</button>
+<button :class="{ 'text-primary': activeTab === 'siswa', 'text-on-surface-variant': activeTab !== 'siswa' }" @click="activeTab = 'siswa'" class="flex flex-col items-center gap-1 transition-colors text-on-surface-variant">
+<span :data-weight="activeTab === 'siswa' ? 'fill' : ''" class="material-symbols-outlined" data-icon="group" x-bind:style="activeTab === 'siswa' ? 'font-variation-settings: \'FILL\' 1;' : ''" data-weight="">group</span>
+<span class="font-label-sm text-[10px]">Siswa</span>
+</button>
+<button :class="{ 'text-primary': activeTab === 'jadwal', 'text-on-surface-variant': activeTab !== 'jadwal' }" @click="activeTab = 'jadwal'" class="flex flex-col items-center gap-1 transition-colors text-on-surface-variant">
+<span :data-weight="activeTab === 'jadwal' ? 'fill' : ''" class="material-symbols-outlined" data-icon="calendar_month" x-bind:style="activeTab === 'jadwal' ? 'font-variation-settings: \'FILL\' 1;' : ''" data-weight="">calendar_month</span>
+<span class="font-label-sm text-[10px]">Jadwal</span>
+</button>
+</nav>
+<!-- Edit Modal Overlay -->
+<div class="fixed inset-0 z-[100] flex items-center justify-center p-4" x-show="showEditModal" style="display: none;">
+<div @click="showEditModal = false" class="absolute inset-0 bg-inverse-surface/40 backdrop-blur-sm transition-opacity"></div>
+<div class="relative bg-surface rounded-xl shadow-[0px_4px_12px_rgba(0,0,0,0.05)] border border-outline-variant w-full max-w-md p-6 flex flex-col gap-5 transform transition-all">
+<div class="flex justify-between items-center">
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Edit Sensei</h3>
+<button @click="showEditModal = false" class="text-secondary hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined" data-icon="close">close</span>
+</button>
+</div>
+<div class="flex flex-col gap-4">
+<div class="flex flex-col gap-1.5">
+<label class="font-label-sm text-label-sm text-on-surface-variant font-medium">Nama Lengkap</label>
+<input class="w-full px-3 py-2 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10" type="text" value="Tanaka Sensei">
+</div>
+<div class="flex gap-4">
+<div class="flex flex-col gap-1.5 w-1/2">
+<label class="font-label-sm text-label-sm text-on-surface-variant font-medium">JLPT Level</label>
+<select class="w-full px-3 py-2 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10">
+<option>N1</option>
+<option>N2</option>
+<option>N3</option>
+</select>
+</div>
+<div class="flex flex-col gap-1.5 w-1/2">
+<label class="font-label-sm text-label-sm text-on-surface-variant font-medium">Status</label>
+<select class="w-full px-3 py-2 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10">
+<option>Aktif</option>
+<option>Tidak Aktif</option>
+</select>
+</div>
+</div>
+</div>
+<div class="flex justify-end gap-3 mt-2">
+<button @click="showEditModal = false" class="px-4 py-2 font-label-md text-label-md text-primary hover:bg-surface-container-high rounded-lg transition-colors border border-transparent">Batal</button>
+<button @click="showEditModal = false" class="px-4 py-2 font-label-md text-label-md bg-primary hover:bg-primary/90 text-on-primary rounded-lg transition-colors shadow-sm">Simpan Perubahan</button>
+</div>
+</div>
+</div>
+
+
+</body></html>

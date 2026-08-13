@@ -1,0 +1,463 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Jadwal Sensei - Profile</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Google Fonts: Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "outline": "#757683",
+                    "on-secondary": "#ffffff",
+                    "on-surface-variant": "#454652",
+                    "on-primary-fixed": "#001257",
+                    "secondary": "#5a5f68",
+                    "on-secondary-fixed-variant": "#424750",
+                    "surface-container-low": "#eff4ff",
+                    "on-secondary-container": "#60656e",
+                    "primary-container": "#2e44a3",
+                    "inverse-on-surface": "#eaf1ff",
+                    "on-primary-container": "#adbaff",
+                    "secondary-fixed-dim": "#c2c6d1",
+                    "surface-bright": "#f8f9ff",
+                    "on-tertiary-fixed": "#331200",
+                    "on-error-container": "#93000a",
+                    "background": "#f8f9ff",
+                    "surface": "#f8f9ff",
+                    "error-container": "#ffdad6",
+                    "error": "#ba1a1a",
+                    "primary-fixed-dim": "#b9c3ff",
+                    "tertiary-fixed-dim": "#ffb68f",
+                    "primary": "#102b8c",
+                    "surface-tint": "#4157b6",
+                    "surface-container-high": "#dce9ff",
+                    "on-primary": "#ffffff",
+                    "inverse-primary": "#b9c3ff",
+                    "secondary-fixed": "#dee2ed",
+                    "on-tertiary": "#ffffff",
+                    "surface-variant": "#d3e4fe",
+                    "tertiary-fixed": "#ffdbca",
+                    "secondary-container": "#dee2ed",
+                    "primary-fixed": "#dde1ff",
+                    "inverse-surface": "#213145",
+                    "on-background": "#0b1c30",
+                    "on-primary-fixed-variant": "#273d9d",
+                    "on-tertiary-container": "#ffaa7b",
+                    "on-surface": "#0b1c30",
+                    "surface-dim": "#cbdbf5",
+                    "surface-container": "#e5eeff",
+                    "on-secondary-fixed": "#171c23",
+                    "surface-container-lowest": "#ffffff",
+                    "tertiary": "#5d2600",
+                    "on-tertiary-fixed-variant": "#773200",
+                    "tertiary-container": "#813700",
+                    "surface-container-highest": "#d3e4fe",
+                    "on-error": "#ffffff",
+                    "outline-variant": "#c5c5d4"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "gutter": "16px",
+                    "container-padding": "24px",
+                    "timeline-row-height": "64px",
+                    "base": "4px",
+                    "sidebar-width": "260px"
+            },
+            "fontFamily": {
+                    "headline-md": ["Inter"],
+                    "body-md": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "headline-sm": ["Inter"],
+                    "label-md": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "headline-md-mobile": ["Inter"],
+                    "body-lg": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "label-sm": ["11px", {"lineHeight": "14px", "fontWeight": "600"}],
+                    "headline-md-mobile": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        /* Custom scrollbar for timeline */
+        .timeline-scroll::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        .timeline-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .timeline-scroll::-webkit-scrollbar-thumb {
+            background-color: #dee2ed;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface antialiased min-h-screen flex w-full overflow-hidden">
+<!-- SideNavBar (Shared Component) -->
+<aside class="hidden md:flex flex-col w-sidebar-width h-screen sticky top-0 left-0 bg-surface border-r border-outline-variant transition-all duration-200 ease-in-out p-4 gap-2 z-40 shrink-0">
+<!-- Header -->
+<div class="px-gutter mb-6 pt-4 flex flex-col items-center">
+<img class="w-12 h-12 rounded-full mb-2 object-cover" data-alt="A clean, minimalist abstract logo design for a Japanese language school, featuring subtle geometric shapes resembling a rising sun and an open book, utilizing a refined color palette of deep indigo and soft white, in a modern vector style suitable for a corporate dashboard." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3aa8x2sndlKXAb4i_Y1zBml-0dKKSl8OKT6VzUhhbQBArtXxiFPvV1bOLWtiCkgCQ3rHo2mKuOj0kYQjVGhp9Bo5bIQ2ZyypvWA7vI-pDuigfjFTDOrroAuyKF83j2T-PYfZc-b0gjONTa822ads-w__1DOtTDdKjXVh90Si6gP35QniUMLmW5d-MhTEWDUMTh99FmHRJL8kO7UFvLAwSnjPtjh0OA585SdcAMADhYD0rNqu84wLZ">
+<h1 class="font-headline-md text-headline-md font-bold text-primary">Jadwal Sensei</h1>
+<p class="font-label-md text-label-md text-secondary mt-1">School Admin</p>
+<button class="mt-4 w-full bg-primary text-on-primary font-label-md text-label-md rounded-lg py-2 px-4 hover:bg-primary-container hover:text-on-primary-container transition-colors duration-200">New Schedule</button>
+</div>
+<!-- Navigation Links -->
+<nav class="flex flex-col gap-1 w-full"><a class="flex items-center gap-3 text-secondary px-4 py-3 rounded-lg hover:bg-surface-container-low transition-colors duration-200 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_view_day">calendar_view_day</span>
+                Timeline
+            </a>
+<a class="flex items-center gap-3 text-secondary px-4 py-3 rounded-lg hover:bg-surface-container-low transition-colors duration-200 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="school">school</span>
+                Students
+            </a>
+<a class="flex items-center gap-3 bg-primary-container text-on-primary-container rounded-lg px-4 py-3 border-l-4 border-primary font-label-md text-label-md active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="person_search">person_search</span>
+                Sensei
+            </a>
+<a class="flex items-center gap-3 text-secondary px-4 py-3 rounded-lg hover:bg-surface-container-low transition-colors duration-200 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+                Analytics
+            </a>
+<a class="flex items-center gap-3 text-secondary px-4 py-3 rounded-lg hover:bg-surface-container-low transition-colors duration-200 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="event_available">event_available</span>
+                Availability
+            </a>
+<a class="flex items-center gap-3 text-secondary px-4 py-3 rounded-lg hover:bg-surface-container-low transition-colors duration-200 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="settings_applications">settings_applications</span>
+                Admin
+            </a></nav>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
+<!-- TopNavBar (Shared Component) -->
+<header class="w-full h-16 sticky top-0 z-30 bg-surface/80 backdrop-blur-md border-b border-outline-variant flex justify-between items-center px-gutter shrink-0 transition-all duration-200">
+<!-- Left: Search (from JSON, placement implied left context) -->
+<div class="flex items-center gap-4">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary text-sm">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container-lowest border border-outline-variant rounded-full font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all w-64" placeholder="Search..." type="text">
+</div>
+</div>
+<!-- Center: Navigation Links (Inactive context for Profile view) -->
+<div class="hidden md:flex items-center gap-8 h-full">
+<a class="h-full flex items-center text-on-surface-variant hover:text-primary transition-colors font-body-md text-body-md border-b-2 border-transparent" href="#">Today</a>
+<a class="h-full flex items-center text-on-surface-variant hover:text-primary transition-colors font-body-md text-body-md border-b-2 border-transparent" href="#">Weekly</a>
+<a class="h-full flex items-center text-on-surface-variant hover:text-primary transition-colors font-body-md text-body-md border-b-2 border-transparent" href="#">Monthly</a>
+</div>
+<!-- Right: Actions -->
+<div class="flex items-center gap-4">
+<button class="text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+<button class="text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<div class="w-px h-6 bg-outline-variant mx-2"></div>
+<button class="bg-primary hover:bg-primary-fixed-variant text-on-primary px-4 py-2 rounded-lg font-label-md text-label-md transition-colors flex items-center gap-2 shadow-sm">
+<span class="material-symbols-outlined text-sm">add</span>
+                    New Schedule
+                </button>
+<div class="w-8 h-8 rounded-full bg-surface-container overflow-hidden border border-outline-variant cursor-pointer">
+<img class="w-full h-full object-cover" data-alt="A small, professional headshot avatar of an administrative user, brightly lit on a neutral background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBFp2IsLulINBil9jFBl52e3gq47v8mOmJcAR16byumfr6nqNDP1gaPNOMG0dAet1R5Px-UMKJYCWBv5YDQA8swEtQ-LJjasNrQN6bswAvZ4Liid8yCZDAl0HP76JiP3ODyR9651sm3-VyDlXBw1-p1E5b_jOkDCzY7QeoASHeOP3Tr1V6KiDMnvLsff-3oL1qz3GnQ38fN3OfykvV0MYkWJ3arDKE7_cR5zM4SrlAC9chJr_75hbdZ">
+</div>
+</div>
+</header>
+<!-- Scrollable Page Content -->
+<div class="flex-1 overflow-y-auto p-container-padding bg-background timeline-scroll pb-24">
+<div class="max-w-[1400px] mx-auto flex flex-col gap-6">
+<!-- 1. Profile Header Card -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 sm:p-8 flex flex-col sm:flex-row items-center sm:items-start gap-8 relative overflow-hidden">
+<!-- Subtle background decoration -->
+<div class="absolute top-0 right-0 w-64 h-64 bg-primary-container/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none"></div>
+<!-- Avatar -->
+<div class="w-32 h-32 sm:w-40 sm:h-40 rounded-full border-4 border-surface shadow-sm overflow-hidden shrink-0 z-10 bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="A professional, brightly lit headshot portrait of a Japanese language teacher (Sensei) named Tanaka in a modern, minimalist office environment. The lighting is soft and natural, emphasizing a calm and approachable demeanor. The background is slightly blurred featuring clean architectural lines, aligning with a premium corporate educational brand aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBzcH5skELIvR3gdEFVqbQV0ZCIvmlK5BHAEfaJmevlFPAdJGQzhEX-uSLW1uR7P9T3PkEAWASy3-TNT1dIhZwBGV0mLEWRn_vU3BbcSkqiM1i5csjfTXkauQdJrHJ5rK71dBsOsw82b8xB0lGFIOCmeRVlR19tXIkv6TJZNz0T_28ZYi6wZbbYyXLBDqDwmGc1PE_KQaQc8lD7u6mt7F1uDW6NJOQ9d2xPQG84DoS0wsMWUeLYTMuH">
+</div>
+<!-- Info -->
+<div class="flex flex-col items-center sm:items-start gap-3 z-10 flex-1 w-full text-center sm:text-left">
+<div class="flex flex-col sm:flex-row items-center gap-3 sm:gap-4">
+<h2 class="font-display-lg text-display-lg text-on-surface">Tanaka Sensei</h2>
+<span class="bg-primary text-on-primary px-3 py-1 rounded-full font-label-sm text-label-sm flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-[14px]">verified</span>
+                                Sensei Utama
+                            </span>
+</div>
+<p class="font-body-lg text-body-lg text-secondary max-w-2xl">
+                            Senior instructor specializing in advanced business Japanese and JLPT preparation. Known for structured, high-intensity classes tailored for corporate clients.
+                        </p>
+<div class="flex flex-wrap items-center gap-2 mt-2 justify-center sm:justify-start">
+<span class="bg-surface-container text-on-surface-variant px-3 py-1 rounded-md font-label-md text-label-md border border-outline-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">translate</span>
+                                N1 Certified
+                            </span>
+<span class="bg-surface-container text-on-surface-variant px-3 py-1 rounded-md font-label-md text-label-md border border-outline-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">translate</span>
+                                N2 Certified
+                            </span>
+</div>
+</div>
+<!-- Quick Actions -->
+<div class="absolute top-6 right-6 hidden lg:flex gap-2 z-10">
+<button class="p-2 rounded-lg border border-outline-variant text-secondary hover:bg-surface-container hover:text-primary transition-colors flex items-center gap-2 font-label-md text-label-md bg-surface-container-lowest">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+                            Edit Profile
+                        </button>
+</div>
+</section>
+<!-- 2. Info Cards Grid (Bento) -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Card 1: Certification -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 flex items-start gap-4 hover:bg-surface-bright transition-colors group">
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center shrink-0 group-hover:bg-primary-container transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-on-primary-container transition-colors">workspace_premium</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-secondary mb-1">Highest Certification</p>
+<p class="font-headline-sm text-headline-sm text-on-surface">JLPT Level N1</p>
+<p class="font-label-sm text-label-sm text-secondary mt-1">Verified: Oct 2019</p>
+</div>
+</div>
+<!-- Card 2: Tenure -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 flex items-start gap-4 hover:bg-surface-bright transition-colors group">
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center shrink-0 group-hover:bg-primary-container transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-on-primary-container transition-colors">history</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-secondary mb-1">Joined Date</p>
+<p class="font-headline-sm text-headline-sm text-on-surface">March 15, 2021</p>
+<p class="font-label-sm text-label-sm text-secondary mt-1">3 Years, 8 Months</p>
+</div>
+</div>
+<!-- Card 3: Contact -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 flex items-start gap-4 hover:bg-surface-bright transition-colors group">
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center shrink-0 group-hover:bg-primary-container transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-on-primary-container transition-colors">mail</span>
+</div>
+<div class="min-w-0">
+<p class="font-label-md text-label-md text-secondary mb-1">Contact Information</p>
+<p class="font-headline-sm text-headline-sm text-on-surface truncate">tanaka@jadwalsensei.com</p>
+<p class="font-label-sm text-label-sm text-secondary mt-1">+62 812-3456-7890</p>
+</div>
+</div>
+</section>
+<!-- 3. Main Data Area: Calendar & Summary -->
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
+<!-- Left: Weekly Calendar (Wider) -->
+<section class="xl:col-span-2 bg-surface-container-lowest border border-outline-variant rounded-xl flex flex-col overflow-hidden">
+<!-- Calendar Header -->
+<div class="p-5 border-b border-outline-variant flex justify-between items-center bg-surface-bright">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">calendar_month</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Jadwal Mingguan</h3>
+</div>
+<!-- Mini Nav for Calendar -->
+<div class="flex items-center gap-2">
+<button class="p-1 rounded text-secondary hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-sm">chevron_left</span>
+</button>
+<span class="font-label-md text-label-md text-on-surface">Oct 23 - 29, 2023</span>
+<button class="p-1 rounded text-secondary hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Calendar Grid Wrapper (Scrollable area) -->
+<div class="relative overflow-x-auto overflow-y-hidden">
+<div class="min-w-[800px]">
+<!-- Grid Header (Days) -->
+<div class="grid grid-cols-[60px_repeat(7,1fr)] border-b border-outline-variant bg-surface-container-low font-label-sm text-label-sm text-secondary text-center">
+<div class="p-3 border-r border-outline-variant/50">GMT+7</div>
+<div class="p-3 border-r border-outline-variant/50">Mon 23</div>
+<div class="p-3 border-r border-outline-variant/50">Tue 24</div>
+<div class="p-3 border-r border-outline-variant/50 bg-primary-fixed/20 text-primary font-bold">Wed 25</div> <!-- Today marker -->
+<div class="p-3 border-r border-outline-variant/50">Thu 26</div>
+<div class="p-3 border-r border-outline-variant/50">Fri 27</div>
+<div class="p-3 border-r border-outline-variant/50">Sat 28</div>
+<div class="p-3">Sun 29</div>
+</div>
+<!-- Grid Body (Hours & Events) -->
+<div class="relative bg-surface-container-lowest">
+<!-- Background Grid Lines (10 hours for demo) -->
+<div class="grid grid-cols-[60px_repeat(7,1fr)]">
+<!-- Row 08:00 -->
+<div class="h-timeline-row-height border-b border-r border-outline-variant/50 p-2 text-right font-label-sm text-label-sm text-secondary bg-surface-bright">08:00</div>
+<div class="h-timeline-row-height border-b border-r border-outline-variant/30"></div>
+<div class="h-timeline-row-height border-b border-r border-outline-variant/30"></div>
+<div class="h-timeline-row-height border-b border-r border-outline-variant/30 bg-primary-fixed/5"></div>
+<div class="h-timeline-row-height border-b border-r border-outline-variant/30"></div>
+<div class="h-timeline-row-height border-b border-r border-outline-variant/30"></div>
+<div class="h-timeline-row-height border-b border-r border-outline-variant/30"></div>
+<div class="h-timeline-row-height border-b border-outline-variant/30 bg-surface-container-low/30"></div>
+<!-- Row 09:00 -->
+<div class="h-timeline-row-height border-b border-r border-outline-variant/50 p-2 text-right font-label-sm text-label-sm text-secondary bg-surface-bright">09:00</div>
+<div class="h-timeline-row-height border-b border-r border-outline-variant/30"></div>
+<div class="h-timeline-row-height border-b border-r border-outline-variant/30"></div>
+<div class="h-timeline-row-height border-b border-r border-outline-variant/30 bg-primary-fixed/5"></div>
+<div class="h-timeline-row-height border-b border-r border-outline-variant/30"></div>
+<div class="h-timeline-row-height border-b border-r border-outline-variant/30"></div>
+<div class="h-timeline-row-height border-b border-r border-outline-variant/30"></div>
+<div class="h-timeline-row-height border-b border-outline-variant/30 bg-surface-container-low/30"></div>
+<!-- Row 10:00 -->
+<div class="h-timeline-row-height border-b border-r border-outline-variant/50 p-2 text-right font-label-sm text-label-sm text-secondary bg-surface-bright">10:00</div>
+<div class="h-timeline-row-height border-b border-r border-outline-variant/30"></div>
+<div class="h-timeline-row-height border-b border-r border-outline-variant/30"></div>
+<div class="h-timeline-row-height border-b border-r border-outline-variant/30 bg-primary-fixed/5"></div>
+<div class="h-timeline-row-height border-b border-r border-outline-variant/30"></div>
+<div class="h-timeline-row-height border-b border-r border-outline-variant/30"></div>
+<div class="h-timeline-row-height border-b border-r border-outline-variant/30"></div>
+<div class="h-timeline-row-height border-b border-outline-variant/30 bg-surface-container-low/30"></div>
+<!-- Row 11:00 -->
+<div class="h-timeline-row-height border-b border-r border-outline-variant/50 p-2 text-right font-label-sm text-label-sm text-secondary bg-surface-bright">11:00</div>
+<div class="h-timeline-row-height border-b border-r border-outline-variant/30"></div>
+<div class="h-timeline-row-height border-b border-r border-outline-variant/30"></div>
+<div class="h-timeline-row-height border-b border-r border-outline-variant/30 bg-primary-fixed/5"></div>
+<div class="h-timeline-row-height border-b border-r border-outline-variant/30"></div>
+<div class="h-timeline-row-height border-b border-r border-outline-variant/30"></div>
+<div class="h-timeline-row-height border-b border-r border-outline-variant/30"></div>
+<div class="h-timeline-row-height border-b border-outline-variant/30 bg-surface-container-low/30"></div>
+<!-- Row 12:00 -->
+<div class="h-timeline-row-height border-b border-r border-outline-variant/50 p-2 text-right font-label-sm text-label-sm text-secondary bg-surface-bright">12:00</div>
+<div class="h-timeline-row-height border-b border-r border-outline-variant/30"></div>
+<div class="h-timeline-row-height border-b border-r border-outline-variant/30"></div>
+<div class="h-timeline-row-height border-b border-r border-outline-variant/30 bg-primary-fixed/5"></div>
+<div class="h-timeline-row-height border-b border-r border-outline-variant/30"></div>
+<div class="h-timeline-row-height border-b border-r border-outline-variant/30"></div>
+<div class="h-timeline-row-height border-b border-r border-outline-variant/30"></div>
+<div class="h-timeline-row-height border-b border-outline-variant/30 bg-surface-container-low/30"></div>
+</div>
+<!-- Absolute positioned Events (Demonstrating Schedule Cards logic) -->
+<!-- Grid columns: col-1 = time, col-2 = Mon, col-3 = Tue... -->
+<!-- Height: 1 hour = 64px. Top: row * 64px -->
+<!-- Event: Monday 09:00 - 11:00 (2 hours) -->
+<div class="absolute left-[calc(60px+(100%-60px)/7*0)] top-[64px] w-[calc((100%-60px)/7-4px)] h-[124px] mx-[2px] mt-[2px] bg-surface-variant rounded border-l-4 border-surface-tint p-2 flex flex-col gap-1 overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+<p class="font-label-sm text-label-sm text-on-surface-variant font-bold leading-tight">PT Toyota Int.</p>
+<p class="font-label-md text-label-md text-secondary text-[10px] leading-tight flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">schedule</span>09:00 - 11:00</p>
+<span class="mt-auto self-start bg-surface-container-lowest text-secondary px-1.5 py-0.5 rounded text-[10px] border border-outline-variant/50">Online</span>
+</div>
+<!-- Event: Wednesday 10:00 - 12:00 (2 hours) -->
+<div class="absolute left-[calc(60px+(100%-60px)/7*2)] top-[128px] w-[calc((100%-60px)/7-4px)] h-[124px] mx-[2px] mt-[2px] bg-[#ffdad6] rounded border-l-4 border-[#ba1a1a] p-2 flex flex-col gap-1 overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+<p class="font-label-sm text-label-sm text-[#93000a] font-bold leading-tight">Bimbel N3 Reg</p>
+<p class="font-label-md text-label-md text-[#93000a]/80 text-[10px] leading-tight flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">schedule</span>10:00 - 12:00</p>
+<span class="mt-auto self-start bg-surface-container-lowest text-[#93000a] px-1.5 py-0.5 rounded text-[10px] border border-[#ffdad6]/50">Room A</span>
+</div>
+<!-- Event: Thursday 08:30 - 10:00 (1.5 hours) -->
+<div class="absolute left-[calc(60px+(100%-60px)/7*3)] top-[32px] w-[calc((100%-60px)/7-4px)] h-[92px] mx-[2px] mt-[2px] bg-[#eaf1ff] rounded border-l-4 border-primary-container p-2 flex flex-col gap-1 overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+<p class="font-label-sm text-label-sm text-on-primary-container font-bold leading-tight">Private Tutoring</p>
+<p class="font-label-md text-label-md text-primary-container/80 text-[10px] leading-tight flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">schedule</span>08:30 - 10:00</p>
+</div>
+</div>
+</div>
+</div>
+<div class="p-3 bg-surface border-t border-outline-variant text-center font-label-sm text-label-sm text-secondary">
+                            Showing partial week overview (08:00 - 13:00)
+                        </div>
+</section>
+<!-- Right: Monthly Summary Card (Narrower) -->
+<aside class="bg-surface-container-lowest border border-outline-variant rounded-xl flex flex-col h-full">
+<div class="px-gutter mb-6 pt-4 flex flex-col items-center">
+<img class="w-12 h-12 rounded-full mb-2 object-cover" data-alt="A clean, minimalist abstract logo design for a Japanese language school, featuring subtle geometric shapes resembling a rising sun and an open book, utilizing a refined color palette of deep indigo and soft white, in a modern vector style suitable for a corporate dashboard." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3aa8x2sndlKXAb4i_Y1zBml-0dKKSl8OKT6VzUhhbQBArtXxiFPvV1bOLWtiCkgCQ3rHo2mKuOj0kYQjVGhp9Bo5bIQ2ZyypvWA7vI-pDuigfjFTDOrroAuyKF83j2T-PYfZc-b0gjONTa822ads-w__1DOtTDdKjXVh90Si6gP35QniUMLmW5d-MhTEWDUMTh99FmHRJL8kO7UFvLAwSnjPtjh0OA585SdcAMADhYD0rNqu84wLZ">
+<h1 class="font-headline-md text-headline-md font-bold text-primary">Jadwal Sensei</h1>
+<p class="font-label-md text-label-md text-secondary mt-1">School Admin</p>
+<button class="mt-4 w-full bg-primary text-on-primary font-label-md text-label-md rounded-lg py-2 px-4 hover:bg-primary-container hover:text-on-primary-container transition-colors duration-200">New Schedule</button>
+</div>
+<div class="p-5 flex-1 flex flex-col gap-6">
+<!-- Total Hours Big Metric -->
+<div class="flex flex-col items-center justify-center py-6 bg-surface-container-low rounded-xl border border-primary-fixed/30 relative overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-br from-primary-fixed/20 to-transparent pointer-events-none"></div>
+<p class="font-label-md text-label-md text-secondary uppercase tracking-widest relative z-10">Total Hours (Oct)</p>
+<div class="flex items-baseline gap-1 mt-1 relative z-10">
+<span class="font-display-lg text-display-lg text-primary text-[48px] leading-none">124</span>
+<span class="font-headline-sm text-headline-sm text-secondary">hrs</span>
+</div>
+<div class="mt-2 flex items-center gap-1 text-sm text-[12px] text-green-700 bg-green-100 px-2 py-0.5 rounded-full relative z-10 font-medium">
+<span class="material-symbols-outlined text-[14px]">trending_up</span>
+                                    +12% vs last month
+                                </div>
+</div>
+<!-- List of Handled Classes -->
+<div>
+<h4 class="font-label-md text-label-md text-on-surface mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-secondary">category</span>
+                                    Class Breakdown
+                                </h4>
+<div class="flex flex-col gap-2">
+<!-- List Item 1 -->
+<div class="flex items-center justify-between p-3 rounded-lg border border-outline-variant hover:bg-surface transition-colors group">
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-2 h-10 rounded-full bg-surface-tint shrink-0"></div>
+<div class="min-w-0">
+<p class="font-label-md text-label-md text-on-surface truncate">PT Toyota Int. (Corp)</p>
+<p class="font-label-sm text-label-sm text-secondary">Advanced Business</p>
+</div>
+</div>
+<div class="text-right pl-2 shrink-0">
+<p class="font-headline-sm text-headline-sm text-on-surface">40<span class="text-[12px] font-normal text-secondary ml-1">h</span></p>
+</div>
+</div>
+<!-- List Item 2 -->
+<div class="flex items-center justify-between p-3 rounded-lg border border-outline-variant hover:bg-surface transition-colors group">
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-2 h-10 rounded-full bg-[#ba1a1a] shrink-0"></div>
+<div class="min-w-0">
+<p class="font-label-md text-label-md text-on-surface truncate">Bimbel N3 Reg</p>
+<p class="font-label-sm text-label-sm text-secondary">JLPT Prep</p>
+</div>
+</div>
+<div class="text-right pl-2 shrink-0">
+<p class="font-headline-sm text-headline-sm text-on-surface">20<span class="text-[12px] font-normal text-secondary ml-1">h</span></p>
+</div>
+</div>
+<!-- List Item 3 -->
+<div class="flex items-center justify-between p-3 rounded-lg border border-outline-variant hover:bg-surface transition-colors group">
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-2 h-10 rounded-full bg-primary-container shrink-0"></div>
+<div class="min-w-0">
+<p class="font-label-md text-label-md text-on-surface truncate">Private Tutoring</p>
+<p class="font-label-sm text-label-sm text-secondary">Conversation</p>
+</div>
+</div>
+<div class="text-right pl-2 shrink-0">
+<p class="font-headline-sm text-headline-sm text-on-surface">15<span class="text-[12px] font-normal text-secondary ml-1">h</span></p>
+</div>
+</div>
+</div>
+<button class="w-full mt-4 py-2 text-center text-primary font-label-md text-label-md hover:bg-primary-fixed/50 rounded-lg transition-colors border border-transparent hover:border-primary-fixed-dim">
+                                    View Full Report
+                                </button>
+</div>
+</div>
+</aside>
+</div>
+</div>
+</div>
+</main>
+
+
+</body></html>

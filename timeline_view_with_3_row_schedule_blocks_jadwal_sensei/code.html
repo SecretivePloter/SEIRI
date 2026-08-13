@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Jadwal Sensei - Timeline</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "outline": "#757683",
+                      "on-secondary": "#ffffff",
+                      "on-surface-variant": "#454652",
+                      "on-primary-fixed": "#001257",
+                      "secondary": "#5a5f68",
+                      "on-secondary-fixed-variant": "#424750",
+                      "surface-container-low": "#eff4ff",
+                      "on-secondary-container": "#60656e",
+                      "primary-container": "#2e44a3",
+                      "inverse-on-surface": "#eaf1ff",
+                      "on-primary-container": "#adbaff",
+                      "secondary-fixed-dim": "#c2c6d1",
+                      "surface-bright": "#f8f9ff",
+                      "on-tertiary-fixed": "#331200",
+                      "on-error-container": "#93000a",
+                      "background": "#f8f9ff",
+                      "surface": "#f8f9ff",
+                      "error-container": "#ffdad6",
+                      "error": "#ba1a1a",
+                      "primary-fixed-dim": "#b9c3ff",
+                      "tertiary-fixed-dim": "#ffb68f",
+                      "primary": "#102b8c",
+                      "surface-tint": "#4157b6",
+                      "surface-container-high": "#dce9ff",
+                      "on-primary": "#ffffff",
+                      "inverse-primary": "#b9c3ff",
+                      "secondary-fixed": "#dee2ed",
+                      "on-tertiary": "#ffffff",
+                      "surface-variant": "#d3e4fe",
+                      "tertiary-fixed": "#ffdbca",
+                      "secondary-container": "#dee2ed",
+                      "primary-fixed": "#dde1ff",
+                      "inverse-surface": "#213145",
+                      "on-background": "#0b1c30",
+                      "on-primary-fixed-variant": "#273d9d",
+                      "on-tertiary-container": "#ffaa7b",
+                      "on-surface": "#0b1c30",
+                      "surface-dim": "#cbdbf5",
+                      "surface-container": "#e5eeff",
+                      "on-secondary-fixed": "#171c23",
+                      "surface-container-lowest": "#ffffff",
+                      "tertiary": "#5d2600",
+                      "on-tertiary-fixed-variant": "#773200",
+                      "tertiary-container": "#813700",
+                      "surface-container-highest": "#d3e4fe",
+                      "on-error": "#ffffff",
+                      "outline-variant": "#c5c5d4"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "gutter": "16px",
+                      "container-padding": "24px",
+                      "timeline-row-height": "64px",
+                      "base": "4px",
+                      "sidebar-width": "260px"
+              },
+              "fontFamily": {
+                      "headline-md": ["Inter"],
+                      "body-md": ["Inter"],
+                      "display-lg": ["Inter"],
+                      "headline-sm": ["Inter"],
+                      "label-md": ["Inter"],
+                      "label-sm": ["Inter"],
+                      "headline-md-mobile": ["Inter"],
+                      "body-lg": ["Inter"]
+              },
+              "fontSize": {
+                      "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                      "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                      "label-sm": ["11px", {"lineHeight": "14px", "fontWeight": "600"}],
+                      "headline-md-mobile": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                      "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        .timeline-grid {
+            background-size: 160px 100%;
+            background-image: linear-gradient(to right, #e2e8f0 1px, transparent 1px);
+        }
+        .timeline-grid-half {
+            background-size: 80px 100%;
+            background-image: linear-gradient(to right, transparent 79px, #f1f5f9 1px);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background flex h-screen overflow-hidden font-body-md text-body-md">
+<!-- SideNavBar -->
+<aside class="hidden md:flex w-[260px] h-screen fixed left-0 top-0 border-r border-outline-variant bg-surface-container-lowest flex-col py-base z-20">
+<div class="px-gutter mb-6 pt-4 flex flex-col items-center">
+<img class="w-12 h-12 rounded-full mb-2 object-cover" data-alt="A clean, minimalist abstract logo design for a Japanese language school, featuring subtle geometric shapes resembling a rising sun and an open book, utilizing a refined color palette of deep indigo and soft white, in a modern vector style suitable for a corporate dashboard." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3aa8x2sndlKXAb4i_Y1zBml-0dKKSl8OKT6VzUhhbQBArtXxiFPvV1bOLWtiCkgCQ3rHo2mKuOj0kYQjVGhp9Bo5bIQ2ZyypvWA7vI-pDuigfjFTDOrroAuyKF83j2T-PYfZc-b0gjONTa822ads-w__1DOtTDdKjXVh90Si6gP35QniUMLmW5d-MhTEWDUMTh99FmHRJL8kO7UFvLAwSnjPtjh0OA585SdcAMADhYD0rNqu84wLZ"/>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">Jadwal Sensei</h1>
+<p class="font-label-md text-label-md text-secondary mt-1">School Admin</p>
+<button class="mt-4 w-full bg-primary text-on-primary font-label-md text-label-md rounded-lg py-2 px-4 hover:bg-primary-container hover:text-on-primary-container transition-colors duration-200">New Schedule</button>
+</div>
+<nav class="flex-1 px-4 space-y-1">
+<a class="flex items-center gap-3 text-secondary px-4 py-3 rounded-lg hover:bg-surface-container-low transition-colors duration-200 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">calendar_view_day</span>
+                Timeline
+            </a>
+<a class="flex items-center gap-3 bg-primary-container text-on-primary-container rounded-lg px-4 py-3 border-l-4 border-primary font-label-md text-label-md active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined">school</span>
+                Students
+            </a>
+<a class="flex items-center gap-3 text-secondary px-4 py-3 rounded-lg hover:bg-surface-container-low transition-colors duration-200 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">person_search</span>
+                Sensei
+            </a>
+<a class="flex items-center gap-3 text-secondary px-4 py-3 rounded-lg hover:bg-surface-container-low transition-colors duration-200 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">analytics</span>
+                Analytics
+            </a>
+<a class="flex items-center gap-3 text-secondary px-4 py-3 rounded-lg hover:bg-surface-container-low transition-colors duration-200 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">event_available</span>
+                Availability
+            </a>
+<a class="flex items-center gap-3 text-secondary px-4 py-3 rounded-lg hover:bg-surface-container-low transition-colors duration-200 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">settings_applications</span>
+                Admin
+            </a>
+</nav>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col h-full overflow-hidden bg-background md:ml-[260px]">
+<!-- TopNavBar -->
+<header class="w-full h-16 sticky top-0 z-50 border-b border-outline-variant bg-surface/80 backdrop-blur-md flex justify-between items-center px-gutter shrink-0">
+<div class="flex items-center gap-4">
+<!-- Mobile Menu Button -->
+<button class="md:hidden p-2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<div class="hidden md:flex gap-6">
+<a class="text-primary font-bold border-b-2 border-primary py-5 transition-all duration-200" href="#">Today</a>
+<a class="text-on-surface-variant hover:text-primary py-5 transition-all duration-200" href="#">Weekly</a>
+<a class="text-on-surface-variant hover:text-primary py-5 transition-all duration-200" href="#">Monthly</a>
+</div>
+</div>
+<div class="flex items-center gap-4"><div class="w-[80px] shrink-0 p-1 text-secondary font-label-sm text-label-sm border-r border-surface-container-high">08:00</div><div class="w-[80px] shrink-0 p-1 text-secondary font-label-sm text-label-sm border-r border-surface-container-high">09:00</div><div class="w-[80px] shrink-0 p-1 text-secondary font-label-sm text-label-sm border-r border-surface-container-high">10:00</div><div class="w-[80px] shrink-0 p-1 text-secondary font-label-sm text-label-sm border-r border-surface-container-high">11:00</div><div class="w-[80px] shrink-0 p-1 text-secondary font-label-sm text-label-sm border-r border-surface-container-high">12:00</div><div class="w-[80px] shrink-0 p-1 text-secondary font-label-sm text-label-sm border-r border-surface-container-high">13:00</div><div class="w-[80px] shrink-0 p-1 text-secondary font-label-sm text-label-sm border-r border-surface-container-high">14:00</div><div class="w-[80px] shrink-0 p-1 text-secondary font-label-sm text-label-sm border-r border-surface-container-high">15:00</div><div class="w-[80px] shrink-0 p-1 text-secondary font-label-sm text-label-sm border-r border-surface-container-high">16:00</div><div class="w-[80px] shrink-0 p-1 text-secondary font-label-sm text-label-sm border-r border-surface-container-high">17:00</div><div class="w-[80px] shrink-0 p-1 text-secondary font-label-sm text-label-sm border-r border-surface-container-high">18:00</div><div class="w-[80px] shrink-0 p-1 text-secondary font-label-sm text-label-sm border-r border-surface-container-high">19:00</div><div class="w-[80px] shrink-0 p-1 text-secondary font-label-sm text-label-sm border-r border-surface-container-high">20:00</div><div class="w-[80px] shrink-0 p-1 text-secondary font-label-sm text-label-sm border-r border-surface-container-high">21:00</div><div class="w-[80px] shrink-0 p-1 text-secondary font-label-sm text-label-sm border-r border-surface-container-high">22:00</div></div>
+</header>
+<!-- Sub Header: Date & Navigation -->
+<div class="px-container-padding py-4 flex items-center justify-between border-b border-surface-container-high bg-surface shrink-0">
+<div class="flex items-center gap-4">
+<h2 class="font-headline-md text-headline-md text-on-surface">Senin, 14 Oktober 2024</h2>
+<div class="flex gap-1 border border-outline-variant rounded-lg overflow-hidden bg-surface-container-lowest">
+<button class="p-1 hover:bg-surface-container-high transition-colors text-secondary">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<div class="w-px bg-outline-variant"></div>
+<button class="p-1 hover:bg-surface-container-high transition-colors text-secondary">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+<div class="flex gap-4">
+<span class="flex items-center gap-1 font-label-sm text-label-sm text-secondary"><div class="w-3 h-3 rounded-sm bg-blue-100 border border-blue-500"></div> CLT</span>
+<span class="flex items-center gap-1 font-label-sm text-label-sm text-secondary"><div class="w-3 h-3 rounded-sm bg-orange-100 border border-orange-500"></div> Bimbel</span>
+<span class="flex items-center gap-1 font-label-sm text-label-sm text-secondary"><div class="w-3 h-3 rounded-sm bg-green-100 border border-green-500"></div> SSW</span>
+<span class="flex items-center gap-1 font-label-sm text-label-sm text-secondary"><div class="w-3 h-3 rounded-sm bg-purple-100 border border-purple-500"></div> Private</span>
+</div>
+</div>
+<!-- Timeline Grid Area -->
+<div class="flex-1 overflow-auto flex flex-col bg-surface-container-lowest">
+<!-- Timeline Header (Time Slots) -->
+<div class="flex sticky top-0 z-20 bg-surface-container-lowest border-b border-outline-variant">
+<div class="w-[180px] shrink-0 border-r border-outline-variant p-4 flex items-end justify-end text-secondary font-label-sm text-label-sm">
+                    Time (WIB)
+                </div>
+<div class="flex-1 flex min-w-max"><div class="w-[80px] shrink-0 p-1 text-secondary font-label-sm text-label-sm border-r border-surface-container-high">08:00</div><div class="w-[80px] shrink-0 p-1 text-secondary font-label-sm text-label-sm border-r border-surface-container-high">09:00</div><div class="w-[80px] shrink-0 p-1 text-secondary font-label-sm text-label-sm border-r border-surface-container-high">10:00</div><div class="w-[80px] shrink-0 p-1 text-secondary font-label-sm text-label-sm border-r border-surface-container-high">11:00</div><div class="w-[80px] shrink-0 p-1 text-secondary font-label-sm text-label-sm border-r border-surface-container-high">12:00</div><div class="w-[80px] shrink-0 p-1 text-secondary font-label-sm text-label-sm border-r border-surface-container-high">13:00</div><div class="w-[80px] shrink-0 p-1 text-secondary font-label-sm text-label-sm border-r border-surface-container-high">14:00</div><div class="w-[80px] shrink-0 p-1 text-secondary font-label-sm text-label-sm border-r border-surface-container-high">15:00</div><div class="w-[80px] shrink-0 p-1 text-secondary font-label-sm text-label-sm border-r border-surface-container-high">16:00</div><div class="w-[80px] shrink-0 p-1 text-secondary font-label-sm text-label-sm border-r border-surface-container-high">17:00</div><div class="w-[80px] shrink-0 p-1 text-secondary font-label-sm text-label-sm border-r border-surface-container-high">18:00</div><div class="w-[80px] shrink-0 p-1 text-secondary font-label-sm text-label-sm border-r border-surface-container-high">19:00</div><div class="w-[80px] shrink-0 p-1 text-secondary font-label-sm text-label-sm border-r border-surface-container-high">20:00</div><div class="w-[80px] shrink-0 p-1 text-secondary font-label-sm text-label-sm border-r border-surface-container-high">21:00</div><div class="w-[80px] shrink-0 p-1 text-secondary font-label-sm text-label-sm border-r border-surface-container-high">22:00</div></div>
+</div>
+<!-- Timeline Rows -->
+<div class="flex flex-col min-w-max">
+<!-- Row 1: Tanaka Sensei -->
+<div class="flex group hover:bg-surface-bright transition-colors h-[64px] border-b border-surface-container-high"><div class="w-[180px] shrink-0 border-r border-outline-variant p-2 flex items-center bg-surface-container-lowest group-hover:bg-surface-bright z-10 sticky left-0 font-label-sm text-label-sm text-on-surface">Tanaka Sensei</div><div class="flex-1 relative timeline-grid timeline-grid-half min-w-[1200px]">
+<div class="absolute top-1 bottom-1 rounded-lg bg-blue-100 border-l-4 border-blue-500 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-center px-2 py-1 cursor-pointer" style="left: 0px; width: 160px;">
+<div class="text-[10px] sm:text-xs font-bold text-blue-900 leading-tight truncate">CLT</div>
+<div class="text-[9px] text-blue-900 opacity-90 flex items-center gap-0.5 truncate leading-tight"><span class="material-symbols-outlined text-[10px]">business</span> PT Toyota</div>
+<div class="text-[9px] text-blue-900 opacity-80 leading-tight">08:00 - 10:00</div>
+</div>
+<div class="absolute top-1 bottom-1 rounded-lg bg-orange-100 border-l-4 border-orange-500 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-center px-2 py-1 cursor-pointer" style="left: 200px; width: 160px;">
+<div class="text-[10px] sm:text-xs font-bold text-orange-900 leading-tight truncate">Bimbel JLPT</div>
+<div class="text-[9px] text-orange-900 opacity-90 flex items-center gap-0.5 truncate leading-tight"><span class="material-symbols-outlined text-[10px]">location_on</span> Ruang Haru</div>
+<div class="text-[9px] text-orange-900 opacity-80 leading-tight">10:30 - 12:30</div>
+</div>
+<div class="absolute top-1 bottom-1 rounded-lg bg-purple-100 border-l-4 border-purple-500 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-center px-2 py-1 cursor-pointer" style="left: 400px; width: 160px;">
+<div class="text-[10px] sm:text-xs font-bold text-purple-900 leading-tight truncate">Private N4</div>
+<div class="text-[9px] text-purple-900 opacity-90 flex items-center gap-0.5 truncate leading-tight"><span class="material-symbols-outlined text-[10px]">home</span> Rumah - Rina</div>
+<div class="text-[9px] text-purple-900 opacity-80 leading-tight">13:00 - 15:00</div>
+</div>
+<div class="absolute top-1 bottom-1 rounded-lg bg-green-100 border-l-4 border-green-500 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-center px-2 py-1 cursor-pointer" style="left: 640px; width: 120px;">
+<div class="text-[10px] font-bold text-green-900 leading-tight truncate">SSW Kaigo</div>
+<div class="text-[9px] text-green-900 opacity-90 flex items-center gap-0.5 truncate leading-tight"><span class="material-symbols-outlined text-[10px]">location_on</span> Ruang Sakura</div>
+<div class="text-[9px] text-green-900 opacity-80 leading-tight">16:00 - 17:30</div>
+</div>
+</div></div>
+<!-- Row 2: Sato Sensei -->
+<div class="flex group hover:bg-surface-bright transition-colors h-[64px] border-b border-surface-container-high"><div class="w-[180px] shrink-0 border-r border-outline-variant p-2 flex items-center bg-surface-container-lowest group-hover:bg-surface-bright z-10 sticky left-0 font-label-sm text-label-sm text-on-surface">Sato Sensei</div><div class="flex-1 relative timeline-grid timeline-grid-half min-w-[1200px]">
+<div class="absolute top-1 bottom-1 rounded-lg bg-green-100 border-l-4 border-green-500 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-center px-2 py-1 cursor-pointer" style="left: 80px; width: 160px;">
+<div class="text-[10px] sm:text-xs font-bold text-green-900 leading-tight truncate">SSW Tokutei</div>
+<div class="text-[9px] text-green-900 opacity-90 flex items-center gap-0.5 truncate leading-tight"><span class="material-symbols-outlined text-[10px]">location_on</span> Ruang Natsu</div>
+<div class="text-[9px] text-green-900 opacity-80 leading-tight">09:00 - 11:00</div>
+</div>
+<div class="absolute top-1 bottom-1 rounded-lg bg-blue-100 border-l-4 border-blue-500 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-center px-2 py-1 cursor-pointer" style="left: 320px; width: 160px;">
+<div class="text-[10px] sm:text-xs font-bold text-blue-900 leading-tight truncate">CLT</div>
+<div class="text-[9px] text-blue-900 opacity-90 flex items-center gap-0.5 truncate leading-tight"><span class="material-symbols-outlined text-[10px]">business</span> PT Astra</div>
+<div class="text-[9px] text-blue-900 opacity-80 leading-tight">12:00 - 14:00</div>
+</div>
+<div class="absolute top-1 bottom-1 rounded-lg bg-orange-100 border-l-4 border-orange-500 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-center px-2 py-1 cursor-pointer" style="left: 520px; width: 120px;">
+<div class="text-[10px] font-bold text-orange-900 leading-tight truncate">Bimbel N3</div>
+<div class="text-[9px] text-orange-900 opacity-90 flex items-center gap-0.5 truncate leading-tight"><span class="material-symbols-outlined text-[10px]">location_on</span> Ruang Aki</div>
+<div class="text-[9px] text-orange-900 opacity-80 leading-tight">14:30 - 16:00</div>
+</div>
+<div class="absolute top-1 bottom-1 rounded-lg bg-purple-100 border-l-4 border-purple-500 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-center px-2 py-1 cursor-pointer" style="left: 800px; width: 160px;">
+<div class="text-[10px] sm:text-xs font-bold text-purple-900 leading-tight truncate">Private N2</div>
+<div class="text-[9px] text-purple-900 opacity-90 flex items-center gap-0.5 truncate leading-tight"><span class="material-symbols-outlined text-[10px]">home</span> Rumah - Budi</div>
+<div class="text-[9px] text-purple-900 opacity-80 leading-tight">18:00 - 20:00</div>
+</div>
+</div></div>
+<!-- Row 3: Suzuki Sensei -->
+<div class="flex group hover:bg-surface-bright transition-colors h-[64px] border-b border-surface-container-high"><div class="w-[180px] shrink-0 border-r border-outline-variant p-2 flex items-center bg-surface-container-lowest group-hover:bg-surface-bright z-10 sticky left-0 font-label-sm text-label-sm text-on-surface">Suzuki Sensei</div><div class="flex-1 relative timeline-grid timeline-grid-half min-w-[1200px]">
+<div class="absolute top-1 bottom-1 rounded-lg bg-purple-100 border-l-4 border-purple-500 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-center px-2 py-1 cursor-pointer" style="left: 40px; width: 120px;">
+<div class="text-[10px] font-bold text-purple-900 leading-tight truncate">Private N5</div>
+<div class="text-[9px] text-purple-900 opacity-90 flex items-center gap-0.5 truncate leading-tight"><span class="material-symbols-outlined text-[10px]">home</span> Rumah - Citra</div>
+<div class="text-[9px] text-purple-900 opacity-80 leading-tight">08:30 - 10:00</div>
+</div>
+<div class="absolute top-1 bottom-1 rounded-lg bg-blue-100 border-l-4 border-blue-500 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-center px-2 py-1 cursor-pointer" style="left: 240px; width: 160px;">
+<div class="text-[10px] sm:text-xs font-bold text-blue-900 leading-tight truncate">CLT</div>
+<div class="text-[9px] text-blue-900 opacity-90 flex items-center gap-0.5 truncate leading-tight"><span class="material-symbols-outlined text-[10px]">business</span> PT Denso</div>
+<div class="text-[9px] text-blue-900 opacity-80 leading-tight">11:00 - 13:00</div>
+</div>
+<div class="absolute top-1 bottom-1 rounded-lg bg-green-100 border-l-4 border-green-500 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-center px-2 py-1 cursor-pointer" style="left: 560px; width: 160px;">
+<div class="text-[10px] sm:text-xs font-bold text-green-900 leading-tight truncate">SSW Food</div>
+<div class="text-[9px] text-green-900 opacity-90 flex items-center gap-0.5 truncate leading-tight"><span class="material-symbols-outlined text-[10px]">location_on</span> Ruang Fuyu</div>
+<div class="text-[9px] text-green-900 opacity-80 leading-tight">15:00 - 17:00</div>
+</div>
+<div class="absolute top-1 bottom-1 rounded-lg bg-orange-100 border-l-4 border-orange-500 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-center px-2 py-1 cursor-pointer" style="left: 840px; width: 160px;">
+<div class="text-[10px] sm:text-xs font-bold text-orange-900 leading-tight truncate">Bimbel N4</div>
+<div class="text-[9px] text-orange-900 opacity-90 flex items-center gap-0.5 truncate leading-tight"><span class="material-symbols-outlined text-[10px]">location_on</span> Ruang Haru</div>
+<div class="text-[9px] text-orange-900 opacity-80 leading-tight">18:30 - 20:30</div>
+</div>
+</div></div>
+<!-- Row 4: Nakamura Sensei -->
+<div class="flex group hover:bg-surface-bright transition-colors h-[64px] border-b border-surface-container-high"><div class="w-[180px] shrink-0 border-r border-outline-variant p-2 flex items-center bg-surface-container-lowest group-hover:bg-surface-bright z-10 sticky left-0 font-label-sm text-label-sm text-on-surface">Nakamura Sensei</div><div class="flex-1 relative timeline-grid timeline-grid-half min-w-[1200px]">
+<div class="absolute top-1 bottom-1 rounded-lg bg-orange-100 border-l-4 border-orange-500 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-center px-2 py-1 cursor-pointer" style="left: 0px; width: 120px;">
+<div class="text-[10px] font-bold text-orange-900 leading-tight truncate">N3 Prep</div>
+<div class="text-[9px] text-orange-900 opacity-90 flex items-center gap-0.5 truncate leading-tight"><span class="material-symbols-outlined text-[10px]">location_on</span> Ruang Natsu</div>
+<div class="text-[9px] text-orange-900 opacity-80 leading-tight">08:00 - 09:30</div>
+</div>
+<div class="absolute top-1 bottom-1 rounded-lg bg-green-100 border-l-4 border-green-500 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-center px-2 py-1 cursor-pointer" style="left: 160px; width: 160px;">
+<div class="text-[10px] sm:text-xs font-bold text-green-900 leading-tight truncate">SSW Kaigo</div>
+<div class="text-[9px] text-green-900 opacity-90 flex items-center gap-0.5 truncate leading-tight"><span class="material-symbols-outlined text-[10px]">location_on</span> Ruang Sakura</div>
+<div class="text-[9px] text-green-900 opacity-80 leading-tight">10:00 - 12:00</div>
+</div>
+<div class="absolute top-1 bottom-1 rounded-lg bg-blue-100 border-l-4 border-blue-500 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-center px-2 py-1 cursor-pointer" style="left: 480px; width: 160px;">
+<div class="text-[10px] sm:text-xs font-bold text-blue-900 leading-tight truncate">CLT</div>
+<div class="text-[9px] text-blue-900 opacity-90 flex items-center gap-0.5 truncate leading-tight"><span class="material-symbols-outlined text-[10px]">business</span> PT Toyota</div>
+<div class="text-[9px] text-blue-900 opacity-80 leading-tight">14:00 - 16:00</div>
+</div>
+<div class="absolute top-1 bottom-1 rounded-lg bg-purple-100 border-l-4 border-purple-500 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-center px-2 py-1 cursor-pointer" style="left: 880px; width: 160px;">
+<div class="text-[10px] sm:text-xs font-bold text-purple-900 leading-tight truncate">Private N3</div>
+<div class="text-[9px] text-purple-900 opacity-90 flex items-center gap-0.5 truncate leading-tight"><span class="material-symbols-outlined text-[10px]">home</span> Rumah - Dani</div>
+<div class="text-[9px] text-purple-900 opacity-80 leading-tight">19:00 - 21:00</div>
+</div>
+</div></div>
+<!-- Row 5: Ito Sensei -->
+<div class="flex group hover:bg-surface-bright transition-colors h-[64px] border-b border-surface-container-high"><div class="w-[180px] shrink-0 border-r border-outline-variant p-2 flex items-center bg-surface-container-lowest group-hover:bg-surface-bright z-10 sticky left-0 font-label-sm text-label-sm text-on-surface">Ito Sensei</div><div class="flex-1 relative timeline-grid timeline-grid-half min-w-[1200px]">
+<div class="absolute top-1 bottom-1 rounded-lg bg-blue-100 border-l-4 border-blue-500 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-center px-2 py-1 cursor-pointer" style="left: 120px; width: 160px;">
+<div class="text-[10px] sm:text-xs font-bold text-blue-900 leading-tight truncate">CLT</div>
+<div class="text-[9px] text-blue-900 opacity-90 flex items-center gap-0.5 truncate leading-tight"><span class="material-symbols-outlined text-[10px]">business</span> PT Honda</div>
+<div class="text-[9px] text-blue-900 opacity-80 leading-tight">09:30 - 11:30</div>
+</div>
+<div class="absolute top-1 bottom-1 rounded-lg bg-purple-100 border-l-4 border-purple-500 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-center px-2 py-1 cursor-pointer" style="left: 400px; width: 160px;">
+<div class="text-[10px] sm:text-xs font-bold text-purple-900 leading-tight truncate">Private N2</div>
+<div class="text-[9px] text-purple-900 opacity-90 flex items-center gap-0.5 truncate leading-tight"><span class="material-symbols-outlined text-[10px]">home</span> Rumah - Eka</div>
+<div class="text-[9px] text-purple-900 opacity-80 leading-tight">13:00 - 15:00</div>
+</div>
+<div class="absolute top-1 bottom-1 rounded-lg bg-orange-100 border-l-4 border-orange-500 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-center px-2 py-1 cursor-pointer" style="left: 680px; width: 120px;">
+<div class="text-[10px] font-bold text-orange-900 leading-tight truncate">Bimbel JLPT</div>
+<div class="text-[9px] text-orange-900 opacity-90 flex items-center gap-0.5 truncate leading-tight"><span class="material-symbols-outlined text-[10px]">location_on</span> Ruang Aki</div>
+<div class="text-[9px] text-orange-900 opacity-80 leading-tight">16:30 - 18:00</div>
+</div>
+<div class="absolute top-1 bottom-1 rounded-lg bg-green-100 border-l-4 border-green-500 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-center px-2 py-1 cursor-pointer" style="left: 920px; width: 160px;">
+<div class="text-[10px] sm:text-xs font-bold text-green-900 leading-tight truncate">SSW Agri</div>
+<div class="text-[9px] text-green-900 opacity-90 flex items-center gap-0.5 truncate leading-tight"><span class="material-symbols-outlined text-[10px]">location_on</span> Ruang Fuyu</div>
+<div class="text-[9px] text-green-900 opacity-80 leading-tight">19:30 - 21:30</div>
+</div>
+</div></div>
+<!-- Row 6: Yamamoto Sensei -->
+<div class="flex group hover:bg-surface-bright transition-colors h-[64px] border-b border-surface-container-high"><div class="w-[180px] shrink-0 border-r border-outline-variant p-2 flex items-center bg-surface-container-lowest group-hover:bg-surface-bright z-10 sticky left-0 font-label-sm text-label-sm text-on-surface">Yamamoto Sensei</div><div class="flex-1 relative timeline-grid timeline-grid-half min-w-[1200px]">
+<div class="absolute top-1 bottom-1 rounded-lg bg-green-100 border-l-4 border-green-500 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-center px-2 py-1 cursor-pointer" style="left: 0px; width: 240px;">
+<div class="text-[10px] sm:text-xs font-bold text-green-900 leading-tight truncate">SSW Construction</div>
+<div class="text-[9px] text-green-900 opacity-90 flex items-center gap-0.5 truncate leading-tight"><span class="material-symbols-outlined text-[10px]">location_on</span> Ruang Sakura</div>
+<div class="text-[9px] text-green-900 opacity-80 leading-tight">08:00 - 11:00</div>
+</div>
+<div class="absolute top-1 bottom-1 rounded-lg bg-orange-100 border-l-4 border-orange-500 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-center px-2 py-1 cursor-pointer" style="left: 320px; width: 200px;">
+<div class="text-[10px] sm:text-xs font-bold text-orange-900 leading-tight truncate">N4 Prep</div>
+<div class="text-[9px] text-orange-900 opacity-90 flex items-center gap-0.5 truncate leading-tight"><span class="material-symbols-outlined text-[10px]">location_on</span> Ruang Haru</div>
+<div class="text-[9px] text-orange-900 opacity-80 leading-tight">12:00 - 14:30</div>
+</div>
+<div class="absolute top-1 bottom-1 rounded-lg bg-blue-100 border-l-4 border-blue-500 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-center px-2 py-1 cursor-pointer" style="left: 600px; width: 160px;">
+<div class="text-[10px] sm:text-xs font-bold text-blue-900 leading-tight truncate">CLT</div>
+<div class="text-[9px] text-blue-900 opacity-90 flex items-center gap-0.5 truncate leading-tight"><span class="material-symbols-outlined text-[10px]">business</span> PT Astra</div>
+<div class="text-[9px] text-blue-900 opacity-80 leading-tight">15:30 - 17:30</div>
+</div>
+<div class="absolute top-1 bottom-1 rounded-lg bg-purple-100 border-l-4 border-purple-500 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-center px-2 py-1 cursor-pointer" style="left: 800px; width: 160px;">
+<div class="text-[10px] sm:text-xs font-bold text-purple-900 leading-tight truncate">Private N5</div>
+<div class="text-[9px] text-purple-900 opacity-90 flex items-center gap-0.5 truncate leading-tight"><span class="material-symbols-outlined text-[10px]">home</span> Rumah - Fani</div>
+<div class="text-[9px] text-purple-900 opacity-80 leading-tight">18:00 - 20:00</div>
+</div>
+</div></div>
+<!-- Row 7: Kobayashi Sensei -->
+<div class="flex group hover:bg-surface-bright transition-colors h-[64px] border-b border-surface-container-high"><div class="w-[180px] shrink-0 border-r border-outline-variant p-2 flex items-center bg-surface-container-lowest group-hover:bg-surface-bright z-10 sticky left-0 font-label-sm text-label-sm text-on-surface">Kobayashi Sensei</div><div class="flex-1 relative timeline-grid timeline-grid-half min-w-[1200px]">
+<div class="absolute top-1 bottom-1 rounded-lg bg-purple-100 border-l-4 border-purple-500 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-center px-2 py-1 cursor-pointer" style="left: 160px; width: 160px;">
+<div class="text-[10px] sm:text-xs font-bold text-purple-900 leading-tight truncate">Private N3</div>
+<div class="text-[9px] text-purple-900 opacity-90 flex items-center gap-0.5 truncate leading-tight"><span class="material-symbols-outlined text-[10px]">home</span> Rumah - Gita</div>
+<div class="text-[9px] text-purple-900 opacity-80 leading-tight">10:00 - 12:00</div>
+</div>
+<div class="absolute top-1 bottom-1 rounded-lg bg-green-100 border-l-4 border-green-500 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-center px-2 py-1 cursor-pointer" style="left: 440px; width: 160px;">
+<div class="text-[10px] sm:text-xs font-bold text-green-900 leading-tight truncate">SSW Food</div>
+<div class="text-[9px] text-green-900 opacity-90 flex items-center gap-0.5 truncate leading-tight"><span class="material-symbols-outlined text-[10px]">location_on</span> Ruang Aki</div>
+<div class="text-[9px] text-green-900 opacity-80 leading-tight">13:30 - 15:30</div>
+</div>
+<div class="absolute top-1 bottom-1 rounded-lg bg-blue-100 border-l-4 border-blue-500 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-center px-2 py-1 cursor-pointer" style="left: 640px; width: 160px;">
+<div class="text-[10px] sm:text-xs font-bold text-blue-900 leading-tight truncate">CLT</div>
+<div class="text-[9px] text-blue-900 opacity-90 flex items-center gap-0.5 truncate leading-tight"><span class="material-symbols-outlined text-[10px]">business</span> PT Toyota</div>
+<div class="text-[9px] text-blue-900 opacity-80 leading-tight">16:00 - 18:00</div>
+</div>
+<div class="absolute top-1 bottom-1 rounded-lg bg-orange-100 border-l-4 border-orange-500 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-center px-2 py-1 cursor-pointer" style="left: 880px; width: 160px;">
+<div class="text-[10px] sm:text-xs font-bold text-orange-900 leading-tight truncate">Bimbel JLPT</div>
+<div class="text-[9px] text-orange-900 opacity-90 flex items-center gap-0.5 truncate leading-tight"><span class="material-symbols-outlined text-[10px]">location_on</span> Ruang Natsu</div>
+<div class="text-[9px] text-orange-900 opacity-80 leading-tight">19:00 - 21:00</div>
+</div>
+</div></div>
+<!-- Row 8: Watanabe Sensei -->
+<div class="flex group hover:bg-surface-bright transition-colors h-[64px] border-b border-surface-container-high"><div class="w-[180px] shrink-0 border-r border-outline-variant p-2 flex items-center bg-surface-container-lowest group-hover:bg-surface-bright z-10 sticky left-0 font-label-sm text-label-sm text-on-surface">Watanabe Sensei</div><div class="flex-1 relative timeline-grid timeline-grid-half min-w-[1200px]">
+<div class="absolute top-1 bottom-1 rounded-lg bg-blue-100 border-l-4 border-blue-500 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-center px-2 py-1 cursor-pointer" style="left: 40px; width: 160px;">
+<div class="text-[10px] sm:text-xs font-bold text-blue-900 leading-tight truncate">CLT</div>
+<div class="text-[9px] text-blue-900 opacity-90 flex items-center gap-0.5 truncate leading-tight"><span class="material-symbols-outlined text-[10px]">business</span> PT Honda</div>
+<div class="text-[9px] text-blue-900 opacity-80 leading-tight">08:30 - 10:30</div>
+</div>
+<div class="absolute top-1 bottom-1 rounded-lg bg-orange-100 border-l-4 border-orange-500 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-center px-2 py-1 cursor-pointer" style="left: 280px; width: 160px;">
+<div class="text-[10px] sm:text-xs font-bold text-orange-900 leading-tight truncate">Bimbel N5</div>
+<div class="text-[9px] text-orange-900 opacity-90 flex items-center gap-0.5 truncate leading-tight"><span class="material-symbols-outlined text-[10px]">location_on</span> Ruang Fuyu</div>
+<div class="text-[9px] text-orange-900 opacity-80 leading-tight">11:30 - 13:30</div>
+</div>
+<div class="absolute top-1 bottom-1 rounded-lg bg-purple-100 border-l-4 border-purple-500 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-center px-2 py-1 cursor-pointer" style="left: 520px; width: 120px;">
+<div class="text-[10px] font-bold text-purple-900 leading-tight truncate">Private N4</div>
+<div class="text-[9px] text-purple-900 opacity-90 flex items-center gap-0.5 truncate leading-tight"><span class="material-symbols-outlined text-[10px]">home</span> Rumah - Hadi</div>
+<div class="text-[9px] text-purple-900 opacity-80 leading-tight">14:30 - 16:00</div>
+</div>
+<div class="absolute top-1 bottom-1 rounded-lg bg-green-100 border-l-4 border-green-500 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-center px-2 py-1 cursor-pointer" style="left: 720px; width: 160px;">
+<div class="text-[10px] sm:text-xs font-bold text-green-900 leading-tight truncate">SSW Kaigo</div>
+<div class="text-[9px] text-green-900 opacity-90 flex items-center gap-0.5 truncate leading-tight"><span class="material-symbols-outlined text-[10px]">location_on</span> Ruang Haru</div>
+<div class="text-[9px] text-green-900 opacity-80 leading-tight">17:00 - 19:00</div>
+</div>
+</div></div>
+</div>
+</div>
+</main>
+</body></html>
