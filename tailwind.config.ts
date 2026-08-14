@@ -53,11 +53,16 @@ export default {
         'on-background': '#0b1c30',
         'inverse-surface': '#213145',
         'inverse-on-surface': '#eaf1ff',
-        // Pastel kategori kelas (CLT sky blue, Bimbel mint, SSW apricot, Private lavender)
+        // Pastel kategori kelas (9 kategori, v2)
         'cat-clt': { DEFAULT: '#dbeafe', accent: '#3b82f6', text: '#1e40af' },
         'cat-bimbel': { DEFAULT: '#d1fae5', accent: '#10b981', text: '#065f46' },
         'cat-ssw': { DEFAULT: '#ffedd5', accent: '#f97316', text: '#9a3412' },
         'cat-private': { DEFAULT: '#ede9fe', accent: '#8b5cf6', text: '#5b21b6' },
+        'cat-tg': { DEFAULT: '#ffe4e6', accent: '#f43f5e', text: '#9f1239' },
+        'cat-benkyou': { DEFAULT: '#fef3c7', accent: '#f59e0b', text: '#92400e' },
+        'cat-semi': { DEFAULT: '#ccfbf1', accent: '#14b8a6', text: '#115e59' },
+        'cat-grup': { DEFAULT: '#e0e7ff', accent: '#6366f1', text: '#3730a3' },
+        'cat-regular': { DEFAULT: '#e2e8f0', accent: '#64748b', text: '#334155' },
         // Netral untuk border/hover tabel (DESIGN.md: #E2E8F0, #CBD5E1, #F1F5F9, #F8FAFC)
         'border-soft': '#e2e8f0',
         'border-input': '#cbd5e1',

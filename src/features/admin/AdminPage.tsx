@@ -10,14 +10,16 @@ import { AdminSenseiTab } from './AdminSenseiTab';
 import { AdminKlienTab } from './AdminKlienTab';
 import { AdminKelasTab } from './AdminKelasTab';
 import { AdminRuanganTab } from './AdminRuanganTab';
+import { AdminSesiTab } from './AdminSesiTab';
 
-type Tab = 'sensei' | 'klien' | 'kelas' | 'ruangan';
+type Tab = 'sensei' | 'klien' | 'kelas' | 'ruangan' | 'sesi';
 
 const TABS: Array<{ id: Tab; label: string }> = [
   { id: 'sensei', label: 'Sensei' },
   { id: 'klien', label: 'Klien / Murid' },
   { id: 'kelas', label: 'Kelas' },
   { id: 'ruangan', label: 'Ruangan' },
+  { id: 'sesi', label: 'Aturan Sesi' },
 ];
 
 export function AdminPage() {
@@ -53,6 +55,7 @@ export function AdminPage() {
           {tab === 'klien' && <AdminKlienTab isAdmin={isAdmin} />}
           {tab === 'kelas' && <AdminKelasTab isAdmin={isAdmin} />}
           {tab === 'ruangan' && <AdminRuanganTab isAdmin={isAdmin} />}
+          {tab === 'sesi' && <AdminSesiTab isAdmin={isAdmin} />}
         </div>
       </main>
     </>

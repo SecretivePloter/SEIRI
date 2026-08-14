@@ -12,11 +12,12 @@ import { listKelas } from '@/lib/api/kelas';
 import { listJadwalSlot } from '@/lib/api/jadwal';
 import { useAsyncData } from '@/app/useAsyncData';
 import type { JenisKelas, Kelas } from '@/lib/types/domain';
-
-const JENIS_LIST: JenisKelas[] = ['CLT', 'Bimbel', 'SSW', 'Private'];
+import { JENIS_KELAS_LIST } from '@/lib/types/domain';
+import { MultiSelect } from '@/components/ui/MultiSelect';
 
 export function KelasPage() {
   const [search, setSearch] = useState('');
+  const [jenisFilter, setJenisFilter] = useState<JenisKelas[]>([]);
   const kelasQ = useAsyncData(() => listKelas(), []);
   // Slot aktif utk menghitung jumlah sesi per kelas — 1 query, agregasi klien.
   const jadwalQ = useAsyncData(() => listJadwalSlot({ status: 'aktif' }), []);
@@ -31,10 +32,13 @@ export function KelasPage() {
 
   const rows = useMemo(() => {
     const list = kelasQ.data ?? [];
-    if (!search) return list;
     const s = search.toLowerCase();
-    return list.filter((k) => `${k.nama_kelas} ${k.klien?.nama ?? ''}`.toLowerCase().includes(s));
-  }, [kelasQ.data, search]);
+    return list.filter((k) => {
+      if (jenisFilter.length > 0 && !jenisFilter.includes(k.jenis)) return false;
+      if (s && !`${k.nama_kelas} ${k.klien?.nama ?? ''}`.toLowerCase().includes(s)) return false;
+      return true;
+    });
+  }, [kelasQ.data, search, jenisFilter]);
 
   const perJenis = useMemo(() => {
     const map = new Map<JenisKelas, number>();
@@ -71,9 +75,9 @@ export function KelasPage() {
       <TopBar title="Daftar Kelas" subtitle={`${kelasQ.data?.length ?? 0} kelas aktif`} />
       <main className="flex-1 overflow-y-auto p-container-padding">
         <div className="mx-auto flex max-w-[1200px] flex-col gap-4">
-          {/* Summary per jenis */}
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {JENIS_LIST.map((j) => (
+          {/* Summary per jenis (9 kategori, v2) */}
+          <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-5">
+            {JENIS_KELAS_LIST.map((j) => (
               <div key={j} className={`rounded-card border-l-4 ${jenisStyles[j].bg} ${jenisStyles[j].border} p-4`}>
                 <p className={`font-label-sm text-label-sm uppercase tracking-wider ${jenisStyles[j].text}`}>{j}</p>
                 <p className={`mt-1 font-display-lg text-display-lg ${jenisStyles[j].text}`}>{perJenis.get(j) ?? 0}</p>
@@ -83,9 +87,27 @@ export function KelasPage() {
           </div>
 
           <div className="flex flex-col gap-3 rounded-card border border-outline-variant bg-surface-container-lowest p-4 sm:flex-row sm:items-center sm:justify-between">
-            <p className="font-label-md text-label-md text-secondary">
-              {rows.length} kelas ditampilkan
-            </p>
+            <div className="flex flex-wrap items-center gap-3">
+              <p className="font-label-md text-label-md text-secondary">{rows.length} kelas ditampilkan</p>
+              <MultiSelect<JenisKelas>
+                label="Jenis kelas"
+                className="w-44"
+                options={JENIS_KELAS_LIST.map((j) => ({ value: j, label: j }))}
+                selected={jenisFilter}
+                onToggle={(j) =>
+                  setJenisFilter((cur) => (cur.includes(j) ? cur.filter((x) => x !== j) : [...cur, j]))
+                }
+              />
+              {jenisFilter.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setJenisFilter([])}
+                  className="font-label-md text-label-md text-error hover:underline"
+                >
+                  Reset filter
+                </button>
+              )}
+            </div>
             <div className="relative w-full sm:w-72">
               <Icon name="search" size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary" />
               <Input className="pl-9" placeholder="Cari kelas/klien..." value={search} onChange={(e) => setSearch(e.target.value)} />

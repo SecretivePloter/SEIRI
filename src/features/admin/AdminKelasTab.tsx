@@ -9,6 +9,7 @@ import { Modal } from '@/components/ui/Modal';
 import { LoadingState, ErrorState, EmptyState } from '@/components/ui/States';
 import { Icon } from '@/components/ui/Icon';
 import { DataTable, type Column } from '@/components/ui/DataTable';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { JenisBadge } from '@/components/ui/Badge';
 import {
   listKelas,
@@ -16,6 +17,8 @@ import {
   updateKelas,
   nonaktifkanKelas,
   aktifkanKelas,
+  arsipkanKelas,
+  batalkanArsipKelas,
   listJadwalKelas,
   type KelasInput,
 } from '@/lib/api/kelas';
@@ -24,8 +27,11 @@ import { useAsyncData } from '@/app/useAsyncData';
 import { kelasSchema } from '@/lib/validation/masterSchema';
 import { flattenZodErrors } from '@/lib/validation/jadwalSchema';
 import type { Kelas, JadwalSlot, JenisKelas } from '@/lib/types/domain';
+import { JENIS_KELAS_LIST } from '@/lib/types/domain';
 import { toast } from '@/stores/toastStore';
 import { formatJam, formatTanggalPendek } from '@/lib/time';
+import { MultiSelect, ResetFiltersButton } from '@/components/ui/MultiSelect';
+import { useMemo } from 'react';
 
 const EMPTY: KelasInput = { nama_kelas: '', jenis: 'CLT', klien_id: null };
 
@@ -39,7 +45,21 @@ export function AdminKelasTab({ isAdmin }: { isAdmin: boolean }) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const [targetNonaktif, setTargetNonaktif] = useState<Kelas | null>(null);
+  const [targetArsip, setTargetArsip] = useState<Kelas | null>(null);
   const [jadwalTerdampak, setJadwalTerdampak] = useState<JadwalSlot[]>([]);
+
+  // Filter (v2 poin 5)
+  const [jenisFilter, setJenisFilter] = useState<JenisKelas[]>([]);
+  const [search, setSearch] = useState('');
+  const filteredRows = useMemo(() => {
+    const list = q.data ?? [];
+    const s = search.toLowerCase();
+    return list.filter((k) => {
+      if (jenisFilter.length > 0 && !jenisFilter.includes(k.jenis)) return false;
+      if (s && !`${k.nama_kelas} ${k.klien?.nama ?? ''}`.toLowerCase().includes(s)) return false;
+      return true;
+    });
+  }, [q.data, jenisFilter, search]);
 
   const openCreate = () => {
     setEditing(null);
@@ -119,6 +139,48 @@ export function AdminKelasTab({ isAdmin }: { isAdmin: boolean }) {
     }
   };
 
+  const eksekusiArsip = async (jugaNonaktifkanJadwal: boolean) => {
+    if (!targetArsip) return;
+    setBusy(true);
+    try {
+      await arsipkanKelas(targetArsip.id, jugaNonaktifkanJadwal);
+      toast.success('Kelas diarsipkan', 'Riwayat jam mengajar tetap utuh.');
+      setTargetArsip(null);
+      setJadwalTerdampak([]);
+      void q.reload();
+    } catch (e) {
+      toast.error('Gagal mengarsipkan', e instanceof Error ? e.message : undefined);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const mintaArsip = async (k: Kelas) => {
+    setBusy(true);
+    try {
+      const jadwal = await listJadwalKelas(k.id);
+      setJadwalTerdampak(jadwal);
+      setTargetArsip(k);
+    } catch (e) {
+      toast.error('Gagal memeriksa jadwal', e instanceof Error ? e.message : undefined);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const batalkanArsip = async (k: Kelas) => {
+    setBusy(true);
+    try {
+      await batalkanArsipKelas(k.id);
+      toast.success('Arsip dibatalkan', 'Kelas aktif kembali.');
+      void q.reload();
+    } catch (e) {
+      toast.error('Gagal membatalkan arsip', e instanceof Error ? e.message : undefined);
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const columns: Column<Kelas>[] = [
     { key: 'nama', header: 'Nama Kelas', render: (k) => <p className="font-body-md text-body-md text-on-surface">{k.nama_kelas}</p> },
     { key: 'jenis', header: 'Jenis', render: (k) => <JenisBadge jenis={k.jenis} /> },
@@ -131,7 +193,11 @@ export function AdminKelasTab({ isAdmin }: { isAdmin: boolean }) {
       key: 'status',
       header: 'Status',
       render: (k) =>
-        k.is_aktif ? (
+        k.diarsipkan ? (
+          <span className="inline-flex rounded-full bg-surface-container px-2.5 py-0.5 font-label-sm text-label-sm text-on-surface-variant">
+            Diarsipkan
+          </span>
+        ) : k.is_aktif ? (
           <span className="inline-flex rounded-full bg-cat-bimbel px-2.5 py-0.5 font-label-sm text-label-sm text-cat-bimbel-text">Aktif</span>
         ) : (
           <span className="inline-flex rounded-full bg-error-container px-2.5 py-0.5 font-label-sm text-label-sm text-on-error-container">
@@ -148,22 +214,42 @@ export function AdminKelasTab({ isAdmin }: { isAdmin: boolean }) {
             <button onClick={() => openEdit(k)} className="rounded p-1.5 text-secondary hover:bg-surface-container hover:text-primary" aria-label="Edit kelas">
               <Icon name="edit" size={18} />
             </button>
-            {k.is_aktif ? (
+            {k.diarsipkan ? (
               <button
-                onClick={() => void mintaNonaktifkan(k)}
-                className="rounded p-1.5 text-secondary hover:bg-surface-container hover:text-error"
-                aria-label="Nonaktifkan kelas"
+                onClick={() => void batalkanArsip(k)}
+                className="rounded p-1.5 text-secondary hover:bg-surface-container hover:text-cat-bimbel-accent"
+                aria-label="Batalkan arsip kelas"
               >
-                <Icon name="event_busy" size={18} />
+                <Icon name="unarchive" size={18} />
               </button>
             ) : (
-              <button
-                onClick={() => void aktifkan(k)}
-                className="rounded p-1.5 text-secondary hover:bg-surface-container hover:text-cat-bimbel-accent"
-                aria-label="Aktifkan kelas"
-              >
-                <Icon name="event" size={18} />
-              </button>
+              <>
+                {k.is_aktif ? (
+                  <button
+                    onClick={() => void mintaNonaktifkan(k)}
+                    className="rounded p-1.5 text-secondary hover:bg-surface-container hover:text-error"
+                    aria-label="Nonaktifkan kelas"
+                  >
+                    <Icon name="event_busy" size={18} />
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => void aktifkan(k)}
+                    className="rounded p-1.5 text-secondary hover:bg-surface-container hover:text-cat-bimbel-accent"
+                    aria-label="Aktifkan kelas"
+                  >
+                    <Icon name="event" size={18} />
+                  </button>
+                )}
+                <button
+                  onClick={() => void mintaArsip(k)}
+                  className="rounded p-1.5 text-secondary hover:bg-surface-container hover:text-error"
+                  aria-label="Arsipkan kelas"
+                  title="Arsipkan (soft delete)"
+                >
+                  <Icon name="archive" size={18} />
+                </button>
+              </>
             )}
           </div>
         ) : null,
@@ -172,13 +258,40 @@ export function AdminKelasTab({ isAdmin }: { isAdmin: boolean }) {
 
   return (
     <>
-      <div className="flex items-center justify-between">
-        <p className="font-body-md text-body-md text-secondary">{q.data?.length ?? 0} kelas</p>
-        {isAdmin && (
-          <Button onClick={openCreate}>
-            <Icon name="add" size={16} /> Tambah Kelas
-          </Button>
-        )}
+      <div className="flex flex-col gap-3 rounded-card border border-outline-variant bg-surface-container-lowest p-4">
+        <div className="flex flex-wrap items-center gap-3">
+          <p className="font-body-md text-body-md text-secondary">{filteredRows.length} kelas</p>
+          <MultiSelect<JenisKelas>
+            label="Jenis kelas"
+            className="w-44"
+            options={JENIS_KELAS_LIST.map((j) => ({ value: j, label: j }))}
+            selected={jenisFilter}
+            onToggle={(j) =>
+              setJenisFilter((cur) => (cur.includes(j) ? cur.filter((x) => x !== j) : [...cur, j]))
+            }
+          />
+          <ResetFiltersButton
+            onClick={() => {
+              setJenisFilter([]);
+              setSearch('');
+            }}
+            visible={jenisFilter.length > 0 || search !== ''}
+          />
+          <div className="relative ml-auto w-full sm:w-64">
+            <Icon name="search" size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary" />
+            <input
+              className="w-full rounded border border-border-input bg-surface-container-lowest py-2 pl-9 pr-3 font-body-md text-body-md text-on-surface placeholder:text-secondary/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/10"
+              placeholder="Cari kelas/klien..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+          {isAdmin && (
+            <Button onClick={openCreate}>
+              <Icon name="add" size={16} /> Tambah Kelas
+            </Button>
+          )}
+        </div>
       </div>
 
       <div className="overflow-hidden rounded-card border border-outline-variant bg-surface-container-lowest">
@@ -189,7 +302,7 @@ export function AdminKelasTab({ isAdmin }: { isAdmin: boolean }) {
         ) : (
           <DataTable
             columns={columns}
-            rows={q.data ?? []}
+            rows={filteredRows}
             rowKey={(k) => k.id}
             empty={<EmptyState icon="school" title="Belum ada kelas" description="Tambahkan kelas pertama." />}
           />
@@ -217,10 +330,11 @@ export function AdminKelasTab({ isAdmin }: { isAdmin: boolean }) {
           </Field>
           <Field label="Jenis" required>
             <Select value={form.jenis} onChange={(e) => setForm((f) => ({ ...f, jenis: e.target.value as JenisKelas }))}>
-              <option value="CLT">CLT</option>
-              <option value="Bimbel">Bimbel</option>
-              <option value="SSW">SSW</option>
-              <option value="Private">Private</option>
+              {JENIS_KELAS_LIST.map((j) => (
+                <option key={j} value={j}>
+                  {j}
+                </option>
+              ))}
             </Select>
           </Field>
           <Field label="Klien / murid" hint="Opsional, wajib utk kelas perusahaan/private">
@@ -273,6 +387,25 @@ export function AdminKelasTab({ isAdmin }: { isAdmin: boolean }) {
           </ul>
         )}
       </Modal>
+      <ConfirmDialog
+        open={targetArsip !== null}
+        onClose={() => !busy && setTargetArsip(null)}
+        onConfirm={(checked) => void eksekusiArsip(checked)}
+        title={`Arsipkan kelas "${targetArsip?.nama_kelas ?? ''}"?`}
+        description={
+          jadwalTerdampak.length > 0
+            ? `Kelas ini punya ${jadwalTerdampak.length} slot jadwal aktif. Arsip adalah soft delete: kelas tidak bisa dipakai utk jadwal baru, tetapi riwayat jam mengajar TETAP utuh di laporan & dashboard.`
+            : 'Kelas akan diarsipkan (soft delete). Riwayat jam mengajar tetap utuh dan kelas bisa diaktifkan kembali lewat tombol batalkan arsip.'
+        }
+        confirmLabel="Arsipkan"
+        danger
+        busy={busy}
+        checkboxLabel={
+          jadwalTerdampak.length > 0
+            ? `Juga nonaktifkan ${jadwalTerdampak.length} jadwal mendatang milik kelas ini`
+            : undefined
+        }
+      />
     </>
   );
 }

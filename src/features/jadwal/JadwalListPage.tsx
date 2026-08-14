@@ -11,9 +11,12 @@ import { Icon } from '@/components/ui/Icon';
 import { StatusBadge, JenisBadge, LokasiBadge } from '@/components/ui/Badge';
 import { DataTable, type Column } from '@/components/ui/DataTable';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { MultiSelect, ResetFiltersButton } from '@/components/ui/MultiSelect';
 import { listJadwalSlot, deleteJadwalSlot, setStatusSlot } from '@/lib/api/jadwal';
+import { listSensei } from '@/lib/api/sensei';
 import { useAsyncData } from '@/app/useAsyncData';
-import type { JadwalSlot, StatusSlot } from '@/lib/types/domain';
+import type { JadwalSlot, StatusSlot, JenisKelas } from '@/lib/types/domain';
+import { JENIS_KELAS_LIST } from '@/lib/types/domain';
 import { formatJam, formatTanggalPendek } from '@/lib/time';
 import { toast } from '@/stores/toastStore';
 import { RpcError } from '@/lib/api/rpcError';
@@ -23,9 +26,13 @@ export function JadwalListPage() {
   const navigate = useNavigate();
   const isAdmin = useIsAdmin();
   const [statusFilter, setStatusFilter] = useState<StatusSlot | 'semua'>('aktif');
+  const [jenisFilter, setJenisFilter] = useState<JenisKelas[]>([]);
+  const [senseiFilter, setSenseiFilter] = useState<string[]>([]);
   const [search, setSearch] = useState('');
   const [confirm, setConfirm] = useState<{ kind: 'hapus' | 'nonaktifkan'; slot: JadwalSlot } | null>(null);
   const [busy, setBusy] = useState(false);
+
+  const senseiQ = useAsyncData(() => listSensei(), []);
 
   const q = useAsyncData(
     () => listJadwalSlot(statusFilter === 'semua' ? undefined : { status: statusFilter }),
@@ -34,13 +41,26 @@ export function JadwalListPage() {
 
   const rows = useMemo(() => {
     const list = q.data ?? [];
-    if (!search) return list;
     const s = search.toLowerCase();
     return list.filter((j) => {
-      const hay = `${j.kelas?.nama_kelas ?? ''} ${j.sensei?.nama ?? ''} ${j.ruangan?.nama ?? ''} ${j.alamat_tujuan ?? ''}`.toLowerCase();
-      return hay.includes(s);
+      if (jenisFilter.length > 0 && !jenisFilter.includes(j.kelas?.jenis as JenisKelas)) return false;
+      if (senseiFilter.length > 0 && !senseiFilter.includes(j.sensei_id)) return false;
+      if (s) {
+        const hay = `${j.kelas?.nama_kelas ?? ''} ${j.sensei?.nama ?? ''} ${j.ruangan?.nama ?? ''} ${j.alamat_tujuan ?? ''}`.toLowerCase();
+        if (!hay.includes(s)) return false;
+      }
+      return true;
     });
-  }, [q.data, search]);
+  }, [q.data, search, jenisFilter, senseiFilter]);
+
+  const hasActiveFilters =
+    jenisFilter.length > 0 || senseiFilter.length > 0 || search !== '' || statusFilter !== 'aktif';
+  const resetFilters = () => {
+    setJenisFilter([]);
+    setSenseiFilter([]);
+    setSearch('');
+    setStatusFilter('aktif');
+  };
 
   const jadwalLabel = (j: JadwalSlot) =>
     j.tanggal ? formatTanggalPendek(j.tanggal) : (j.hari_rutin ?? []).join(', ');
@@ -154,14 +174,33 @@ export function JadwalListPage() {
       />
       <main className="flex-1 overflow-y-auto p-container-padding">
         <div className="mx-auto flex max-w-[1200px] flex-col gap-4">
-          <div className="flex flex-col gap-3 rounded-card border border-outline-variant bg-surface-container-lowest p-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-3">
-              <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as StatusSlot | 'semua')} className="w-40">
-                <option value="aktif">Aktif</option>
-                <option value="planning">Planning</option>
-                <option value="tidak_aktif">Tidak aktif</option>
-                <option value="semua">Semua status</option>
-              </Select>
+          <div className="flex flex-col gap-3 rounded-card border border-outline-variant bg-surface-container-lowest p-4">
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+              <MultiSelect<JenisKelas>
+                label="Jenis kelas"
+                options={JENIS_KELAS_LIST.map((j) => ({ value: j, label: j }))}
+                selected={jenisFilter}
+                onToggle={(j) =>
+                  setJenisFilter((cur) => (cur.includes(j) ? cur.filter((x) => x !== j) : [...cur, j]))
+                }
+              />
+              <MultiSelect<string>
+                label="Sensei"
+                options={(senseiQ.data ?? []).map((s) => ({ value: s.id, label: s.nama }))}
+                selected={senseiFilter}
+                onToggle={(id) =>
+                  setSenseiFilter((cur) => (cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id]))
+                }
+              />
+              <div>
+                <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as StatusSlot | 'semua')}>
+                  <option value="aktif">Aktif</option>
+                  <option value="planning">Planning</option>
+                  <option value="tidak_aktif">Tidak aktif</option>
+                  <option value="semua">Semua status</option>
+                </Select>
+              </div>
+              <ResetFiltersButton onClick={resetFilters} visible={hasActiveFilters} />
             </div>
             <div className="relative w-full sm:w-72">
               <Icon name="search" size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary" />

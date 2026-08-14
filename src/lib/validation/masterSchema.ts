@@ -1,7 +1,7 @@
 // Validasi client-side utk master data (Zod).
 
 import { z } from 'zod';
-import { HARI_INDO } from '@/lib/types/domain';
+import { HARI_INDO, JENIS_KELAS_LIST, type JenisKelas } from '@/lib/types/domain';
 
 export const senseiSchema = z.object({
   nama: z.string().min(1, 'Nama wajib diisi').max(120),
@@ -24,7 +24,7 @@ export type KlienFormValues = z.infer<typeof klienSchema>;
 
 export const kelasSchema = z.object({
   nama_kelas: z.string().min(1, 'Nama kelas wajib diisi').max(120),
-  jenis: z.enum(['CLT', 'Bimbel', 'SSW', 'Private']),
+  jenis: z.enum(JENIS_KELAS_LIST as [JenisKelas, ...JenisKelas[]]),
   klien_id: z.string().nullable(),
 });
 export type KelasFormValues = z.infer<typeof kelasSchema>;

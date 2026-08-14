@@ -17,6 +17,7 @@ import { SenseiProfilePage } from '@/features/sensei-profile/SenseiProfilePage';
 import { KetersediaanPage } from '@/features/ketersediaan/KetersediaanPage';
 import { DashboardPage } from '@/features/dashboard/DashboardPage';
 import { AdminPage } from '@/features/admin/AdminPage';
+import { LobbyDisplayPage } from '@/features/lobby/LobbyDisplayPage';
 
 function page(children: React.ReactNode) {
   return (
@@ -24,6 +25,15 @@ function page(children: React.ReactNode) {
       <AppShell>
         <RouteErrorBoundary>{children}</RouteErrorBoundary>
       </AppShell>
+    </RequireAuth>
+  );
+}
+
+/** Halaman full-screen tanpa sidebar (lobby TV signage). Tetap butuh login. */
+function barePage(children: React.ReactNode) {
+  return (
+    <RequireAuth>
+      <RouteErrorBoundary>{children}</RouteErrorBoundary>
     </RequireAuth>
   );
 }
@@ -41,6 +51,7 @@ export const router = createBrowserRouter([
   { path: '/ketersediaan', element: page(<KetersediaanPage />) },
   { path: '/dashboard', element: page(<DashboardPage />) },
   { path: '/admin', element: page(<AdminPage />) },
+  { path: '/lobby-display', element: barePage(<LobbyDisplayPage />) },
   { path: '/', element: <Navigate to="/timeline" replace /> },
   { path: '*', element: <Navigate to="/timeline" replace /> },
 ]);

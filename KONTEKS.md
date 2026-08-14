@@ -2,7 +2,7 @@
 
 > **File ini adalah handoff document.** Tujuannya: model AI lain yang melanjutkan
 > proyek ini bisa memahami seluruh konteks tanpa perlu membaca riwayat percakapan.
-> Baca file ini DULU sebelum mengubah apapun. Terakhir diperbarui: 2026-08-13.
+> Baca file ini DULU sebelum mengubah apapun. Terakhir diperbarui: 2026-08-14 (v2).
 
 ---
 
@@ -103,7 +103,15 @@ SEIRI/
 │  │  ├─ 0002_rls.sql             # RLS semua tabel + helper is_admin/is_authenticated
 │  │  │                           #   + trigger handle_new_user + publikasi realtime
 │  │  ├─ 0003_functions.sql       # 15 function (lihat §6) + trigger anti-bypass
-│  │  └─ 0004_seed.sql            # Data contoh (ruangan, sensei, klien, kelas, jadwal)
+│  │  ├─ 0004_seed.sql            # Data contoh (ruangan, sensei, klien, kelas, jadwal)
+│  │  ├─ 0005_v2_jenis_kelas.sql  # v2: enum jenis_kelas + 5 kategori (TG, Benkyou
+│  │  │                           #   Houdai, Semi Private, Grup Kecil, Regular)
+│  │  │                           #   ⚠️ file TERPISAH (ADD VALUE tidak boleh di txn
+│  │  │                           #   yang sama dengan pengguna enum)
+│  │  └─ 0006_v2.sql              # v2: kategori_sesi, soft delete kelas/klien,
+│  │                              #   jadwal_slot.tanggal_mulai, rekreasi RPC
+│  │                              #   (tanggal_mulai-aware), arsipkan_*,
+│  │                              #   upsert_kategori_sesi (lihat §6 + §14)
 │  └─ tests/
 │     └─ conflict_scenarios.sql   # Skenario uji bentrok manual (do-style asserts)
 ├─ cek_ketersediaan_sensei_jadwal_sensei/      # ⚠️ Sisa prototype UI (screenshot
@@ -127,12 +135,14 @@ SEIRI/
    │                              #   — dipakai semua halaman utk loading/error state
    ├─ components/
    │  ├─ layout/
-   │  │  ├─ AppShell.tsx          # Sidebar + TopBar + konten
+   │  │  ├─ AppShell.tsx          # Sidebar + TopBar + konten + MobileDrawer (mobile)
    │  │  ├─ Sidebar.tsx           # Nav utama (reuse di semua halaman)
-   │  │  ├─ TopBar.tsx            # Judul halaman + info user
+   │  │  ├─ MobileDrawer.tsx      # Drawer nav utk mobile (md:hidden, hamburger)
+   │  │  ├─ TopBar.tsx            # Judul halaman + info user + ModeTabs/PeriodNav
    │  │  └─ RouteErrorBoundary.tsx# Error boundary per-route (crash lokal ≠ app mati)
    │  └─ ui/                      # Reusable primitives (jangan duplikasi di feature)
    │     ├─ Badge.tsx             # Badge jenis kelas/lokasi/status; ⚠️ static lookup
+   │     │                        #   (jenisStyles kini 9 kategori)
    │     ├─ Button.tsx            # Varian primary/secondary/ghost/danger + loading
    │     ├─ ConfirmDialog.tsx     # Modal konfirmasi; mendukung checkbox ekstra
    │     │                        #   (dipakai utk "nonaktifkan + jadwal mendatang")
@@ -140,6 +150,7 @@ SEIRI/
    │     ├─ Icon.tsx              # Ikon inline SVG
    │     ├─ Input.tsx             # Input/Select/TextArea/Field (label + error)
    │     ├─ Modal.tsx             # Modal generik
+   │     ├─ MultiSelect.tsx       # v2: filter multi-select dropdown
    │     ├─ StatCard.tsx          # Kartu angka dashboard
    │     ├─ States.tsx            # LoadingSpinner / ErrorState / EmptyState (reuse)
    │     └─ Toast.tsx             # Renderer toast dari toastStore
@@ -149,17 +160,25 @@ SEIRI/
    │  └─ toastStore.ts            # Queue toast + helper `toast.success/error/info`
    ├─ features/
    │  ├─ timeline/
-   │  │  ├─ TimelinePage.tsx      # Grid sensei × jam (today/weekly/monthly)
+   │  │  ├─ TimelinePage.tsx      # Grid sensei × jam (today/weekly/monthly) + filter
    │  │  ├─ TimelineRuanganPage.tsx# Grid ruangan × jam
    │  │  ├─ TimelineGrid.tsx      # Mesin grid generik (baris = sensei/ruangan)
+   │  │  │                        #   kolom label sticky utk scroll horizontal mobile
    │  │  ├─ ScheduleBlock.tsx     # Blok jadwal berwarna (reuse di timeline,
    │  │  │                        #   profil sensei, modal detail)
+   │  │  │                        #   ⚠️ font adaptif: ResizeObserver → data-size
+   │  │  │                        #   (s/m/l) → CSS di index.css (v2 poin 8)
    │  │  ├─ JadwalDetailModal.tsx # Klik blok → detail + ubah status/hapus
    │  │  └─ useResolvedJadwal.ts  # Hook: fetch resolve_jadwal utk rentang aktif
    │  ├─ jadwal/
    │  │  ├─ JadwalListPage.tsx    # Daftar semua slot mentah + filter + aksi
    │  │  └─ FormInputJadwal.tsx   # Form input/edit; pre-check bentrok debounced
    │  │                           #   via check_jadwal_conflicts sebelum submit
+   │  │                           #   (v2: field "Tanggal mulai" utk jadwal rutin)
+   │  ├─ lobby/
+   │  │  ├─ LobbyDisplayPage.tsx  # v2: signage TV lobby full-screen (read-only),
+   │  │  │                        #   TANPA sidebar; header WIB + JP; sedang/selanjutnya
+   │  │  └─ useLobbyData.ts       # v2: data hari ini + Realtime channel auto-refresh
    │  ├─ ketersediaan/
    │  │  └─ KetersediaanPage.tsx  # Cek ketersediaan sensei per rentang tanggal
    │  ├─ kelas/
@@ -167,15 +186,19 @@ SEIRI/
    │  ├─ sensei-profile/
    │  │  ├─ SenseiListPage.tsx    # Daftar sensei (kartu) → link ke profil
    │  │  └─ SenseiProfilePage.tsx # Profil + kalender mingguan + jam per kelas
+   │  │                           #   (v2: tab Jadwal Detail harian/mingguan/bulanan
+   │  │                           #   khusus sensei ini + sesi pengajian)
    │  ├─ dashboard/
    │  │  └─ DashboardPage.tsx     # Bar chart jam mengajar (mingguan/bulanan),
    │  │                           #   StatCards, badge Over/Optimal/Under target
+   │  │                           #   (v2: dual bar jam + SESI; peringatan fallback)
    │  └─ admin/
-   │     ├─ AdminPage.tsx         # Tab container CRUD master
+   │     ├─ AdminPage.tsx         # Tab container CRUD master (+ tab "Aturan Sesi")
    │     ├─ AdminSenseiTab.tsx    # CRUD sensei + flow nonaktifkan (ConfirmDialog)
-   │     ├─ AdminKlienTab.tsx     # CRUD klien/murid
-   │     ├─ AdminKelasTab.tsx     # CRUD kelas + nonaktifkan/aktifkan
-   │     └─ AdminRuanganTab.tsx   # CRUD ruangan + flow nonaktifkan
+   │     ├─ AdminKlienTab.tsx     # CRUD klien/murid + arsip (v2 poin 3)
+   │     ├─ AdminKelasTab.tsx     # CRUD kelas + arsip (v2 poin 3)
+   │     ├─ AdminRuanganTab.tsx   # CRUD ruangan + flow nonaktifkan
+   │     └─ AdminSesiTab.tsx      # v2: CRUD aturan sesi (kategori_sesi)
    └─ lib/
       ├─ supabase/client.ts       # SATU-SATUNYA createClient(); fail-fast tanpa env
       ├─ types/domain.ts          # Semua interface domain (mirror skema DB)
@@ -194,10 +217,12 @@ SEIRI/
          │                        #   + nonaktifkanRuangan(RPC) + aktifkanRuangan
          ├─ klien.ts              # list/create/update/delete
          ├─ kelas.ts              # list/create/update + nonaktifkan/aktifkan
-         │                        #   + listJadwalKelas
+         │                        #   + listJadwalKelas + arsipkan/batalkanArsip (v2)
          ├─ jadwal.ts             # resolveJadwal, checkJadwalConflicts, saveJadwal,
          │                        #   list/getJadwalSlot, setStatusSlot, deleteJadwalSlot
+         │                        #   (v2: semua bawa p_tanggal_mulai)
          ├─ ketersediaan.ts       # checkKetersediaan (RPC check_ketersediaan_sensei)
+         ├─ kategoriSesi.ts       # v2: listKategoriSesi + upsertKategoriSesi
          └─ analytics.ts          # hitungJamMengajar + hitungJamPerKelas (RPC)
 ```
 
@@ -208,6 +233,17 @@ SEIRI/
 ### Tabel (migration `0001_schema.sql`)
 `cabang` (nullable di master utk ekspansi multi-cabang), `profiles` (role
 admin/viewer), `sensei`, `klien`, `ruangan`, `kelas`, `jadwal_slot` (tabel inti).
+
+**v2 (migration `0006_v2.sql`) tambahan kolom/tabel:**
+- `kategori_sesi (jenis jenis_kelas PK, durasi_jam numeric, jumlah_sesi numeric, updated_at)`
+  — konfigurasi konversi durasi → sesi utk pengajian. Seed 9 kategori:
+  TG/CLT/SSW 2 jam = 1 sesi; Bimbel/Benkyou Houdai/Semi Private/Grup Kecil/
+  Private/Regular 1,5 jam = 1 sesi. Diedit admin via tab "Aturan Sesi".
+- `kelas.diarsipkan boolean default false`; `klien.is_aktif boolean default true`
+  (soft delete, riwayat jadwal TIDAK pernah dihapus).
+- `jadwal_slot.tanggal_mulai date` — batas bawah jadwal rutin. Constraints:
+  hanya utk rutin (`slot_tanggal_mulai_rutin`), dan `tanggal_mulai <= berlaku_sampai`
+  (`slot_tanggal_mulai_order`).
 
 **CHECK constraints penting (penjaga struktural):**
 - `slot_exactly_one_mode`: `tanggal` XOR `hari_rutin` (tepat satu terisi).
@@ -232,8 +268,11 @@ admin/viewer), `sensei`, `klien`, `ruangan`, `kelas`, `jadwal_slot` (tabel inti)
 | `check_jadwal_conflicts(...)` | Pre-check read-only utk form (UX real-time sebelum submit). |
 | `resolve_jadwal(p_from,p_to,p_sensei_id?,p_ruangan_id?,p_status?)` | Ekspansi one-off + rutin jadi baris per tanggal. Default status `['aktif','planning']`. Dipakai timeline/ketersediaan/jam mengajar. |
 | `check_ketersediaan_sensei(...)` | Per hari: `tersedia` bool + daftar jadwal (field: **`tersedia`**, bukan `terpenuhi`). |
-| `hitung_jam_mengajar(p_from,p_to,p_sensei_id?)` | Total jam & sesi per sensei (hanya 'aktif'); return `sensei_id, nama_sensei, status_sensei, total_jam, jumlah_sesi, target_jam_minggu`. |
-| `hitung_jam_per_kelas(p_sensei_id,p_from,p_to)` | Breakdown jam per kelas utk profil sensei. |
+| `hitung_jam_mengajar(p_from,p_to,p_sensei_id?)` | Total jam & sesi per sensei (hanya 'aktif'); return `sensei_id, nama_sensei, status_sensei, total_jam, jumlah_sesi, slot_tanpa_aturan_sesi, target_jam_minggu`. `total_jam` = jam mentah 1:1; `jumlah_sesi` PROPORSIONAL = (durasi kelas / durasi_jam aturan) × jumlah_sesi aturan (dibulatkan 2 desimal); fallback 1 slot = 1 sesi bila aturan jenis belum ada (dihitung di `slot_tanpa_aturan_sesi`). |
+| `hitung_jam_per_kelas(p_sensei_id,p_from,p_to)` | Breakdown jam per kelas utk profil sensei (makna jam/sesi sama seperti hitung_jam_mengajar). |
+| `arsipkan_kelas(p_kelas_id, p_nonaktifkan_jadwal_mendatang=false)` | v2 soft delete kelas: `diarsipkan=true, is_aktif=false`; opsional nonaktifkan jadwal mendatang. Guard admin. Riwayat tidak disentuh. |
+| `arsipkan_klien(p_klien_id, p_nonaktifkan_jadwal_mendatang=false)` | v2 soft delete klien: `is_aktif=false`; opsional nonaktifkan jadwal mendatang semua kelas miliknya. Guard admin. |
+| `upsert_kategori_sesi(p_jenis, p_durasi_jam, p_jumlah_sesi=1)` | v2 upsert aturan sesi (tab Aturan Sesi). Guard admin + validasi nilai > 0. |
 | `count_jadwal_mendatang(p_sensei_id?,p_ruangan_id?)` | Hitung slot aktif mendatang (≥ today_wib) — guard sebelum nonaktifkan. |
 | `nonaktifkan_sensei(id, p_nonaktifkan_jadwal_mendatang)` | Set is_aktif=false; opsional nonaktifkan jadwal mendatang. Guard is_admin. |
 | `nonaktifkan_ruangan(id, p_nonaktifkan_jadwal_mendatang)` | Sama utk ruangan. |
@@ -265,9 +304,11 @@ dipublikasikan utk jadwal_slot/sensei/ruangan/kelas.
 | `/sensei` & `/sensei/:id` | Daftar & profil sensei |
 | `/ketersediaan` | Cek ketersediaan sensei |
 | `/dashboard` | Dashboard jam mengajar |
-| `/admin` | CRUD master (sensei/klien/kelas/ruangan) |
+| `/admin` | CRUD master (sensei/klien/kelas/ruangan + tab Aturan Sesi) |
+| `/lobby-display` | v2: signage TV lobby full-screen (tetap butuh login; tanpa sidebar) |
 
 Setiap halaman dibungkus `RequireAuth` → `AppShell` → `RouteErrorBoundary`.
+Kecuali `/lobby-display` memakai `barePage` (RequireAuth + boundary, TANPA AppShell).
 
 ---
 
@@ -291,11 +332,14 @@ Setiap halaman dibungkus `RequireAuth` → `AppShell` → `RouteErrorBoundary`.
 | # | Kasus | Status | Mekanisme |
 |---|-------|--------|-----------|
 | 1 | Batas jam bersentuhan (14:00/14:00) valid | ✅ PASS | `jam_overlap` SQL & `jamOverlap` TS: pertidaksamaan ketat. |
-| 2 | Rutin × one-off tumpang tindih di tanggal sama | ✅ PASS | `jadwal_dates_intersect` menangani 4 kombinasi + `berlaku_sampai`. |
+| 2 | Rutin × one-off tumpang tindih di tanggal sama | ✅ PASS | `jadwal_dates_intersect` menangani 4 kombinasi + `berlaku_sampai` (+ `tanggal_mulai` v2). |
 | 3 | Hapus sensei/ruangan berjadwal aktif | ✅ PASS | FK RESTRICT + RPC nonaktifkan + ConfirmDialog + guard `countJadwalMendatang`. |
 | 4 | kelas_perusahaan/rumah tidak ikut bentrok ruangan | ✅ PASS | Constraint `slot_ruangan_consistency` + filter `find_jadwal_conflicts`. |
 | 5 | Konsistensi WIB | ✅ PASS | `today_wib()` SQL / `todayWIB()` TS; tidak pernah waktu lokal. |
 | 6 | Concurrent input 2 admin | ✅ PASS | `LOCK TABLE ... SHARE ROW EXCLUSIVE` di `save_jadwal` + trigger anti-bypass. |
+| 7 | Rutin × rutin dengan jendela tanggal hanya beririsan sebagian | ✅ PASS (v2) | `jadwal_dates_intersect` cek overlap jendela tanggal kedua sisi (hanya bentrok bila benar-benar tumpang tindih). |
+| 8 | `tanggal_mulai` jadwal rutin (mulai di masa depan) | ✅ PASS (v2) | `resolve_jadwal` & `jadwal_dates_intersect` keduanya menghormati `tanggal_mulai`; constraint order `tanggal_mulai <= berlaku_sampai`. |
+| 9 | Arisip kelas/klien menjaga riwayat | ✅ PASS (v2) | `arsipkan_*` hanya set `diarsipkan/is_aktif`, tidak pernah DELETE; jam/sesi historis tetap terhitung. |
 
 ---
 
@@ -336,11 +380,55 @@ Setiap halaman dibungkus `RequireAuth` → `AppShell` → `RouteErrorBoundary`.
     load mode edit juga mengisi `tanggal: null` utk slot rutin. Aturan: jika
     menambah field yang hanya valid di mode tertentu, pastikan nilainya
     dibersihkan saat pindah mode dan di-load mode edit.
+14. **Jenis kelas kini 9 kategori** (v2) — SEMUA referensi harus lewat
+    `JENIS_KELAS_LIST` dari `@/lib/types/domain` dan warna via `jenisStyles`
+    dari `Badge.tsx` + palet `cat-*` di `tailwind.config.ts`. JANGAN hardcode
+    literal 4 kategori lama di file baru. Urutan canonical:
+    CLT, Bimbel, SSW, Private, TG, Benkyou Houdai, Semi Private, Grup Kecil, Regular.
+15. **Sesi ≠ jam mengajar** — `total_jam` di RPC = jam mentah 1:1 (utk jam
+    mengajar); `jumlah_sesi` = sesi proporsional utk pengajian. Jangan
+    mencampur makna keduanya di UI (profil/dashboard menampilkan terpisah).
+16. **Enum array param RPC wajib cast** — panggilan internal ke
+    `resolve_jadwal(... array['aktif']::public.status_slot[])` wajib cast
+    eksplisit (lihat no. 11).
+17. **Signature RPC per-parameter** — setiap ubah parameter function =
+    revoke + grant ulang signature TEPAT (0006 melakukannya utk semua
+    function yang berubah). Jangan lupa grant utk function baru.
 
 ---
 
 ## 11. Status Proyek Saat Ini
 
+### v2 (2026-08-14) — fitur & perbaikan
+- ✅ Lobby Display (`/lobby-display`, `src/features/lobby/`): signage TV
+  full-screen tanpa sidebar; header logo + tanggal Indonesia/Jepang + jam
+  WIB real-time tiap detik; section "KELAS SEDANG BERLANGSUNG" (card +
+  progress bar) & "KELAS SELANJUTNYA" (maks 6); auto-refresh Realtime
+  (`useLobbyData`); tetap butuh login (viewer utk TV).
+- ✅ Profil sensei: tab "Jadwal Detail" harian/mingguan/bulanan khusus
+  sensei ini (reuse `ScheduleBlock` + `useResolvedJadwal` dgn `senseiId`).
+- ✅ Jenis kelas 9 kategori (enum `0005`, warna `tailwind.config`,
+  `jenisStyles`, `JENIS_KELAS_LIST`) — konsisten di timeline, filter,
+  dashboard, lobby.
+- ✅ Soft delete kelas (`diarsipkan`) & klien (`is_aktif`) + tombol hapus
+  dgn modal konfirmasi di admin; riwayat tidak pernah hilang.
+- ✅ Form jadwal rutin: field "Tanggal mulai" (validasi
+  `tanggal_mulai <= berlaku_sampai` di Zod + RPC + constraint DB).
+- ✅ Filter kombinable (jenis multi-select, sensei, status) + reset satu
+  klik di Timeline, Daftar Jadwal, Daftar Kelas, Admin (kelas/klien).
+- ✅ Perhitungan SESI utk pengajian: tabel `kategori_sesi` (bukan hardcode)
+  + tab "Aturan Sesi" di Admin; sesi proporsional (2 jam = 1 sesi utk
+  TG/CLT/SSW; 1,5 jam = 1 sesi utk sisanya; 3 jam = 1,5 sesi). Jam mengajar
+  tetap 1:1 — ditampilkan TERPISAH di profil & dashboard (dual bar).
+- ✅ Responsive mobile: hamburger + `MobileDrawer`; kolom label sticky di
+  grid timeline; grid minggu/`DetailWeekly` scroll horizontal; TopBar
+  padding kiri di mobile; tabel admin sudah `overflow-x-auto`.
+- ✅ Font adaptif ScheduleBlock (ResizeObserver → `data-size` s/m/l → CSS
+  container query; baris jam disembunyikan saat sempit, nama+lokasi
+  diprioritaskan, jam tetap via tooltip/klik).
+- ✅ Build & typecheck hijau.
+
+### v1 (baseline, sudah di-deploy & ditest user)
 - ✅ Implementasi selesai; `npm run typecheck` & `npm run build` hijau.
 - ✅ Bug ditemukan & diperbaiki saat audit:
   1. `AdminSenseiTab.tsx` — `senseiSchema.parse` membuang `is_aktif`; kini
@@ -365,6 +453,13 @@ Setiap halaman dibungkus `RequireAuth` → `AppShell` → `RouteErrorBoundary`.
   viewer & self-promote diblokir policy).
 - 🚀 Deployment: GitHub + Vercel + Supabase (lihat §13).
 
+### Migration yang BELUM dijalankan user
+- ⚠️ `0005_v2_jenis_kelas.sql` dan `0006_v2.sql` BELUM dijalankan di
+  Supabase SQL Editor. Urutan wajib: `0005` DULU, baru `0006` (0005 menambah
+  enum; 0006 memakai nilai baru itu di seed kategori_sesi). Setelah
+  dijalankan, v1 frontend lama tetap jalan (additive); v2 frontend
+  membutuhkan keduanya.
+
 ---
 
 ## 12. Cara Menjalankan
@@ -378,7 +473,11 @@ npm run build                # produksi
 ```
 
 Urutan apply migration di Supabase: `0001_schema.sql` → `0002_rls.sql` →
-`0003_functions.sql` → `0004_seed.sql` (opsional, data contoh).
+`0003_functions.sql` → `0004_seed.sql` (opsional, data contoh) →
+`0005_v2_jenis_kelas.sql` → `0006_v2.sql`.
+
+> ⚠️ v2: jalankan `0005` DULU sebelum `0006`. Jika sudah pernah menjalankan
+> 0001-0004, cukup jalankan 0005 lalu 0006 (tidak perlu ulang dari awal).
 
 ---
 
@@ -410,6 +509,10 @@ Urutan apply migration di Supabase: `0001_schema.sql` → `0002_rls.sql` →
    Build `npm run build`, Output `dist` → isi env vars → Deploy.
 6. Test: login sebagai admin → cek semua halaman → coba input jadwal
    bentrok harus ditolak server.
+
+> **v2:** setelah pull v2, jalankan migration 0005 & 0006 di Supabase dulu,
+> lalu `npm run build` + push. Lobby display: login dengan akun (admin atau
+> viewer) lalu buka `/lobby-display` di TV.
 
 ### Update selanjutnya
 `git push` ke branch default → Vercel auto-deploy. Setelah ubah env var

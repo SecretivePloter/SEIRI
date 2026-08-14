@@ -4,16 +4,19 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { resolveJadwal } from '@/lib/api/jadwal';
 import { supabase } from '@/lib/supabase/client';
-import type { JadwalResolved } from '@/lib/types/domain';
+import type { JadwalResolved, StatusSlot } from '@/lib/types/domain';
 
 export function useResolvedJadwal(
   from: string,
   to: string,
-  opts?: { senseiId?: string; ruanganId?: string },
+  opts?: { senseiId?: string; ruanganId?: string; status?: StatusSlot[] },
 ) {
   const [jadwal, setJadwal] = useState<JadwalResolved[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Serialisasi daftar status supaya bisa jadi dependency useEffect yang stabil
+  const statusKey = opts?.status ? opts.status.join(',') : '';
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -26,7 +29,8 @@ export function useResolvedJadwal(
     } finally {
       setLoading(false);
     }
-  }, [from, to, opts?.senseiId, opts?.ruanganId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [from, to, opts?.senseiId, opts?.ruanganId, statusKey]);
 
   useEffect(() => {
     void load();

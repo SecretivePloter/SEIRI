@@ -17,6 +17,7 @@ export const jadwalFormSchema = z
     mode: z.enum(['one_off', 'rutin']),
     tanggal: z.string().nullable(),
     hari_rutin: z.array(hariSchema).nullable(),
+    tanggal_mulai: z.string().nullable(),
     berlaku_sampai: z.string().nullable(),
     jam_mulai: z.string().regex(timePattern, 'Format jam HH:MM'),
     jam_selesai: z.string().regex(timePattern, 'Format jam HH:MM'),
@@ -39,6 +40,17 @@ export const jadwalFormSchema = z
     }
     if (v.mode === 'one_off' && v.berlaku_sampai) {
       ctx.addIssue({ code: 'custom', path: ['berlaku_sampai'], message: 'Berlaku sampai hanya untuk jadwal rutin' });
+    }
+    if (v.mode === 'one_off' && v.tanggal_mulai) {
+      ctx.addIssue({ code: 'custom', path: ['tanggal_mulai'], message: 'Tanggal mulai hanya untuk jadwal rutin' });
+    }
+    // Tanggal mulai tidak boleh setelah berlaku sampai (v2 poin 4)
+    if (v.mode === 'rutin' && v.tanggal_mulai && v.berlaku_sampai && v.tanggal_mulai > v.berlaku_sampai) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['tanggal_mulai'],
+        message: 'Tanggal mulai tidak boleh setelah tanggal berlaku sampai',
+      });
     }
 
     // Jam: selesai harus setelah mulai (kelas tidak lewat tengah malam — asumsi #4)
@@ -73,6 +85,7 @@ export function toJadwalInput(v: JadwalFormValues) {
     kelas_id: v.kelas_id,
     tanggal: v.mode === 'one_off' ? v.tanggal : null,
     hari_rutin: v.mode === 'rutin' ? (v.hari_rutin as HariIndo[] | null) : null,
+    tanggal_mulai: v.mode === 'rutin' ? v.tanggal_mulai : null,
     berlaku_sampai: v.mode === 'rutin' ? v.berlaku_sampai : null,
     jam_mulai: v.jam_mulai.length === 5 ? `${v.jam_mulai}:00` : v.jam_mulai,
     jam_selesai: v.jam_selesai.length === 5 ? `${v.jam_selesai}:00` : v.jam_selesai,

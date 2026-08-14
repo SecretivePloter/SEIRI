@@ -1,6 +1,8 @@
-// DashboardPage — dashboard jam mengajar: stat cards, bar chart (Recharts),
-// dan daftar status sensei (Over/Optimal/Under target). Periode bisa
-// mingguan atau bulanan dengan navigasi periode.
+// DashboardPage — dashboard jam mengajar & sesi pengajian: stat cards,
+// bar chart (Recharts) jam (1:1) + sesi (proporsional), dan daftar status
+// sensei (Over/Optimal/Under target). Periode bisa mingguan atau bulanan.
+// Sesi dihitung dari tabel kategori_sesi (Admin > Aturan Sesi), bukan
+// hardcode — jam mengajar tetap 1:1, sesi utk pengajian.
 
 import { useMemo, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -58,6 +60,7 @@ export function DashboardPage() {
 
   const totalJam = rows.reduce((acc, r) => acc + r.total_jam, 0);
   const totalSesi = rows.reduce((acc, r) => acc + r.jumlah_sesi, 0);
+  const tanpaAturan = rows.reduce((acc, r) => acc + (r.slot_tanpa_aturan_sesi ?? 0), 0);
   const avg = rows.length > 0 ? totalJam / rows.length : 0;
   const overTarget = rows.filter((r) => r.target_jam_minggu != null && r.total_jam > (r.target_jam_minggu / 7) * daysInRange).length;
 
@@ -96,16 +99,16 @@ export function DashboardPage() {
             <StatCard
               icon="schedule"
               label="Total Jam Mengajar"
-              value={q.loading ? '…' : totalJam}
+              value={q.loading ? '...' : totalJam}
               suffix="jam"
-              sub={`${totalSesi} sesi`}
+              sub={`${totalSesi} sesi (pengajian)`}
               tone="accent"
             />
-            <StatCard icon="group" label="Rata-rata / Sensei" value={q.loading ? '…' : avg.toFixed(1)} suffix="jam" />
+            <StatCard icon="group" label="Rata-rata / Sensei" value={q.loading ? '...' : avg.toFixed(1)} suffix="jam" />
             <StatCard
               icon="warning"
               label="Sensei Over Target"
-              value={q.loading ? '…' : overTarget}
+              value={q.loading ? '...' : overTarget}
               tone={overTarget > 0 ? 'warn' : 'default'}
               sub="dari target mingguan"
             />
@@ -123,9 +126,9 @@ export function DashboardPage() {
             />
           ) : (
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-              {/* Bar chart */}
+              {/* Bar chart: jam (1:1) + sesi (pengajian) berdampingan */}
               <div className="rounded-card border border-outline-variant bg-surface-container-lowest p-6 lg:col-span-2">
-                <h3 className="mb-4 font-headline-sm text-headline-sm text-on-surface">Distribusi Jam Mengajar</h3>
+                <h3 className="mb-4 font-headline-sm text-headline-sm text-on-surface">Jam & Sesi Mengajar</h3>
                 <div className="h-64">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={rows} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
@@ -138,14 +141,28 @@ export function DashboardPage() {
                         textAnchor={rows.length > 6 ? 'end' : 'middle'}
                         height={48}
                       />
-                      <YAxis tick={{ fontSize: 12 }} allowDecimals={false} />
+                      <YAxis tick={{ fontSize: 12 }} allowDecimals />
                       <Tooltip
-                        formatter={(value) => [`${value} jam`, 'Total']}
+                        formatter={(value, name) =>
+                          name === 'jumlah_sesi' ? [`${value} sesi`, 'Sesi'] : [`${value} jam`, 'Jam']
+                        }
                         cursor={{ fill: 'rgba(16,43,140,0.06)' }}
                       />
-                      <Bar dataKey="total_jam" fill="#102b8c" radius={[4, 4, 0, 0]} maxBarSize={48} />
+                      <Bar dataKey="total_jam" name="Jam" fill="#102b8c" radius={[4, 4, 0, 0]} maxBarSize={48} />
+                      <Bar dataKey="jumlah_sesi" name="Sesi" fill="#f97316" radius={[4, 4, 0, 0]} maxBarSize={48} />
                     </BarChart>
                   </ResponsiveContainer>
+                </div>
+                <div className="mt-3 flex flex-wrap items-center gap-4 font-label-sm text-label-sm text-secondary">
+                  <span className="flex items-center gap-1.5">
+                    <span className="h-3 w-3 rounded-sm bg-[#102b8c]" /> Jam mengajar (1:1)
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="h-3 w-3 rounded-sm bg-[#f97316]" /> Sesi pengajian (proporsional)
+                  </span>
+                  {tanpaAturan > 0 && (
+                    <span className="text-error">{tanpaAturan} slot memakai fallback 1 slot = 1 sesi (aturan belum ada)</span>
+                  )}
                 </div>
               </div>
 
@@ -169,6 +186,9 @@ export function DashboardPage() {
                             <p className="truncate font-body-md text-body-md text-on-surface">{r.nama_sensei}</p>
                             <p className="font-label-sm text-label-sm text-secondary">
                               {r.total_jam} jam / {r.jumlah_sesi} sesi
+                              {r.slot_tanpa_aturan_sesi > 0 && (
+                                <span className="ml-1 text-error">({r.slot_tanpa_aturan_sesi} slot fallback)</span>
+                              )}
                             </p>
                           </div>
                         </div>
@@ -185,7 +205,8 @@ export function DashboardPage() {
 
           <p className="font-label-sm text-label-sm text-secondary">
             Hanya jadwal berstatus <span className="font-medium">aktif</span> yang dihitung. Status{' '}
-            <span className="font-medium">planning</span> tidak ikut dihitung.
+            <span className="font-medium">planning</span> tidak ikut dihitung. Jam mengajar dihitung 1:1;
+            sesi pengajian dihitung proporsional dari aturan di Admin &gt; Aturan Sesi.
           </p>
         </div>
       </main>

@@ -31,6 +31,7 @@ const DEFAULT_FORM: JadwalFormValues = {
   mode: 'one_off',
   tanggal: todayWIB(),
   hari_rutin: null,
+  tanggal_mulai: null,
   berlaku_sampai: null,
   jam_mulai: '09:00',
   jam_selesai: '10:30',
@@ -73,6 +74,7 @@ export function FormInputJadwal() {
           // (kalau terisi, validasi Zod menolak: 'rutin tidak memakai tanggal').
           tanggal: slot.hari_rutin ? null : (slot.tanggal ?? todayWIB()),
           hari_rutin: slot.hari_rutin,
+          tanggal_mulai: slot.tanggal_mulai,
           berlaku_sampai: slot.berlaku_sampai,
           jam_mulai: slot.jam_mulai.slice(0, 5),
           jam_selesai: slot.jam_selesai.slice(0, 5),
@@ -109,7 +111,14 @@ export function FormInputJadwal() {
   const switchMode = (mode: 'one_off' | 'rutin') => {
     if (mode === form.mode) return;
     if (mode === 'one_off') {
-      setForm((f) => ({ ...f, mode, hari_rutin: null, berlaku_sampai: null, tanggal: f.tanggal ?? todayWIB() }));
+      setForm((f) => ({
+        ...f,
+        mode,
+        hari_rutin: null,
+        tanggal_mulai: null,
+        berlaku_sampai: null,
+        tanggal: f.tanggal ?? todayWIB(),
+      }));
     } else {
       setForm((f) => ({ ...f, mode, tanggal: null }));
     }
@@ -117,6 +126,7 @@ export function FormInputJadwal() {
       const next = { ...e };
       delete next['tanggal'];
       delete next['hari_rutin'];
+      delete next['tanggal_mulai'];
       delete next['berlaku_sampai'];
       return next;
     });
@@ -294,17 +304,30 @@ export function FormInputJadwal() {
                     ))}
                   </div>
                 </Field>
-                <Field
-                  label="Berlaku sampai (opsional)"
-                  error={errors['berlaku_sampai']}
-                  hint="Kosongkan jika rutin tanpa batas akhir"
-                >
-                  <Input
-                    type="date"
-                    value={form.berlaku_sampai ?? ''}
-                    onChange={(e) => set('berlaku_sampai', e.target.value || null)}
-                  />
-                </Field>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Field
+                    label="Tanggal mulai (opsional)"
+                    error={errors['tanggal_mulai']}
+                    hint="Sejak kapan jadwal rutin aktif; kosongkan jika langsung berlaku"
+                  >
+                    <Input
+                      type="date"
+                      value={form.tanggal_mulai ?? ''}
+                      onChange={(e) => set('tanggal_mulai', e.target.value || null)}
+                    />
+                  </Field>
+                  <Field
+                    label="Berlaku sampai (opsional)"
+                    error={errors['berlaku_sampai']}
+                    hint="Kosongkan jika rutin tanpa batas akhir"
+                  >
+                    <Input
+                      type="date"
+                      value={form.berlaku_sampai ?? ''}
+                      onChange={(e) => set('berlaku_sampai', e.target.value || null)}
+                    />
+                  </Field>
+                </div>
               </div>
             )}
 

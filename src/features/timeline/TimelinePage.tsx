@@ -7,7 +7,7 @@ import { TopBar, ModeTabs, PeriodNav } from '@/components/layout/TopBar';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { LoadingState, ErrorState, EmptyState } from '@/components/ui/States';
-import { JenisBadge } from '@/components/ui/Badge';
+import { MultiSelect, ResetFiltersButton } from '@/components/ui/MultiSelect';
 import { Icon } from '@/components/ui/Icon';
 import { TimelineGrid, type TimelineRow } from './TimelineGrid';
 import { ScheduleBlock } from './ScheduleBlock';
@@ -15,8 +15,13 @@ import { useResolvedJadwal } from './useResolvedJadwal';
 import { JadwalDetailModal } from './JadwalDetailModal';
 import { listSensei } from '@/lib/api/sensei';
 import { useAsyncData } from '@/app/useAsyncData';
-import { useTimelineFilterStore, type TimelineMode } from '@/stores/timelineStore';
-import type { JadwalResolved, JenisKelas } from '@/lib/types/domain';
+import {
+  useTimelineFilterStore,
+  type TimelineMode,
+  type StatusFilter,
+} from '@/stores/timelineStore';
+import type { JadwalResolved, JenisKelas, StatusSlot } from '@/lib/types/domain';
+import { JENIS_KELAS_LIST } from '@/lib/types/domain';
 import {
   todayWIB,
   addDays,
@@ -28,11 +33,30 @@ import {
   dateRange,
 } from '@/lib/time';
 
-const JENIS_OPTIONS: JenisKelas[] = ['CLT', 'Bimbel', 'SSW', 'Private'];
+/** Status slot yang di-request dari resolve_jadwal sesuai filter status */
+function statusToRpcParam(status: StatusFilter): StatusSlot[] | undefined {
+  if (status === 'aktif') return ['aktif', 'planning'];
+  if (status === 'tidak_aktif') return ['tidak_aktif'];
+  return undefined; // semua
+}
 
 export function TimelinePage() {
-  const { mode, setMode, anchorDate, setAnchorDate, jenisFilter, toggleJenis, search, setSearch } =
-    useTimelineFilterStore();
+  const {
+    mode,
+    setMode,
+    anchorDate,
+    setAnchorDate,
+    jenisFilter,
+    toggleJenis,
+    senseiFilter,
+    toggleSensei,
+    statusFilter,
+    setStatusFilter,
+    search,
+    setSearch,
+    resetFilters,
+    hasActiveFilters,
+  } = useTimelineFilterStore();
   const [selected, setSelected] = useState<JadwalResolved | null>(null);
 
   // Rentang tanggal sesuai mode
@@ -46,19 +70,23 @@ export function TimelinePage() {
   }, [mode, anchorDate]);
 
   const senseiQ = useAsyncData(listSensei, []);
-  const { jadwal, loading, error, reload } = useResolvedJadwal(from, to);
+  const rpcStatus = statusToRpcParam(statusFilter);
+  const { jadwal, loading, error, reload } = useResolvedJadwal(from, to, {
+    status: rpcStatus,
+  });
 
   const filtered = useMemo(() => {
     const senseiNama = new Map(senseiQ.data?.map((s) => [s.id, s.nama]) ?? []);
     return jadwal.filter((j) => {
       if (jenisFilter.length > 0 && !jenisFilter.includes(j.kelas_jenis)) return false;
+      if (senseiFilter.length > 0 && !senseiFilter.includes(j.sensei_id)) return false;
       if (search) {
         const hay = `${j.kelas_nama} ${senseiNama.get(j.sensei_id) ?? ''} ${j.ruangan_nama ?? ''}`.toLowerCase();
         if (!hay.includes(search.toLowerCase())) return false;
       }
       return true;
     });
-  }, [jadwal, jenisFilter, search, senseiQ.data]);
+  }, [jadwal, jenisFilter, senseiFilter, search, senseiQ.data]);
 
   const navigate = (dir: 1 | -1) => {
     if (mode === 'today') setAnchorDate(addDays(anchorDate, dir));
@@ -111,24 +139,41 @@ export function TimelinePage() {
       />
       <main className="flex-1 overflow-y-auto p-container-padding">
         <div className="mx-auto flex max-w-[1400px] flex-col gap-4">
-          {/* Filter bar */}
-          <div className="flex flex-col gap-3 rounded-card border border-outline-variant bg-surface-container-lowest p-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex flex-wrap items-center gap-2">
-              {JENIS_OPTIONS.map((j) => (
-                <button key={j} onClick={() => toggleJenis(j)} aria-pressed={jenisFilter.includes(j)}>
-                  <span className={jenisFilter.includes(j) ? 'inline-block rounded-full ring-2 ring-primary/30' : 'inline-block'}>
-                    <JenisBadge jenis={j} />
-                  </span>
-                </button>
-              ))}
+          {/* Filter bar: jenis kelas (9) + sensei + status + cari. AND. */}
+          <div className="flex flex-col gap-3 rounded-card border border-outline-variant bg-surface-container-lowest p-4">
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+              <MultiSelect<JenisKelas>
+                label="Jenis kelas"
+                options={JENIS_KELAS_LIST.map((j) => ({ value: j, label: j }))}
+                selected={jenisFilter}
+                onToggle={toggleJenis}
+              />
+              <MultiSelect<string>
+                label="Sensei"
+                options={(senseiQ.data ?? []).map((s) => ({ value: s.id, label: s.nama }))}
+                selected={senseiFilter}
+                onToggle={toggleSensei}
+              />
+              <div>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
+                  className="w-full rounded border border-border-input bg-surface-container-lowest px-3 py-2 font-body-md text-body-md text-on-surface focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/10"
+                >
+                  <option value="aktif">Aktif (+planning pudar)</option>
+                  <option value="tidak_aktif">Tidak aktif</option>
+                  <option value="semua">Semua status</option>
+                </select>
+              </div>
+              <ResetFiltersButton onClick={resetFilters} visible={hasActiveFilters()} />
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <PeriodNav label={periodLabel} onPrev={() => navigate(-1)} onNext={() => navigate(1)} />
-              <div className="relative w-56">
+              <div className="relative w-full flex-1 sm:w-56 sm:flex-none">
                 <Icon name="search" size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary" />
                 <Input
                   className="pl-9"
-                  placeholder="Cari sensei/kelas…"
+                  placeholder="Cari sensei/kelas..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
@@ -214,7 +259,7 @@ function WeeklyGrid({
     <div className="overflow-x-auto rounded-card border border-outline-variant bg-surface-container-lowest">
       <div className="min-w-[900px]">
         <div className="grid border-b border-outline-variant bg-thead" style={{ gridTemplateColumns: '180px repeat(7, 1fr)' }}>
-          <div className="border-r border-outline-variant p-3 font-label-sm text-label-sm text-secondary">Sensei</div>
+          <div className="sticky left-0 z-10 border-r border-outline-variant bg-thead p-3 font-label-sm text-label-sm text-secondary">Sensei</div>
           {days.map((d) => (
             <div
               key={d}
@@ -228,7 +273,7 @@ function WeeklyGrid({
         </div>
         {rows.map((row) => (
           <div key={row.id} className="grid border-b border-outline-variant last:border-b-0" style={{ gridTemplateColumns: '180px repeat(7, 1fr)' }}>
-            <div className="flex flex-col justify-center border-r border-outline-variant p-3">
+            <div className="sticky left-0 z-10 flex flex-col justify-center border-r border-outline-variant bg-surface-container-lowest p-3">
               <p className="truncate font-label-md text-label-md text-on-surface">{row.label}</p>
               {row.sublabel && <p className="truncate font-label-sm text-label-sm text-secondary">{row.sublabel}</p>}
             </div>

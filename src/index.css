@@ -30,3 +30,45 @@ body {
   background-color: #f8f9ff;
   color: #0b1c30;
 }
+
+/* ============================================================
+   Font adaptif di ScheduleBlock (v2 poin 8)
+   Komponen men-set data-size = s | m | l via ResizeObserver.
+   Prioritas saat sempit: nama kelas & lokasi tetap terbaca;
+   baris jam disembunyikan di ukuran s.
+   ============================================================ */
+[data-size='s'] .block-nama {
+  font-size: 10px;
+  line-height: 1.1;
+}
+[data-size='s'] .block-lokasi {
+  font-size: 9px;
+  line-height: 1.1;
+}
+[data-size='s'] .block-time {
+  display: none;
+}
+[data-size='m'] .block-nama {
+  font-size: 11px;
+  line-height: 1.2;
+}
+[data-size='m'] .block-lokasi {
+  font-size: 10px;
+  line-height: 1.2;
+}
+[data-size='m'] .block-time {
+  font-size: 9px;
+  line-height: 1.2;
+}
+[data-size='l'] .block-nama {
+  font-size: 13px;
+  line-height: 1.25;
+}
+[data-size='l'] .block-lokasi {
+  font-size: 11px;
+  line-height: 1.25;
+}
+[data-size='l'] .block-time {
+  font-size: 11px;
+  line-height: 1.25;
+}

@@ -38,7 +38,7 @@ export function TimelineGrid({
       <div className="min-w-[900px]">
         {/* Header jam */}
         <div className="grid border-b border-outline-variant bg-thead" style={{ gridTemplateColumns: '180px 1fr' }}>
-          <div className="border-r border-outline-variant p-3 font-label-sm text-label-sm text-secondary">WIB</div>
+          <div className="sticky left-0 z-10 border-r border-outline-variant bg-thead p-3 font-label-sm text-label-sm text-secondary">WIB</div>
           <div className="relative">
             <div className="grid h-full" style={{ gridTemplateColumns: `repeat(${hours.length - 1}, 1fr)` }}>
               {hours.slice(0, -1).map((h) => (
@@ -59,7 +59,7 @@ export function TimelineGrid({
               className="grid border-b border-outline-variant last:border-b-0"
               style={{ gridTemplateColumns: '180px 1fr' }}
             >
-              <div className="flex flex-col justify-center border-r border-outline-variant p-3">
+              <div className="sticky left-0 z-10 flex flex-col justify-center border-r border-outline-variant bg-surface-container-lowest p-3">
                 <p className="truncate font-label-md text-label-md text-on-surface">{row.label}</p>
                 {row.sublabel && <p className="truncate font-label-sm text-label-sm text-secondary">{row.sublabel}</p>}
               </div>

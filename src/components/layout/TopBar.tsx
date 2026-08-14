@@ -15,7 +15,7 @@ export function TopBar({
   actions?: ReactNode;
 }) {
   return (
-    <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between border-b border-outline-variant bg-surface px-gutter">
+    <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between border-b border-outline-variant bg-surface px-gutter pl-12 md:pl-gutter">
       <div className="min-w-0">
         <h2 className="truncate font-headline-sm text-headline-sm font-semibold text-on-surface">{title}</h2>
         {subtitle && <p className="truncate font-label-sm text-label-sm text-secondary">{subtitle}</p>}

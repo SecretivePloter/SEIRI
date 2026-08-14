@@ -44,6 +44,7 @@ export async function checkJadwalConflicts(input: JadwalInput, slotId?: string):
     p_jam_selesai: input.jam_selesai,
     p_tipe_lokasi: input.tipe_lokasi,
     p_ruangan_id: input.ruangan_id,
+    p_tanggal_mulai: input.tanggal_mulai,
   });
   return unwrap(data, error) as ConflictItem[];
 }
@@ -68,6 +69,7 @@ export async function saveJadwal(input: JadwalInput, id?: string): Promise<strin
     p_alamat_tujuan: input.alamat_tujuan,
     p_status: input.status,
     p_keterangan: input.keterangan,
+    p_tanggal_mulai: input.tanggal_mulai,
   });
   try {
     return unwrap(data, error) as string;
@@ -112,6 +114,7 @@ export async function setStatusSlot(id: string, status: StatusSlot): Promise<voi
         kelas_id: slot.kelas_id,
         tanggal: slot.tanggal,
         hari_rutin: slot.hari_rutin,
+        tanggal_mulai: slot.tanggal_mulai,
         berlaku_sampai: slot.berlaku_sampai,
         jam_mulai: slot.jam_mulai,
         jam_selesai: slot.jam_selesai,

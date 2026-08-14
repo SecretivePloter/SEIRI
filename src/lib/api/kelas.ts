@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase/client';
 import type { Kelas, JadwalSlot } from '@/lib/types/domain';
 import { unwrap } from './rpcError';
 
-export type KelasInput = Pick<Kelas, 'nama_kelas' | 'jenis' | 'klien_id'> & { is_aktif?: boolean };
+export type KelasInput = Pick<Kelas, 'nama_kelas' | 'jenis' | 'klien_id'> & { is_aktif?: boolean; diarsipkan?: boolean };
 
 export async function listKelas(opts?: { includeNonaktif?: boolean }): Promise<Kelas[]> {
   let q = supabase
@@ -36,6 +36,24 @@ export async function nonaktifkanKelas(id: string): Promise<Kelas> {
 
 export async function aktifkanKelas(id: string): Promise<Kelas> {
   return updateKelas(id, { is_aktif: true });
+}
+
+/**
+ * Arsip kelas (soft delete, v2 poin 3): tandai diarsipkan + nonaktifkan
+ * via RPC arsipkan_kelas; opsional ikut menonaktifkan jadwal mendatang.
+ * Riwayat jam mengajar masa lalu TIDAK pernah disentuh.
+ */
+export async function arsipkanKelas(id: string, nonaktifkanJadwalMendatang = false): Promise<void> {
+  const { data, error } = await supabase.rpc('arsipkan_kelas', {
+    p_kelas_id: id,
+    p_nonaktifkan_jadwal_mendatang: nonaktifkanJadwalMendatang,
+  });
+  unwrap(data, error);
+}
+
+/** Batalkan arsip kelas (aktifkan kembali). */
+export async function batalkanArsipKelas(id: string): Promise<Kelas> {
+  return updateKelas(id, { diarsipkan: false, is_aktif: true });
 }
 
 /** Daftar jadwal milik sebuah kelas (utk preview sebelum nonaktifkan) */

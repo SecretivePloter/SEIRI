@@ -3,7 +3,30 @@
 // `supabase gen types typescript --project-id <id> --schema public > src/lib/types/database.ts`
 
 export type SenseiStatus = 'Sensei Utama' | 'Frelance';
-export type JenisKelas = 'CLT' | 'Bimbel' | 'SSW' | 'Private';
+/** 9 kategori kelas (v2: + TG, Benkyou Houdai, Semi Private, Grup Kecil, Regular) */
+export type JenisKelas =
+  | 'CLT'
+  | 'Bimbel'
+  | 'SSW'
+  | 'Private'
+  | 'TG'
+  | 'Benkyou Houdai'
+  | 'Semi Private'
+  | 'Grup Kecil'
+  | 'Regular';
+
+/** Urutan tampilan kategori di semua dropdown/filter/legenda */
+export const JENIS_KELAS_LIST: JenisKelas[] = [
+  'CLT',
+  'Bimbel',
+  'SSW',
+  'Private',
+  'TG',
+  'Benkyou Houdai',
+  'Semi Private',
+  'Grup Kecil',
+  'Regular',
+];
 export type JenisKlien = 'individu' | 'perusahaan';
 export type TipeLokasi = 'ruangan' | 'kelas_perusahaan' | 'kelas_rumah';
 export type StatusSlot = 'aktif' | 'tidak_aktif' | 'planning';
@@ -43,6 +66,7 @@ export interface Klien {
   nama: string;
   jenis: JenisKlien;
   kontak: string | null;
+  is_aktif: boolean;
   created_at: string;
 }
 
@@ -62,6 +86,7 @@ export interface Kelas {
   jenis: JenisKelas;
   klien_id: string | null;
   is_aktif: boolean;
+  diarsipkan: boolean;
   created_at: string;
   // join field (opsional, diisi via select)
   klien?: Klien | null;
@@ -74,6 +99,7 @@ export interface JadwalSlot {
   kelas_id: string;
   tanggal: string | null; // date yyyy-mm-dd (one-off)
   hari_rutin: HariIndo[] | null; // (rutin)
+  tanggal_mulai: string | null; // date, hanya utk rutin (sejak kapan aktif)
   berlaku_sampai: string | null; // date, hanya utk rutin
   jam_mulai: string; // "HH:MM:SS" dari Postgres time
   jam_selesai: string;
@@ -131,7 +157,10 @@ export interface JamMengajarSensei {
   nama_sensei: string;
   status_sensei: SenseiStatus;
   total_jam: number;
+  /** sesi proporsional berdasarkan tabel kategori_sesi (utk pengajian) */
   jumlah_sesi: number;
+  /** slot yang tidak punya aturan di kategori_sesi (dihitung 1 slot = 1 sesi) */
+  slot_tanpa_aturan_sesi: number;
   target_jam_minggu: number | null;
 }
 
@@ -141,6 +170,15 @@ export interface JamPerKelas {
   kelas_jenis: JenisKelas;
   total_jam: number;
   jumlah_sesi: number;
+  slot_tanpa_aturan_sesi: number;
+}
+
+/** Aturan konversi durasi -> sesi per jenis kelas (tabel kategori_sesi) */
+export interface KategoriSesi {
+  jenis: JenisKelas;
+  durasi_jam: number;
+  jumlah_sesi: number;
+  updated_at: string;
 }
 
 /** Payload simpan jadwal (RPC save_jadwal) */
@@ -149,6 +187,7 @@ export interface JadwalInput {
   kelas_id: string;
   tanggal: string | null;
   hari_rutin: HariIndo[] | null;
+  tanggal_mulai: string | null;
   berlaku_sampai: string | null;
   jam_mulai: string;
   jam_selesai: string;
