@@ -25,7 +25,7 @@ export function lokasiLabel(j: JadwalResolved): string {
 
 type BlockSize = 's' | 'm' | 'l';
 
-function useBlockSize(): { ref: React.RefObject<HTMLDivElement>; size: BlockSize } {
+export function useBlockSize(): { ref: React.RefObject<HTMLDivElement>; size: BlockSize } {
   const ref = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState<BlockSize>('m');
 

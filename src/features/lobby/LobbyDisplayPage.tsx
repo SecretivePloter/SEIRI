@@ -1,20 +1,24 @@
-// LobbyDisplayPage — halaman signage utk TV lobby kantor (read-only).
-// TIDAK memakai layout sidebar admin: full-screen landscape, font besar &
-// bold, tanpa navigasi. Auto-refresh via Realtime + jam real-time tiap detik
-// (WIB). Section otomatis bergeser: "KELAS SEDANG BERLANGSUNG" (progress bar)
-// dan "KELAS SELANJUTNYA" (maks 6, urut jam mulai).
+// LobbyDisplayPage — signage TV lobby (read-only, full-screen landscape).
+// Layout v2: DENAH 2 LANTAI (Lantai 2 di atas, Lantai 1 di bawah, 4 kolom
+// slot #1-#4). Setiap slot punya sub-kotak per ruangan (urutan_dalam_slot);
+// saat kelas berlangsung sub-kotak diwarnai sesuai jenis kelas (jenisStyles)
+// dan font menyesuaikan ukuran kotak (useBlockSize + container query CSS).
+// "Online" & "Fuyu 2" sengaja tidak digambar (posisi null di DB).
+// Header + "Kelas Selanjutnya" (termasuk perusahaan/rumah/Online) tetap.
+// Auto-refresh: Realtime jadwal_slot + jam real-time tiap detik (WIB).
 
 import { useEffect, useMemo, useState } from 'react';
 import { useLobbyData } from './useLobbyData';
 import { jenisStyles } from '@/components/ui/Badge';
 import { LoadingState, ErrorState } from '@/components/ui/States';
-import { listSensei } from '@/lib/api/sensei';
+import { listRuangan } from '@/lib/api/ruangan';
 import { useAsyncData } from '@/app/useAsyncData';
-import type { JadwalResolved } from '@/lib/types/domain';
+import { useBlockSize } from '@/features/timeline/ScheduleBlock';
+import type { JadwalResolved, Ruangan } from '@/lib/types/domain';
 import { formatJam, timeToMinutes, todayWIB } from '@/lib/time';
 import logoUrl from '@/assets/logo.png';
 
-// ---- Helper tanggal (WIB) ----
+// ---- Helper tanggal & jam (WIB) ----
 function useNowWIB() {
   const [now, setNow] = useState(() => new Date());
   useEffect(() => {
@@ -61,7 +65,18 @@ function formatJamWIB(now: Date): string {
   }).format(now);
 }
 
-// ---- Utilitas lokasi ----
+/** Menit sekarang dalam WIB (0-1439) */
+function nowMinuteWIB(now: Date): number {
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Asia/Jakarta',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).formatToParts(now);
+  return Number(parts.find((p) => p.type === 'hour')?.value ?? 0) * 60 + Number(parts.find((p) => p.type === 'minute')?.value ?? 0);
+}
+
+// ---- Utilitas lokasi (baris "Kelas Selanjutnya") ----
 const lokasiEmoji: Record<JadwalResolved['tipe_lokasi'], string> = {
   ruangan: '📍',
   kelas_perusahaan: '🏢',
@@ -73,22 +88,127 @@ function lokasiLabel(j: JadwalResolved): string {
   return j.alamat_tujuan ?? (j.tipe_lokasi === 'kelas_perusahaan' ? 'Kantor klien' : 'Rumah murid');
 }
 
-/** Persentase progress kelas berdasarkan jam sekarang WIB */
-function progressClass(j: JadwalResolved, now: Date): number {
-  const parts = new Intl.DateTimeFormat('en-GB', {
-    timeZone: 'Asia/Jakarta',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  }).formatToParts(now);
-  const h = Number(parts.find((p) => p.type === 'hour')?.value ?? 0);
-  const m = Number(parts.find((p) => p.type === 'minute')?.value ?? 0);
-  const nowMin = h * 60 + m;
+/** Kelas yang sedang berlangsung di ruangan fisik ini (status aktif) */
+function kelasAktifDiRuangan(ruanganId: string, jadwal: JadwalResolved[], nowMin: number): JadwalResolved[] {
+  return jadwal.filter(
+    (j) =>
+      j.tipe_lokasi === 'ruangan' &&
+      j.ruangan_id === ruanganId &&
+      j.status === 'aktif' &&
+      timeToMinutes(j.jam_mulai) <= nowMin &&
+      nowMin < timeToMinutes(j.jam_selesai),
+  );
+}
+
+function progressPct(j: JadwalResolved, nowMin: number): number {
   const start = timeToMinutes(j.jam_mulai);
   const end = timeToMinutes(j.jam_selesai);
   if (end <= start) return 0;
-  const pct = ((nowMin - start) / (end - start)) * 100;
-  return Math.max(0, Math.min(100, pct));
+  return Math.max(0, Math.min(100, ((nowMin - start) / (end - start)) * 100));
+}
+
+// ---- Sub-kotak denah (per ruangan dalam 1 slot) ----
+function DenahSubKotak({
+  ruangan,
+  jadwal,
+  nowMin,
+}: {
+  ruangan: Ruangan;
+  jadwal: JadwalResolved[];
+  nowMin: number;
+}) {
+  const { ref, size } = useBlockSize();
+  const kelas = kelasAktifDiRuangan(ruangan.id, jadwal, nowMin);
+  const utama = kelas[0];
+
+  return (
+    <div
+      ref={ref}
+      data-size={size}
+      className={`relative flex min-h-0 flex-1 flex-col justify-center overflow-hidden rounded-[4px] border px-1 py-0.5 text-left transition-colors ${
+        utama ? jenisStyles[utama.kelas_jenis].bg : 'bg-white/10 border-white/20'
+      }`}
+      style={utama ? { borderColor: jenisStyles[utama.kelas_jenis].accent.replace('bg-', '') } : undefined}
+    >
+      <p
+        className={`block-nama truncate font-bold ${utama ? jenisStyles[utama.kelas_jenis].text : 'text-white/80'}`}
+        title={`${ruangan.nama}${utama ? ` • ${utama.kelas_nama}` : ''}`}
+      >
+        {ruangan.nama}
+      </p>
+      <p className={`block-lokasi truncate ${utama ? jenisStyles[utama.kelas_jenis].text : 'text-white/50'}`}>
+        {utama ? `${utama.kelas_nama} • ${formatJam(utama.jam_mulai)}-${formatJam(utama.jam_selesai)}` : 'Kosong'}
+      </p>
+      {utama && (
+        <div className="mt-0.5 h-[3px] w-full overflow-hidden rounded-full bg-white/30">
+          <div
+            className={`h-full rounded-full transition-all duration-1000 ${jenisStyles[utama.kelas_jenis].accent}`}
+            style={{ width: `${progressPct(utama, nowMin)}%` }}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Satu kolom denah (slot #N): baris sub-kotak per ruangan, urut urutan_dalam_slot */
+function SlotDenah({
+  slot,
+  ruanganDiSlot,
+  jadwal,
+  nowMin,
+}: {
+  slot: number;
+  ruanganDiSlot: Ruangan[];
+  jadwal: JadwalResolved[];
+  nowMin: number;
+}) {
+  const sub = ruanganDiSlot.length > 1;
+  return (
+    <div className="flex min-w-0 flex-col rounded-lg bg-white/5 p-1.5">
+      <p className="mb-1 text-center font-label-md text-label-md font-semibold uppercase tracking-wider text-white/60">
+        Slot #{slot}
+      </p>
+      <div className={`flex min-h-0 flex-1 gap-1.5 ${sub ? 'flex-row' : 'flex-col'}`}>
+        {ruanganDiSlot.map((r) => (
+          <DenahSubKotak key={r.id} ruangan={r} jadwal={jadwal} nowMin={nowMin} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/** Baris denah per lantai: header "Lantai N" + 4 kolom slot */
+function DenahLantai({
+  lantai,
+  ruanganBySlot,
+  jadwal,
+  nowMin,
+}: {
+  lantai: number;
+  ruanganBySlot: Map<number, Ruangan[]>;
+  jadwal: JadwalResolved[];
+  nowMin: number;
+}) {
+  const slots = [1, 2, 3, 4];
+  return (
+    <section className="flex flex-col gap-2">
+      <h2 className="flex items-center gap-2 text-xl font-bold uppercase tracking-wider text-[#b9c3ff]">
+        <span className="text-lg">🏢</span> Lantai {lantai}
+      </h2>
+      <div className="grid h-full grid-cols-4 gap-2">
+        {slots.map((slot) => (
+          <SlotDenah
+            key={slot}
+            slot={slot}
+            ruanganDiSlot={ruanganBySlot.get(slot) ?? []}
+            jadwal={jadwal}
+            nowMin={nowMin}
+          />
+        ))}
+      </div>
+    </section>
+  );
 }
 
 export function LobbyDisplayPage() {
@@ -96,26 +216,31 @@ export function LobbyDisplayPage() {
   const now = useNowWIB();
   const today = todayWIB();
 
-  // Nama sensei utk ditampilkan (JadwalResolved hanya membawa sensei_id)
-  const senseiQ = useAsyncData(() => listSensei(), []);
-  const senseiNama = useMemo(() => {
-    const m = new Map<string, string>();
-    for (const s of senseiQ.data ?? []) m.set(s.id, s.nama);
-    return m;
-  }, [senseiQ.data]);
+  // Daftar ruangan denah (fisik, punya posisi) — dipetakan per lantai & slot
+  const ruanganQ = useAsyncData(() => listRuangan(), []);
+  const ruanganDenah = useMemo(() => {
+    const list = (ruanganQ.data ?? []).filter(
+      (r) => r.tipe === 'fisik' && r.lantai != null && r.posisi_slot != null && r.is_aktif,
+    );
+    const byLantai = new Map<number, Map<number, Ruangan[]>>();
+    for (const r of list) {
+      const lantai = r.lantai as number;
+      const slot = r.posisi_slot as number;
+      if (!byLantai.has(lantai)) byLantai.set(lantai, new Map());
+      const m = byLantai.get(lantai)!;
+      if (!m.has(slot)) m.set(slot, []);
+      m.get(slot)!.push(r);
+    }
+    // Urut sub-kotak sesuai urutan_dalam_slot
+    for (const m of byLantai.values()) {
+      for (const arr of m.values()) arr.sort((a, b) => (a.urutan_dalam_slot ?? 1) - (b.urutan_dalam_slot ?? 1));
+    }
+    return byLantai;
+  }, [ruanganQ.data]);
 
-  // Kelas sedang berlangsung: jam sekarang di antara jam_mulai-jam_selesai
+  // Kelas sedang berlangsung & selanjutnya (urut jam mulai)
   const { sedang, selanjutnya } = useMemo(() => {
-    const parts = new Intl.DateTimeFormat('en-GB', {
-      timeZone: 'Asia/Jakarta',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-    }).formatToParts(now);
-    const nowMin =
-      Number(parts.find((p) => p.type === 'hour')?.value ?? 0) * 60 +
-      Number(parts.find((p) => p.type === 'minute')?.value ?? 0);
-
+    const nowMin = nowMinuteWIB(now);
     const all = [...jadwal].sort((a, b) => a.jam_mulai.localeCompare(b.jam_mulai));
     const sedang = all.filter(
       (j) => j.status === 'aktif' && timeToMinutes(j.jam_mulai) <= nowMin && nowMin < timeToMinutes(j.jam_selesai),
@@ -126,133 +251,134 @@ export function LobbyDisplayPage() {
     return { sedang, selanjutnya };
   }, [jadwal, now]);
 
+  const nowMin = nowMinuteWIB(now);
+  const adaKelas = sedang.length > 0 || selanjutnya.length > 0;
+
   return (
     <div className="flex min-h-screen flex-col bg-[#0b1c30] text-white">
       {/* ===== HEADER ===== */}
-      <header className="flex items-center justify-between gap-4 px-10 py-6">
+      <header className="flex items-center justify-between gap-4 px-10 py-5">
         <div className="flex items-center gap-4">
-          <img src={logoUrl} alt="Ichikara" className="h-16 w-16 object-contain" />
+          <img src={logoUrl} alt="Ichikara" className="h-14 w-14 object-contain" />
           <div>
-            <p className="text-3xl font-bold tracking-tight">Ichikara</p>
-            <p className="text-lg text-white/70">Jadwal Sensei</p>
+            <p className="text-2xl font-bold tracking-tight">Ichikara</p>
+            <p className="text-base text-white/70">Jadwal Sensei</p>
           </div>
         </div>
         <div className="text-right">
-          <p className="text-3xl font-bold">{formatTanggalIndonesia(today)}</p>
-          <p className="text-2xl text-white/70">{formatTanggalJepang(today)}</p>
-          <p className="mt-1 font-mono text-5xl font-bold tabular-nums">{formatJamWIB(now)} WIB</p>
+          <p className="text-2xl font-bold">{formatTanggalIndonesia(today)}</p>
+          <p className="text-lg text-white/70">{formatTanggalJepang(today)}</p>
+          <p className="mt-1 font-mono text-4xl font-bold tabular-nums">{formatJamWIB(now)} WIB</p>
         </div>
       </header>
 
       {/* ===== BODY ===== */}
-      <main className="flex-1 px-10 pb-10">
-        {loading ? (
+      <main className="flex flex-1 flex-col gap-4 px-10 pb-6">
+        {loading || ruanganQ.loading ? (
           <LoadingState label="Memuat jadwal..." />
-        ) : error ? (
-          <ErrorState message={error} />
+        ) : error || ruanganQ.error ? (
+          <ErrorState message={error ?? ruanganQ.error ?? ''} />
         ) : (
-          <div className="grid grid-cols-1 gap-8 xl:grid-cols-5">
-            {/* KELAS SEDANG BERLANGSUNG */}
-            <section className="xl:col-span-3">
-              <h2 className="mb-4 flex items-center gap-3 text-2xl font-bold uppercase tracking-wider text-[#b9c3ff]">
-                <span className="h-3 w-3 animate-pulse rounded-full bg-emerald-400" />
-                Kelas Sedang Berlangsung
+          <>
+            <div className="flex min-h-0 flex-1 gap-5">
+              {/* Denah lantai (2 atas, 1 bawah) */}
+              <div className="flex min-w-0 flex-[3] flex-col gap-4">
+                <DenahLantai lantai={2} ruanganBySlot={ruanganDenah.get(2) ?? new Map()} jadwal={jadwal} nowMin={nowMin} />
+                <DenahLantai lantai={1} ruanganBySlot={ruanganDenah.get(1) ?? new Map()} jadwal={jadwal} nowMin={nowMin} />
+              </div>
+
+              {/* KELAS SEDANG BERLANGSUNG (ringkasan) */}
+              <section className="flex min-w-0 flex-[2] flex-col rounded-2xl bg-white/5 p-4">
+                <h2 className="mb-3 flex items-center gap-2 text-lg font-bold uppercase tracking-wider text-[#b9c3ff]">
+                  <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-emerald-400" />
+                  Sedang Berlangsung
+                </h2>
+                {sedang.length === 0 ? (
+                  <div className="flex min-h-[120px] flex-1 flex-col items-center justify-center rounded-xl border-2 border-dashed border-white/15 p-4 text-center">
+                    <span className="text-3xl">🌤️</span>
+                    <p className="mt-2 text-lg font-semibold text-white/70">Tidak ada kelas berlangsung</p>
+                  </div>
+                ) : (
+                  <ul className="flex min-h-0 flex-col gap-2">
+                    {sedang.map((j) => {
+                      const s = jenisStyles[j.kelas_jenis];
+                      return (
+                        <li
+                          key={`${j.slot_id}-${j.tanggal_efektif}`}
+                          className="rounded-xl border-l-4 bg-white/5 p-3"
+                          style={{ borderColor: s.accent.replace('bg-', '') }}
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <p className="truncate text-lg font-bold">{j.kelas_nama}</p>
+                            <span
+                              className="shrink-0 rounded-full px-2 py-0.5 text-sm font-bold"
+                              style={{ backgroundColor: s.bg.replace('bg-', ''), color: s.text.replace('text-', '') }}
+                            >
+                              {j.kelas_jenis}
+                            </span>
+                          </div>
+                          <p className="mt-0.5 truncate text-base text-white/70">
+                            {formatJam(j.jam_mulai)} - {formatJam(j.jam_selesai)} WIB
+                          </p>
+                          <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-white/10">
+                            <div
+                              className="h-full rounded-full bg-emerald-400 transition-all duration-1000"
+                              style={{ width: `${progressPct(j, nowMin)}%` }}
+                            />
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </section>
+            </div>
+
+            {/* KELAS SELANJUTNYA (termasuk perusahaan/rumah/Online) */}
+            <section className="shrink-0">
+              <h2 className="mb-2 flex items-center gap-2 text-lg font-bold uppercase tracking-wider text-[#b9c3ff]">
+                <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
+                Kelas Selanjutnya
               </h2>
-              {sedang.length === 0 ? (
-                <div className="flex h-full min-h-[280px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-white/15 p-8 text-center">
-                  <span className="text-5xl">🌤️</span>
-                  <p className="mt-4 text-2xl font-semibold text-white/70">Tidak ada kelas berlangsung saat ini</p>
-                  <p className="mt-1 text-lg text-white/50">Jadwal berikutnya akan muncul di bawah.</p>
+              {selanjutnya.length === 0 ? (
+                <div className="flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-white/15 p-3 text-center text-lg text-white/60">
+                  🗓️ Tidak ada kelas selanjutnya hari ini
                 </div>
               ) : (
-                <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-                  {sedang.map((j) => {
+                <div className="grid grid-cols-3 gap-2">
+                  {selanjutnya.map((j) => {
                     const s = jenisStyles[j.kelas_jenis];
-                    const pct = progressClass(j, now);
                     return (
                       <div
                         key={`${j.slot_id}-${j.tanggal_efektif}`}
-                        className="rounded-2xl border-l-8 bg-white/5 p-6 shadow-lg backdrop-blur"
-                        style={{ borderColor: s.accent.replace('bg-', '') }}
+                        className="flex items-center gap-2 rounded-xl bg-white/5 p-2.5"
                       >
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <p className="text-2xl font-bold">{j.kelas_nama}</p>
-                            <p className="mt-1 text-lg text-white/70">Sensei: {senseiNama.get(j.sensei_id) ?? '-'}</p>
-                          </div>
-                          <span
-                            className="rounded-full px-3 py-1 text-lg font-bold"
-                            style={{ backgroundColor: s.bg.replace('bg-', ''), color: s.text.replace('text-', '') }}
-                          >
-                            {j.kelas_jenis}
-                          </span>
-                        </div>
-                        <div className="mt-4 flex items-center justify-between">
-                          <p className="text-xl font-semibold">
-                            {formatJam(j.jam_mulai)} - {formatJam(j.jam_selesai)} WIB
-                          </p>
-                          <p className="text-lg text-white/70">
+                        <span className="min-w-[52px] text-base font-bold tabular-nums">{formatJam(j.jam_mulai)}</span>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-base font-bold">{j.kelas_nama}</p>
+                          <p className="truncate text-sm text-white/60">
                             {lokasiEmoji[j.tipe_lokasi]} {lokasiLabel(j)}
                           </p>
                         </div>
-                        {/* Progress bar */}
-                        <div className="mt-4 h-3 w-full overflow-hidden rounded-full bg-white/10">
-                          <div className="h-full rounded-full bg-emerald-400 transition-all duration-1000" style={{ width: `${pct}%` }} />
-                        </div>
-                        <p className="mt-1 text-right text-lg font-semibold text-emerald-300">{Math.round(pct)}%</p>
+                        <span
+                          className="shrink-0 rounded-full px-2 py-0.5 text-sm font-semibold"
+                          style={{ backgroundColor: s.bg.replace('bg-', ''), color: s.text.replace('text-', '') }}
+                        >
+                          {j.kelas_jenis}
+                        </span>
                       </div>
                     );
                   })}
                 </div>
               )}
             </section>
-
-            {/* KELAS SELANJUTNYA */}
-            <section className="xl:col-span-2">
-              <h2 className="mb-4 flex items-center gap-3 text-2xl font-bold uppercase tracking-wider text-[#b9c3ff]">
-                <span className="h-3 w-3 rounded-full bg-amber-400" />
-                Kelas Selanjutnya
-              </h2>
-              {selanjutnya.length === 0 ? (
-                <div className="flex h-full min-h-[200px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-white/15 p-6 text-center">
-                  <span className="text-4xl">🗓️</span>
-                  <p className="mt-3 text-xl font-semibold text-white/60">Tidak ada kelas selanjutnya hari ini</p>
-                </div>
-              ) : (
-                <ul className="flex flex-col gap-3">
-                  {selanjutnya.map((j) => {
-                    const s = jenisStyles[j.kelas_jenis];
-                    return (
-                      <li
-                        key={`${j.slot_id}-${j.tanggal_efektif}`}
-                        className="flex items-center gap-4 rounded-xl bg-white/5 p-4"
-                      >
-                        <span className="min-w-[96px] text-xl font-bold tabular-nums">{formatJam(j.jam_mulai)}</span>
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-lg font-bold">{j.kelas_nama}</p>
-                          <p className="truncate text-base text-white/60">
-                            {lokasiEmoji[j.tipe_lokasi]} {lokasiLabel(j)} • {senseiNama.get(j.sensei_id) ?? '-'}
-                          </p>
-                        </div>
-                        <span
-                          className="shrink-0 rounded-full px-2.5 py-0.5 text-base font-semibold"
-                          style={{ backgroundColor: s.bg.replace('bg-', ''), color: s.text.replace('text-', '') }}
-                        >
-                          {j.kelas_jenis}
-                        </span>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </section>
-          </div>
+          </>
         )}
       </main>
 
       {/* ===== FOOTER ===== */}
-      <footer className="border-t border-white/10 px-10 py-4 text-center text-base text-white/50">
-        Jadwal Sensei Ichikara • Waktu tampil dalam WIB • Data otomatis diperbarui
+      <footer className="border-t border-white/10 px-10 py-2.5 text-center text-sm text-white/50">
+        Jadwal Sensei Ichikara • Waktu tampil dalam WIB • Data otomatis diperbarui {adaKelas ? '' : '• Denah ruangan'}
       </footer>
     </div>
   );

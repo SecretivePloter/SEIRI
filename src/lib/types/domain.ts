@@ -74,7 +74,11 @@ export interface Ruangan {
   id: string;
   cabang_id: string | null;
   nama: string;
+  lantai: number | null; // 1/2, null jika bukan ruangan fisik
+  posisi_slot: number | null; // 1-4, null jika bukan ruangan fisik
+  urutan_dalam_slot: number | null; // default 1
   kapasitas: number | null;
+  tipe: 'fisik' | 'virtual'; // 'virtual' = "Online"
   is_aktif: boolean;
   created_at: string;
 }

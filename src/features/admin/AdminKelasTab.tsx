@@ -31,6 +31,7 @@ import { JENIS_KELAS_LIST } from '@/lib/types/domain';
 import { toast } from '@/stores/toastStore';
 import { formatJam, formatTanggalPendek } from '@/lib/time';
 import { MultiSelect, ResetFiltersButton } from '@/components/ui/MultiSelect';
+import { HapusMasterDialog } from '@/components/ui/HapusMasterDialog';
 import { useMemo } from 'react';
 
 const EMPTY: KelasInput = { nama_kelas: '', jenis: 'CLT', klien_id: null };
@@ -47,6 +48,7 @@ export function AdminKelasTab({ isAdmin }: { isAdmin: boolean }) {
   const [targetNonaktif, setTargetNonaktif] = useState<Kelas | null>(null);
   const [targetArsip, setTargetArsip] = useState<Kelas | null>(null);
   const [jadwalTerdampak, setJadwalTerdampak] = useState<JadwalSlot[]>([]);
+  const [targetHapus, setTargetHapus] = useState<Kelas | null>(null);
 
   // Filter (v2 poin 5)
   const [jenisFilter, setJenisFilter] = useState<JenisKelas[]>([]);
@@ -249,6 +251,14 @@ export function AdminKelasTab({ isAdmin }: { isAdmin: boolean }) {
                 >
                   <Icon name="archive" size={18} />
                 </button>
+                <button
+                  onClick={() => setTargetHapus(k)}
+                  className="rounded p-1.5 text-secondary hover:bg-surface-container hover:text-error"
+                  aria-label="Hapus kelas"
+                  title="Hapus kelas (evaluasi otomatis soft/hard)"
+                >
+                  <Icon name="delete" size={18} />
+                </button>
               </>
             )}
           </div>
@@ -405,6 +415,15 @@ export function AdminKelasTab({ isAdmin }: { isAdmin: boolean }) {
             ? `Juga nonaktifkan ${jadwalTerdampak.length} jadwal mendatang milik kelas ini`
             : undefined
         }
+      />
+
+      <HapusMasterDialog
+        open={targetHapus !== null}
+        tipe="kelas"
+        id={targetHapus?.id ?? ''}
+        nama={targetHapus?.nama_kelas ?? ''}
+        onClose={() => setTargetHapus(null)}
+        onDone={() => void q.reload()}
       />
     </>
   );

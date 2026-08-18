@@ -4,7 +4,15 @@ import { supabase } from '@/lib/supabase/client';
 import type { Ruangan } from '@/lib/types/domain';
 import { unwrap } from './rpcError';
 
-export type RuanganInput = Pick<Ruangan, 'nama' | 'kapasitas'> & { is_aktif?: boolean };
+export type RuanganInput = {
+  nama: string;
+  lantai: number | null;
+  posisi_slot: number | null;
+  urutan_dalam_slot: number | null;
+  kapasitas: number | null;
+  tipe: 'fisik' | 'virtual';
+  is_aktif?: boolean;
+};
 
 export async function listRuangan(opts?: { includeNonaktif?: boolean }): Promise<Ruangan[]> {
   let q = supabase.from('ruangan').select('*').order('nama');

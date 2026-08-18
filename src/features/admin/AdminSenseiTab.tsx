@@ -10,6 +10,7 @@ import { LoadingState, ErrorState, EmptyState } from '@/components/ui/States';
 import { Icon } from '@/components/ui/Icon';
 import { DataTable, type Column } from '@/components/ui/DataTable';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { HapusMasterDialog } from '@/components/ui/HapusMasterDialog';
 import {
   listSensei,
   createSensei,
@@ -46,6 +47,7 @@ export function AdminSenseiTab({ isAdmin }: { isAdmin: boolean }) {
   const [busy, setBusy] = useState(false);
   const [targetNonaktif, setTargetNonaktif] = useState<Sensei | null>(null);
   const [jumlahMendatang, setJumlahMendatang] = useState<number | null>(null);
+  const [targetHapus, setTargetHapus] = useState<Sensei | null>(null);
 
   const openCreate = () => {
     setEditing(null);
@@ -215,6 +217,14 @@ export function AdminSenseiTab({ isAdmin }: { isAdmin: boolean }) {
                 <Icon name="person" size={18} />
               </button>
             )}
+            <button
+              onClick={() => setTargetHapus(s)}
+              className="rounded p-1.5 text-secondary hover:bg-surface-container hover:text-error"
+              aria-label="Hapus sensei"
+              title="Hapus sensei (evaluasi otomatis soft/hard)"
+            >
+              <Icon name="delete" size={18} />
+            </button>
           </div>
         ) : null,
     },
@@ -344,6 +354,15 @@ export function AdminSenseiTab({ isAdmin }: { isAdmin: boolean }) {
             ? `Juga nonaktifkan ${jumlahMendatang} jadwal mendatang milik sensei ini`
             : undefined
         }
+      />
+
+      <HapusMasterDialog
+        open={targetHapus !== null}
+        tipe="sensei"
+        id={targetHapus?.id ?? ''}
+        nama={targetHapus?.nama ?? ''}
+        onClose={() => setTargetHapus(null)}
+        onDone={() => void q.reload()}
       />
     </>
   );

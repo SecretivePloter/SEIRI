@@ -406,6 +406,25 @@ Kecuali `/lobby-display` memakai `barePage` (RequireAuth + boundary, TANPA AppSh
 ## 11. Status Proyek Saat Ini
 
 ### v2 (2026-08-14) — fitur & perbaikan
+- ✅ HAPUS MASTER AMAN (Bagian 1, migration `0008_master_delete.sql`): tombol
+  hapus sensei/kelas/ruangan di Admin + dialog `HapusMasterDialog`; RPC
+  `evaluasi_hapus_master(text, uuid)` menentukan otomatis: block (masih dipakai
+  jadwal aktif mendatang), soft (punya riwayat -> arsip/nonaktif, laporan tetap
+  utuh), hard (belum pernah dipakai -> delete permanen, aman krn FK RESTRICT).
+- ✅ DENAH RUANGAN v2 (Bagian 2, migration `0009_ruangan_denah.sql`): kolom
+  `lantai`, `posisi_slot` (1-4 = slot #1-#4), `urutan_dalam_slot` (sub-kotak),
+  `tipe` ('fisik'|'virtual') di tabel `ruangan`. Data denah: Lt2 #1 Natsu 1/Fuyu 1/
+  Aki 1 (urut 1/2/3), #2 Aki 2, #3 Aki 3, #4 Aki 4; Lt1 #1 Haru 1, #2 Natsu 2/Haru 2,
+  #3 Haru 3, #4 Natsu 4 (kap. 2 orang)/Haru 4. "Online" (virtual) & "Fuyu 2"
+  posisi null (tidak digambar) tapi `is_aktif=true` agar tetap bisa dipilih di form
+  jadwal. Rename master lama: Natsu->Natsu 1, Haru->Haru 1, Aki->Aki 1 (UPSERT by nama).
+- ✅ `/lobby-display` redesign jadi DENAH 2 LANTAI (Lantai 2 di atas, Lantai 1 di
+  bawah, 4 kolom slot #1-#4 horizontal, sub-kotak per `urutan_dalam_slot`). Sub-kotak
+  diwarnai `jenisStyles` jenis kelas saat kelas berlangsung + progress bar; font
+  adaptif `useBlockSize`/data-size (container query CSS). Panel "Sedang Berlangsung"
+  & "Kelas Selanjutnya" (termasuk kelas_perusahaan/kelas_rumah/Online) tetap.
+  Realtime via `useLobbyData` + jam WIB tiap detik. "Online" & "Fuyu 2" sengaja
+  tidak digambar di denah.
 - ✅ Lobby Display (`/lobby-display`, `src/features/lobby/`): signage TV
   full-screen tanpa sidebar; header logo + tanggal Indonesia/Jepang + jam
   WIB real-time tiap detik; section "KELAS SEDANG BERLANGSUNG" (card +
@@ -465,6 +484,11 @@ Kecuali `/lobby-display` memakai `barePage` (RequireAuth + boundary, TANPA AppSh
   enum; 0006 memakai nilai baru itu di seed kategori_sesi). Setelah
   dijalankan, v1 frontend lama tetap jalan (additive); v2 frontend
   membutuhkan keduanya.
+- ⚠️ `0008_master_delete.sql` dan `0009_ruangan_denah.sql` juga BELUM
+  dijalankan. Urutan wajib berurutan: `0005` -> `0006` -> `0007` -> `0008` ->
+  `0009`. JANGAN menjalankan `0003` setelah `0007`/`0008` (overwrite
+  `check_ketersediaan_sensei` versi lama). Setelah `0009`, hapus "GST" lewat
+  tombol hapus di Admin (Bagian 1) supaya denah bersih dari master tak terpakai.
 
 ---
 
