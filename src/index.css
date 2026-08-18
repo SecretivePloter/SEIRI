@@ -72,3 +72,30 @@ body {
   font-size: 11px;
   line-height: 1.25;
 }
+
+/* ============================================================
+   Denah ruangan Lobby Display (v2.1) — font adaptif berbasis
+   ukuran box (useBlockSize -> data-size). Nama ruangan paling
+   menonjol; nama kelas BEBAS WRAP (maks 2 baris) supaya tidak
+   terpotong ellipsis; jam mulai-selesai selalu utuh (tidak
+   disembunyikan di ukuran 's').
+   ============================================================ */
+[data-size='s'] .denah-ruangan { font-size: 12px; line-height: 1.15; }
+[data-size='m'] .denah-ruangan { font-size: 15px; line-height: 1.2; }
+[data-size='l'] .denah-ruangan { font-size: 19px; line-height: 1.2; }
+[data-size='s'] .denah-kelas { font-size: 10px; line-height: 1.2; }
+[data-size='m'] .denah-kelas { font-size: 12px; line-height: 1.25; }
+[data-size='l'] .denah-kelas { font-size: 14px; line-height: 1.25; }
+[data-size='s'] .denah-time { font-size: 9px; line-height: 1.2; }
+[data-size='m'] .denah-time { font-size: 11px; line-height: 1.2; }
+[data-size='l'] .denah-time { font-size: 13px; line-height: 1.2; }
+
+.denah-ruangan,
+.denah-kelas {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+}
+.denah-ruangan { -webkit-line-clamp: 1; }
+.denah-kelas { -webkit-line-clamp: 2; }

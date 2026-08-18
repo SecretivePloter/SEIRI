@@ -425,6 +425,13 @@ Kecuali `/lobby-display` memakai `barePage` (RequireAuth + boundary, TANPA AppSh
   & "Kelas Selanjutnya" (termasuk kelas_perusahaan/kelas_rumah/Online) tetap.
   Realtime via `useLobbyData` + jam WIB tiap detik. "Online" & "Fuyu 2" sengaja
   tidak digambar di denah.
+  - Penyesuaian tampilan (v2.1.1): label kolom cukup `#1`-`#4`; kotak
+    diperbesar (denah flex-[4] vs panel flex-[2]); urutan kolom kiri-ke-kanan
+    `#2,#1,#3,#4` di KEDUA lantai (konstanta `URUTAN_SLOT_RENDER`, murni
+    urutan render — `posisi_slot` DB tetap 1..4, pemetaan kelas ke ruangan
+    tidak berubah); hierarki teks: nama ruangan paling menonjol (adaptif
+    s/m/l: 12/15/19px via CSS `.denah-*` di `index.css`), nama kelas wrap 2
+    baris (tidak ellipsis), jam mulai-selesai selalu utuh, label lantai kecil.
 - ✅ Lobby Display (`/lobby-display`, `src/features/lobby/`): signage TV
   full-screen tanpa sidebar; header logo + tanggal Indonesia/Jepang + jam
   WIB real-time tiap detik; section "KELAS SEDANG BERLANGSUNG" (card +
@@ -478,17 +485,12 @@ Kecuali `/lobby-display` memakai `barePage` (RequireAuth + boundary, TANPA AppSh
   viewer & self-promote diblokir policy).
 - 🚀 Deployment: GitHub + Vercel + Supabase (lihat §13).
 
-### Migration yang BELUM dijalankan user
-- ⚠️ `0005_v2_jenis_kelas.sql` dan `0006_v2.sql` BELUM dijalankan di
-  Supabase SQL Editor. Urutan wajib: `0005` DULU, baru `0006` (0005 menambah
-  enum; 0006 memakai nilai baru itu di seed kategori_sesi). Setelah
-  dijalankan, v1 frontend lama tetap jalan (additive); v2 frontend
-  membutuhkan keduanya.
-- ⚠️ `0008_master_delete.sql` dan `0009_ruangan_denah.sql` juga BELUM
-  dijalankan. Urutan wajib berurutan: `0005` -> `0006` -> `0007` -> `0008` ->
-  `0009`. JANGAN menjalankan `0003` setelah `0007`/`0008` (overwrite
-  `check_ketersediaan_sensei` versi lama). Setelah `0009`, hapus "GST" lewat
-  tombol hapus di Admin (Bagian 1) supaya denah bersih dari master tak terpakai.
+### Migration yang sudah jalan (per 2026-08-18)
+- ✅ User sudah menjalankan `0001`–`0009` berurutan. JANGAN menjalankan
+  `0003` setelah `0007`/`0008` (overwrite `check_ketersediaan_sensei` versi
+  lama). Sisanya: pastikan "GST" sudah dihapus lewat tombol hapus di Admin
+  (Bagian 1) supaya denah bersih dari master tak terpakai, dan rawat data
+  ruangan denah lewat tab Admin → Ruangan.
 
 ---
 

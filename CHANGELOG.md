@@ -4,9 +4,65 @@ Semua perubahan penting pada **Jadwal Sensei (PT Ichikara)** dicatat di file
 ini, mengikuti format [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 Versi mengikuti [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [2.1.0] - 2026-08-18
 
-- (kosong)
+### Fitur Baru
+
+- **Hapus data master yang aman** di halaman Admin (sensei, kelas, ruangan):
+  tombol hapus + modal konfirmasi `HapusMasterDialog`. Sistem mengevaluasi
+  otomatis 3 kondisi via RPC `evaluasi_hapus_master`:
+  - `block`: masih dipakai jadwal aktif mendatang → hapus ditolak, dengan
+    pesan berapa jumlah jadwal terkait.
+  - `soft`: punya riwayat jadwal lamau → diarsipkan/nonaktifkan (bukan
+    dihapus permanen) sehingga laporan jam mengajar & penggajian tetap utuh.
+  - `hard`: belum pernah dipakai jadwal → dihapus permanen (aman karena FK
+    `on delete restrict` terpenuhi saat 0 referensi).
+- **Denah ruangan 2 lantai di Lobby Display** (`/lobby-display`):
+  - Tabel `ruangan` ditambah kolom posisi: `lantai`, `posisi_slot` (1-4 =
+    slot #1-#4), `urutan_dalam_slot` (sub-kotak saat beberapa ruangan dalam
+    1 slot), `tipe` (`'fisik'`/`'virtual'`).
+  - Lantai 2 (atas) & Lantai 1 (bawah), 4 kolom slot horizontal; sub-kotak
+    diwarnai sesuai jenis kelas (`jenisStyles`) saat kelas berlangsung +
+    progress bar; font adaptif via `useBlockSize`/`data-size`.
+  - Ruangan denah: Lt2 #1 Natsu 1/Fuyu 1/Aki 1, #2 Aki 2, #3 Aki 3, #4
+    Aki 4; Lt1 #1 Haru 1, #2 Natsu 2/Haru 2, #3 Haru 3, #4 Natsu 4
+    (kapasitas 2 orang)/Haru 4. Master lama `Natsu`/`Haru`/`Aki` di-rename
+    jadi `Natsu 1`/`Haru 1`/`Aki 1`.
+  - "Online" (virtual) & "Fuyu 2" tidak digambar di denah tapi tetap
+    `is_aktif = true` sehingga muncul di dropdown form jadwal.
+  - Panel "Sedang Berlangsung" & "Kelas Selanjutnya" (termasuk
+    kelas_perusahaan/kelas_rumah/Online) tetap tampil.
+  - Penyesuaian tampilan (v2.1.1): label kolom cukup `#1`-`#4` (tanpa
+    kata SLOT); kotak ruangan diperbesar proporsional (denah 2x lebih
+    lebar dari panel samping); urutan kolom kiri-ke-kanan jadi
+    `#2, #1, #3, #4` di KEDUA lantai (murni urutan render, nilai
+    `posisi_slot` di database tidak berubah); hierarki teks: nama
+    ruangan paling menonjol (font adaptif 12/15/19px), nama kelas
+    boleh wrap 2 baris (tidak dipotong ellipsis), jam mulai-selesai
+    selalu utuh, label "Lantai 1/2" diperkecil.
+
+### Perubahan
+
+- `src/features/lobby/LobbyDisplayPage.tsx` ditulis ulang dari daftar card
+  menjadi denah ruangan 2 lantai; panel kelas aktif/selanjutnya tetap.
+- `src/features/timeline/ScheduleBlock.tsx`: `useBlockSize` di-export agar
+  dipakai ulang oleh sub-kotak denah.
+- `src/lib/types/domain.ts`: `Ruangan` kini punya `lantai`, `posisi_slot`,
+  `urutan_dalam_slot`, `tipe`.
+- `src/lib/api/ruangan.ts`: `RuanganInput` mendukung field denah & tipe.
+- Tab Admin ruangan/sensei/kelas: tombol hapus + `HapusMasterDialog`;
+  form ruangan menambah field tipe/lantai/posisi slot/urutan dalam slot.
+
+### Migration Database
+
+- `supabase/migrations/0008_master_delete.sql` — RPC
+  `evaluasi_hapus_master(text, uuid) → jsonb` + grants.
+- `supabase/migrations/0009_ruangan_denah.sql` — kolom denah di `ruangan` +
+  rename master lama + UPSERT data denah (termasuk `Natsu 4`).
+
+> ⚠️ **Urutan menjalankan migration**: `0005` → `0006` → `0007` → `0008` →
+> `0009`. Jangan jalankan `0003` setelah `0007`/`0008` (overwrite
+> `check_ketersediaan_sensei` versi lama).
 
 ---
 

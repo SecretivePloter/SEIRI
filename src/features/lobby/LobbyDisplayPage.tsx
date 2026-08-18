@@ -108,6 +108,9 @@ function progressPct(j: JadwalResolved, nowMin: number): number {
 }
 
 // ---- Sub-kotak denah (per ruangan dalam 1 slot) ----
+// Baris 1: nama ruangan (paling menonjol). Baris 2: nama kelas + jam mulai-
+// selesai (wajib utuh, wrap ke 2 baris bila perlu; tidak dipotong ellipsis).
+// Progress bar hanya muncul saat ada kelas aktif.
 function DenahSubKotak({
   ruangan,
   jadwal,
@@ -120,32 +123,39 @@ function DenahSubKotak({
   const { ref, size } = useBlockSize();
   const kelas = kelasAktifDiRuangan(ruangan.id, jadwal, nowMin);
   const utama = kelas[0];
+  const punyaKelas = Boolean(utama);
 
   return (
     <div
       ref={ref}
       data-size={size}
-      className={`relative flex min-h-0 flex-1 flex-col justify-center overflow-hidden rounded-[4px] border px-1 py-0.5 text-left transition-colors ${
-        utama ? jenisStyles[utama.kelas_jenis].bg : 'bg-white/10 border-white/20'
+      title={punyaKelas ? `${utama.kelas_nama} • ${formatJam(utama.jam_mulai)}-${formatJam(utama.jam_selesai)}` : undefined}
+      className={`relative flex min-h-0 flex-1 flex-col justify-center overflow-hidden rounded-[4px] border px-1.5 py-1 text-left transition-colors ${
+        punyaKelas ? jenisStyles[utama.kelas_jenis].bg : 'bg-white/10 border-white/20'
       }`}
-      style={utama ? { borderColor: jenisStyles[utama.kelas_jenis].accent.replace('bg-', '') } : undefined}
+      style={punyaKelas ? { borderColor: jenisStyles[utama.kelas_jenis].accent.replace('bg-', '') } : undefined}
     >
       <p
-        className={`block-nama truncate font-bold ${utama ? jenisStyles[utama.kelas_jenis].text : 'text-white/80'}`}
-        title={`${ruangan.nama}${utama ? ` • ${utama.kelas_nama}` : ''}`}
+        className={`denah-ruangan font-extrabold ${punyaKelas ? jenisStyles[utama.kelas_jenis].text : 'text-white/85'}`}
+        title={ruangan.nama}
       >
         {ruangan.nama}
       </p>
-      <p className={`block-lokasi truncate ${utama ? jenisStyles[utama.kelas_jenis].text : 'text-white/50'}`}>
-        {utama ? `${utama.kelas_nama} • ${formatJam(utama.jam_mulai)}-${formatJam(utama.jam_selesai)}` : 'Kosong'}
+      <p className={`denah-kelas font-semibold ${punyaKelas ? jenisStyles[utama.kelas_jenis].text : 'text-white/50'}`}>
+        {punyaKelas ? utama.kelas_nama : 'Kosong'}
       </p>
-      {utama && (
-        <div className="mt-0.5 h-[3px] w-full overflow-hidden rounded-full bg-white/30">
-          <div
-            className={`h-full rounded-full transition-all duration-1000 ${jenisStyles[utama.kelas_jenis].accent}`}
-            style={{ width: `${progressPct(utama, nowMin)}%` }}
-          />
-        </div>
+      {punyaKelas && (
+        <>
+          <p className={`denah-time font-bold tabular-nums ${jenisStyles[utama.kelas_jenis].text} opacity-90`}>
+            {formatJam(utama.jam_mulai)}-{formatJam(utama.jam_selesai)} WIB
+          </p>
+          <div className="mt-0.5 h-[3px] w-full overflow-hidden rounded-full bg-white/30">
+            <div
+              className={`h-full rounded-full transition-all duration-1000 ${jenisStyles[utama.kelas_jenis].accent}`}
+              style={{ width: `${progressPct(utama, nowMin)}%` }}
+            />
+          </div>
+        </>
       )}
     </div>
   );
@@ -166,8 +176,8 @@ function SlotDenah({
   const sub = ruanganDiSlot.length > 1;
   return (
     <div className="flex min-w-0 flex-col rounded-lg bg-white/5 p-1.5">
-      <p className="mb-1 text-center font-label-md text-label-md font-semibold uppercase tracking-wider text-white/60">
-        Slot #{slot}
+      <p className="mb-1 text-center font-label-sm text-label-sm font-semibold uppercase tracking-wider text-white/60">
+        #{slot}
       </p>
       <div className={`flex min-h-0 flex-1 gap-1.5 ${sub ? 'flex-row' : 'flex-col'}`}>
         {ruanganDiSlot.map((r) => (
@@ -178,7 +188,11 @@ function SlotDenah({
   );
 }
 
-/** Baris denah per lantai: header "Lantai N" + 4 kolom slot */
+/** Baris denah per lantai: header "Lantai N" + 4 kolom slot.
+ * Urutan render kolom: #2, #1, #3, #4 (murni tampilan — nilai posisi_slot
+ * di database tetap 1..4, hanya urutan render yang diubah). */
+const URUTAN_SLOT_RENDER = [2, 1, 3, 4];
+
 function DenahLantai({
   lantai,
   ruanganBySlot,
@@ -190,14 +204,13 @@ function DenahLantai({
   jadwal: JadwalResolved[];
   nowMin: number;
 }) {
-  const slots = [1, 2, 3, 4];
   return (
     <section className="flex flex-col gap-2">
-      <h2 className="flex items-center gap-2 text-xl font-bold uppercase tracking-wider text-[#b9c3ff]">
-        <span className="text-lg">🏢</span> Lantai {lantai}
+      <h2 className="flex items-center gap-1.5 font-label-sm text-label-sm font-bold uppercase tracking-wider text-[#b9c3ff]">
+        <span className="text-sm">🏢</span> Lantai {lantai}
       </h2>
       <div className="grid h-full grid-cols-4 gap-2">
-        {slots.map((slot) => (
+        {URUTAN_SLOT_RENDER.map((slot) => (
           <SlotDenah
             key={slot}
             slot={slot}
@@ -281,8 +294,8 @@ export function LobbyDisplayPage() {
         ) : (
           <>
             <div className="flex min-h-0 flex-1 gap-5">
-              {/* Denah lantai (2 atas, 1 bawah) */}
-              <div className="flex min-w-0 flex-[3] flex-col gap-4">
+              {/* Denah lantai (2 atas, 1 bawah) — dibuat lebih lebar (2x panel) */}
+              <div className="flex min-w-0 flex-[4] flex-col gap-4">
                 <DenahLantai lantai={2} ruanganBySlot={ruanganDenah.get(2) ?? new Map()} jadwal={jadwal} nowMin={nowMin} />
                 <DenahLantai lantai={1} ruanganBySlot={ruanganDenah.get(1) ?? new Map()} jadwal={jadwal} nowMin={nowMin} />
               </div>
