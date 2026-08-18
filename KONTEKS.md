@@ -112,6 +112,10 @@ SEIRI/
 │  │                              #   jadwal_slot.tanggal_mulai, rekreasi RPC
 │  │                              #   (tanggal_mulai-aware), arsipkan_*,
 │  │                              #   upsert_kategori_sesi (lihat §6 + §14)
+│  │  └─ 0007_ketersediaan.sql    # v2: Ketersediaan berbasis GAP — tabel
+│  │                              #   settings (jam operasional & min gap),
+│  │                              #   helper get_setting, rewrite
+│  │                              #   check_ketersediaan_sensei (lihat §6)
 │  └─ tests/
 │     └─ conflict_scenarios.sql   # Skenario uji bentrok manual (do-style asserts)
 ├─ cek_ketersediaan_sensei_jadwal_sensei/      # ⚠️ Sisa prototype UI (screenshot
@@ -267,7 +271,8 @@ admin/viewer), `sensei`, `klien`, `ruangan`, `kelas`, `jadwal_slot` (tabel inti)
 | `save_jadwal(p_id, ...)` | SATU-SATUNYA jalur tulis jadwal. `LOCK TABLE jadwal_slot IN SHARE ROW EXCLUSIVE MODE` (aman race condition), cek master nonaktif (SENSEI_NONAKTIF/KELAS_NONAKTIF/RUANGAN_NONAKTIF), cek bentrok hanya jika `p_status='aktif'`, return id. |
 | `check_jadwal_conflicts(...)` | Pre-check read-only utk form (UX real-time sebelum submit). |
 | `resolve_jadwal(p_from,p_to,p_sensei_id?,p_ruangan_id?,p_status?)` | Ekspansi one-off + rutin jadi baris per tanggal. Default status `['aktif','planning']`. Dipakai timeline/ketersediaan/jam mengajar. |
-| `check_ketersediaan_sensei(...)` | Per hari: `tersedia` bool + daftar jadwal (field: **`tersedia`**, bukan `terpenuhi`). |
+| `check_ketersediaan_sensei(...)` | **v2 (0007)** per hari: status `kosong/parsial/penuh`, `total_menit_kosong`, daftar gap `{mulai, selesai, menit}`. Jam operasional & ambang min gap dari tabel `settings` (fallback 08:00-20:00, 15 menit). Klip jendela opsional form; abaikan gap < ambang. Hari tanpa jadwal = kosong penuh. |
+| `get_setting(p_key)` | v2 (0007): baca `settings` dgn fallback default (jam_buka_operasional, jam_tutup_operasional, min_gap_menit). |
 | `hitung_jam_mengajar(p_from,p_to,p_sensei_id?)` | Total jam & sesi per sensei (hanya 'aktif'); return `sensei_id, nama_sensei, status_sensei, total_jam, jumlah_sesi, slot_tanpa_aturan_sesi, target_jam_minggu`. `total_jam` = jam mentah 1:1; `jumlah_sesi` PROPORSIONAL = (durasi kelas / durasi_jam aturan) × jumlah_sesi aturan (dibulatkan 2 desimal); fallback 1 slot = 1 sesi bila aturan jenis belum ada (dihitung di `slot_tanpa_aturan_sesi`). |
 | `hitung_jam_per_kelas(p_sensei_id,p_from,p_to)` | Breakdown jam per kelas utk profil sensei (makna jam/sesi sama seperti hitung_jam_mengajar). |
 | `arsipkan_kelas(p_kelas_id, p_nonaktifkan_jadwal_mendatang=false)` | v2 soft delete kelas: `diarsipkan=true, is_aktif=false`; opsional nonaktifkan jadwal mendatang. Guard admin. Riwayat tidak disentuh. |
@@ -352,7 +357,8 @@ Kecuali `/lobby-display` memakai `barePage` (RequireAuth + boundary, TANPA AppSh
    utk "hari ini", jangan `current_date` di SQL.
 4. **Tailwind class dinamis tidak digenerate** — gunakan object lookup statis.
 5. `flattenZodErrors` ada di `@/lib/validation/jadwalSchema`, bukan masterSchema.
-6. Field ketersediaan adalah **`tersedia`** (bukan `terpenuhi`).
+6. Field ketersediaan v2 (0007): gunakan **`status_ketersediaan`**
+   (`kosong`/`parsial`/`penuh`) + `gap[]`, BUKAN `tersedia` bool lama.
 7. `read_file` kadang gagal membaca `0003_functions.sql` ("tool input not fully
    received") — gunakan `grep` dengan `include_pattern` sebagai alternatif.
 8. Jangan panggil `supabase` langsung dari komponen; lewat `src/lib/api/*`.
@@ -474,10 +480,10 @@ npm run build                # produksi
 
 Urutan apply migration di Supabase: `0001_schema.sql` → `0002_rls.sql` →
 `0003_functions.sql` → `0004_seed.sql` (opsional, data contoh) →
-`0005_v2_jenis_kelas.sql` → `0006_v2.sql`.
+`0005_v2_jenis_kelas.sql` → `0006_v2.sql` → `0007_ketersediaan.sql`.
 
-> ⚠️ v2: jalankan `0005` DULU sebelum `0006`. Jika sudah pernah menjalankan
-> 0001-0004, cukup jalankan 0005 lalu 0006 (tidak perlu ulang dari awal).
+> ⚠️ v2: jalankan `0005` DULU sebelum `0006`, lalu `0007` setelah `0006`.
+> Jika sudah pernah menjalankan 0001-0004, cukup jalankan 0005 → 0006 → 0007.
 
 ---
 

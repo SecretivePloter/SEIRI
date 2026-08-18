@@ -1,6 +1,7 @@
 // KetersediaanPage — cek ketersediaan sensei: pilih sensei + rentang tanggal
-// (+ jendela jam opsional) -> kartu per hari: tersedia / tidak + jadwalnya.
-// Semua hitungan di server via RPC check_ketersediaan_sensei (WIB konsisten).
+// (+ jendela jam opsional) -> kartu per hari menampilkan SLOT KOSONG (gap).
+// Hitungan gap (jam operasional, ambang minimum) seluruhnya di server via
+// RPC check_ketersediaan_sensei (WIB konsisten, configurable via tabel settings).
 
 import { useMemo, useState } from 'react';
 import { TopBar } from '@/components/layout/TopBar';
@@ -13,8 +14,6 @@ import { checkKetersediaan } from '@/lib/api/ketersediaan';
 import { useAsyncData } from '@/app/useAsyncData';
 import type { KetersediaanHari } from '@/lib/types/domain';
 import { addDays, formatTanggalPanjang, todayWIB } from '@/lib/time';
-
-const lokasiEmoji = { ruangan: '📍', kelas_perusahaan: '🏢', kelas_rumah: '🏠' } as const;
 
 export function KetersediaanPage() {
   const senseiQ = useAsyncData(() => listSensei(), []);
@@ -44,6 +43,10 @@ export function KetersediaanPage() {
       setInputError('Jendela jam harus diisi lengkap (mulai & selesai) atau dikosongkan keduanya.');
       return;
     }
+    if (jamMulai && jamSelesai && jamSelesai <= jamMulai) {
+      setInputError('Jam selesai harus setelah jam mulai di jendela');
+      return;
+    }
     setBusy(true);
     setError(null);
     try {
@@ -65,15 +68,17 @@ export function KetersediaanPage() {
 
   const ringkasan = useMemo(() => {
     if (!hasil) return null;
-    const tersedia = hasil.filter((h) => h.tersedia).length;
-    return { total: hasil.length, tersedia, sibuk: hasil.length - tersedia };
+    const penuh = hasil.filter((h) => h.status_ketersediaan === 'kosong').length;
+    const parsial = hasil.filter((h) => h.status_ketersediaan === 'parsial').length;
+    const tidak = hasil.filter((h) => h.status_ketersediaan === 'penuh').length;
+    return { total: hasil.length, penuh, parsial, tidak };
   }, [hasil]);
 
   const namaSensei = senseiQ.data?.find((s) => s.id === senseiId)?.nama;
 
   return (
     <>
-      <TopBar title="Ketersediaan Sensei" subtitle="Cek jadwal kosong sebelum menjadwalkan" />
+      <TopBar title="Ketersediaan Sensei" subtitle="Lihat slot kosong sebelum menjadwalkan" />
       <main className="flex-1 overflow-y-auto p-container-padding">
         <div className="mx-auto flex max-w-[1000px] flex-col gap-4">
           {/* Form input */}
@@ -113,55 +118,98 @@ export function KetersediaanPage() {
           </div>
 
           {/* Hasil */}
-          {busy && <LoadingState label="Memeriksa jadwal..." />}
+          {busy && <LoadingState label="Memeriksa slot kosong..." />}
           {error && !busy && <ErrorState message={error} onRetry={() => void cek()} />}
           {!busy && !error && hasil && (
             <>
               {ringkasan && (
                 <div className="flex flex-wrap items-center gap-3">
                   <p className="font-headline-sm text-headline-sm text-on-surface">
-                    {namaSensei}: {ringkasan.tersedia} dari {ringkasan.total} hari{' '}
-                    {jamMulai && jamSelesai ? `tersedia di ${jamMulai}-${jamSelesai}` : 'kosong'}
+                    {namaSensei}: {ringkasan.penuh} hari tersedia penuh, {ringkasan.parsial} hari tersedia sebagian,{' '}
+                    {ringkasan.tidak} hari tidak tersedia
                   </p>
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-cat-bimbel px-3 py-1 font-label-md text-label-md text-cat-bimbel-text">
-                    <Icon name="check_circle" size={16} /> {ringkasan.tersedia} tersedia
+                    <Icon name="check_circle" size={16} /> {ringkasan.penuh} penuh
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-cat-benkyou px-3 py-1 font-label-md text-label-md text-cat-benkyou-text">
+                    <Icon name="schedule" size={16} /> {ringkasan.parsial} sebagian
                   </span>
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-error-container px-3 py-1 font-label-md text-label-md text-on-error-container">
-                    <Icon name="event_busy" size={16} /> {ringkasan.sibuk} terisi
+                    <Icon name="event_busy" size={16} /> {ringkasan.tidak} tidak tersedia
                   </span>
+                  {jamMulai && jamSelesai && (
+                    <span className="rounded-full bg-surface-container px-3 py-1 font-label-md text-label-md text-on-surface-variant">
+                      Jendela {jamMulai}-{jamSelesai}
+                    </span>
+                  )}
                 </div>
               )}
 
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {hasil.map((h) => (
-                  <div
-                    key={h.tanggal}
-                    className={`rounded-card border p-4 ${
-                      h.tersedia ? 'border-cat-bimbel-accent bg-cat-bimbel/40' : 'border-border-soft bg-surface-container-lowest'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <p className="font-label-md text-label-md text-on-surface">{formatTanggalPanjang(h.tanggal)}</p>
-                      <Icon
-                        name={h.tersedia ? 'check_circle' : 'event_busy'}
-                        size={18}
-                        className={h.tersedia ? 'text-cat-bimbel-accent' : 'text-error'}
-                      />
+                {hasil.map((h) => {
+                  const isKosong = h.status_ketersediaan === 'kosong';
+                  const isPenuh = h.status_ketersediaan === 'penuh';
+                  return (
+                    <div
+                      key={h.tanggal}
+                      className={`rounded-card border p-4 ${
+                        isKosong
+                          ? 'border-cat-bimbel-accent bg-cat-bimbel'
+                          : isPenuh
+                            ? 'border-border-soft bg-surface-container-lowest opacity-70'
+                            : 'border-cat-benkyou-accent bg-cat-benkyou/30'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <p className="font-label-md text-label-md text-on-surface">{formatTanggalPanjang(h.tanggal)}</p>
+                        <Icon
+                          name={isKosong ? 'check_circle' : isPenuh ? 'block' : 'schedule'}
+                          size={18}
+                          className={isKosong ? 'text-cat-bimbel-accent' : isPenuh ? 'text-error' : 'text-cat-benkyou-accent'}
+                        />
+                      </div>
+
+                      {/* Badge status */}
+                      {isKosong ? (
+                        <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-cat-bimbel-accent px-2.5 py-0.5 font-label-md text-label-md text-white">
+                          <Icon name="check_circle" size={14} /> Tersedia Sepanjang Hari
+                        </span>
+                      ) : isPenuh ? (
+                        <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-error-container px-2.5 py-0.5 font-label-md text-label-md text-on-error-container">
+                          <Icon name="block" size={14} /> Tidak Tersedia
+                        </span>
+                      ) : (
+                        <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-cat-benkyou-accent px-2.5 py-0.5 font-label-md text-label-md text-white">
+                          <Icon name="schedule" size={14} /> Tersedia Sebagian
+                        </span>
+                      )}
+
+                      {/* Daftar slot kosong (gap) */}
+                      {!isPenuh && (
+                        <ul className="mt-3 flex flex-col gap-1.5">
+                          {h.gap.map((g, i) => (
+                            <li
+                              key={i}
+                              className="flex items-center gap-2 rounded border border-cat-bimbel-accent/40 bg-white/60 px-2.5 py-1.5 font-body-md text-body-md text-on-surface"
+                            >
+                              <span className="text-cat-bimbel-accent">🟢</span>
+                              <span>
+                                Kosong {g.mulai} - {g.selesai}
+                              </span>
+                              <span className="ml-auto font-label-sm text-label-sm text-on-surface-variant">{g.menit} menit</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+
+                      {isPenuh && (
+                        <p className="mt-3 font-label-sm text-label-sm text-secondary">
+                          Slot kosong &lt; ambang minimum. Lihat detail jadwal di Timeline.
+                        </p>
+                      )}
                     </div>
-                    <p className={`mt-1 font-headline-sm text-headline-sm ${h.tersedia ? 'text-cat-bimbel-text' : 'text-on-surface-variant'}`}>
-                      {h.tersedia ? 'Tersedia' : 'Ada jadwal'}
-                    </p>
-                    {h.jadwal.length > 0 && (
-                      <ul className="mt-2 flex flex-col gap-1 border-t border-border-soft pt-2">
-                        {h.jadwal.map((j, i) => (
-                          <li key={i} className="font-body-md text-body-md text-on-surface">
-                            {j.jam} • {j.kelas} {lokasiEmoji[j.lokasi]}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </>
           )}
@@ -169,7 +217,7 @@ export function KetersediaanPage() {
             <EmptyState
               icon="event_available"
               title="Pilih sensei & rentang tanggal"
-              description="Sistem memeriksa jadwal aktif + planning sensei dan menampilkan hari yang benar-benar kosong."
+              description="Sistem menghitung slot kosong sensei per hari (jam operasional dari pengaturan)."
             />
           )}
         </div>

@@ -145,11 +145,21 @@ export interface ConflictItem {
   jadwal: string; // tanggal atau daftar hari rutin
 }
 
+/** Status ketersediaan per hari: kosong (penuh kosong) / parsial / penuh (terisi) */
+export type StatusKetersediaan = 'kosong' | 'parsial' | 'penuh';
+
+export interface GapKetersediaan {
+  mulai: string; // HH:MM
+  selesai: string; // HH:MM
+  menit: number;
+}
+
 export interface KetersediaanHari {
   tanggal: string;
   hari: HariIndo;
-  tersedia: boolean;
-  jadwal: Array<{ kelas: string; jam: string; lokasi: TipeLokasi }>;
+  status_ketersediaan: StatusKetersediaan;
+  total_menit_kosong: number;
+  gap: GapKetersediaan[];
 }
 
 export interface JamMengajarSensei {
