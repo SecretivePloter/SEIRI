@@ -144,6 +144,17 @@ function DenahSubKotak({
       <p className={`denah-kelas font-semibold ${punyaKelas ? jenisStyles[utama.kelas_jenis].text : 'text-white/50'}`}>
         {punyaKelas ? utama.kelas_nama : 'Kosong'}
       </p>
+      {utama && utama.exception_tipe === 'dibatalkan' && (
+        <p className="denah-time font-bold tabular-nums text-error">DIBATALKAN</p>
+      )}
+      {utama && utama.exception_tipe === 'ganti_sensei' && !utama.is_pengganti && (
+        <p className="denah-time font-bold tabular-nums text-error">
+          Diganti {utama.sensei_pengganti_nama ?? ''}
+        </p>
+      )}
+      {utama && utama.exception_tipe === 'ganti_sensei' && utama.is_pengganti && (
+        <p className="denah-time font-bold tabular-nums text-cat-bimbel-accent">Pengganti</p>
+      )}
       {punyaKelas && (
         <>
           <p className={`denah-time font-bold tabular-nums ${jenisStyles[utama.kelas_jenis].text} opacity-90`}>

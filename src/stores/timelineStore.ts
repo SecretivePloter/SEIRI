@@ -18,12 +18,15 @@ interface TimelineFilterState {
   senseiFilter: string[]; // kosong = semua
   statusFilter: StatusFilter; // default: aktif (+planning pudar)
   search: string;
+  /** true = tampilkan blok exception (dibatalkan/pengganti) di timeline */
+  showException: boolean;
   setMode: (m: TimelineMode) => void;
   setAnchorDate: (d: string) => void;
   toggleJenis: (j: JenisKelas) => void;
   toggleSensei: (id: string) => void;
   setStatusFilter: (s: StatusFilter) => void;
   setSearch: (s: string) => void;
+  toggleShowException: () => void;
   resetFilters: () => void;
   hasActiveFilters: () => boolean;
 }
@@ -35,6 +38,7 @@ export const useTimelineFilterStore = create<TimelineFilterState>((set, get) => 
   senseiFilter: [],
   statusFilter: 'aktif',
   search: '',
+  showException: true,
   setMode: (mode) => set({ mode }),
   setAnchorDate: (anchorDate) => set({ anchorDate }),
   toggleJenis: (j) => {
@@ -47,9 +51,10 @@ export const useTimelineFilterStore = create<TimelineFilterState>((set, get) => 
   },
   setStatusFilter: (statusFilter) => set({ statusFilter }),
   setSearch: (search) => set({ search }),
-  resetFilters: () => set({ jenisFilter: [], senseiFilter: [], statusFilter: 'aktif', search: '' }),
+  toggleShowException: () => set((s) => ({ showException: !s.showException })),
+  resetFilters: () => set({ jenisFilter: [], senseiFilter: [], statusFilter: 'aktif', search: '', showException: true }),
   hasActiveFilters: () => {
     const s = get();
-    return s.jenisFilter.length > 0 || s.senseiFilter.length > 0 || s.statusFilter !== 'aktif' || s.search !== '';
+    return s.jenisFilter.length > 0 || s.senseiFilter.length > 0 || s.statusFilter !== 'aktif' || s.search !== '' || !s.showException;
   },
 }));

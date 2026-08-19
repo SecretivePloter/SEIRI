@@ -9,6 +9,7 @@ import { RequireAuth } from './RequireAuth';
 import { LoginPage } from './LoginPage';
 import { TimelinePage } from '@/features/timeline/TimelinePage';
 import { TimelineRuanganPage } from '@/features/timeline/TimelineRuanganPage';
+import { KanbanPage } from '@/features/kanban/KanbanPage';
 import { JadwalListPage } from '@/features/jadwal/JadwalListPage';
 import { FormInputJadwal } from '@/features/jadwal/FormInputJadwal';
 import { KelasPage } from '@/features/kelas/KelasPage';
@@ -42,6 +43,7 @@ export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
   { path: '/timeline', element: page(<TimelinePage />) },
   { path: '/timeline/ruangan', element: page(<TimelineRuanganPage />) },
+  { path: '/kanban', element: page(<KanbanPage />) },
   { path: '/jadwal', element: page(<JadwalListPage />) },
   { path: '/jadwal/new', element: page(<FormInputJadwal />) },
   { path: '/jadwal/:id/edit', element: page(<FormInputJadwal />) },

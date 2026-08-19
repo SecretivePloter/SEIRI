@@ -45,6 +45,11 @@ export function useResolvedJadwal(
         { event: '*', schema: 'public', table: 'jadwal_slot' },
         () => void load(),
       )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'jadwal_exception' },
+        () => void load(),
+      )
       .subscribe();
     return () => {
       void supabase.removeChannel(channel);

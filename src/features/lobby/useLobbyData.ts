@@ -35,6 +35,7 @@ export function useLobbyData() {
     const channel = supabase
       .channel('lobby-display')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'jadwal_slot' }, () => void load())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'jadwal_exception' }, () => void load())
       .subscribe();
     return () => {
       void supabase.removeChannel(channel);

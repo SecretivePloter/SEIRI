@@ -54,6 +54,8 @@ export function TimelinePage() {
     setStatusFilter,
     search,
     setSearch,
+    showException,
+    toggleShowException,
     resetFilters,
     hasActiveFilters,
   } = useTimelineFilterStore();
@@ -78,6 +80,8 @@ export function TimelinePage() {
   const filtered = useMemo(() => {
     const senseiNama = new Map(senseiQ.data?.map((s) => [s.id, s.nama]) ?? []);
     return jadwal.filter((j) => {
+      // Sembunyikan baris yang TIDAK menampilkan kelas (exception dibatalkan / baris asli pengganti)
+      if (!showException && !j.dihitung) return false;
       if (jenisFilter.length > 0 && !jenisFilter.includes(j.kelas_jenis)) return false;
       if (senseiFilter.length > 0 && !senseiFilter.includes(j.sensei_id)) return false;
       if (search) {
@@ -86,7 +90,7 @@ export function TimelinePage() {
       }
       return true;
     });
-  }, [jadwal, jenisFilter, senseiFilter, search, senseiQ.data]);
+  }, [jadwal, jenisFilter, senseiFilter, search, senseiQ.data, showException]);
 
   const navigate = (dir: 1 | -1) => {
     if (mode === 'today') setAnchorDate(addDays(anchorDate, dir));
@@ -169,6 +173,15 @@ export function TimelinePage() {
             </div>
             <div className="flex flex-wrap items-center gap-3">
               <PeriodNav label={periodLabel} onPrev={() => navigate(-1)} onNext={() => navigate(1)} />
+              <label className="flex cursor-pointer select-none items-center gap-2 font-label-sm text-label-sm text-secondary">
+                <input
+                  type="checkbox"
+                  checked={showException}
+                  onChange={toggleShowException}
+                  className="h-4 w-4 accent-primary"
+                />
+                Tampilkan pembatalan/pergantian sensei
+              </label>
               <div className="relative w-full flex-1 sm:w-56 sm:flex-none">
                 <Icon name="search" size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary" />
                 <Input

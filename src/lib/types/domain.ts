@@ -120,7 +120,10 @@ export interface JadwalSlot {
   ruangan?: Ruangan | null;
 }
 
-/** Baris hasil resolve_jadwal — jadwal konkret per tanggal */
+/** Jenis override khusus tanggal utk jadwal rutin (exception). */
+export type ExceptionTipe = 'dibatalkan' | 'ganti_sensei';
+
+/** Baris hasil resolve_jadwal — jadwal konkret per tanggal (incl. exception). */
 export interface JadwalResolved {
   slot_id: string;
   tanggal_efektif: string; // yyyy-mm-dd
@@ -128,6 +131,11 @@ export interface JadwalResolved {
   jam_mulai: string;
   jam_selesai: string;
   sensei_id: string;
+  /** Sensei yg benar-benar mengajar utk tanggal ini (asli, atau pengganti utk ganti_sensei). */
+  sensei_efektif_id: string | null;
+  sensei_pengganti_id: string | null;
+  sensei_efektif_nama: string | null;
+  sensei_pengganti_nama: string | null;
   kelas_id: string;
   kelas_nama: string;
   kelas_jenis: JenisKelas;
@@ -137,6 +145,14 @@ export interface JadwalResolved {
   alamat_tujuan: string | null;
   status: StatusSlot;
   keterangan: string | null;
+  is_rutin: boolean;
+  exception_id: string | null;
+  exception_tipe: ExceptionTipe | null;
+  exception_catatan: string | null;
+  /** true = baris ini adalah baris pengganti (ganti_sensei) — dirender di baris sensei pengganti. */
+  is_pengganti: boolean;
+  /** true = diperhitungkan utk jam/sesi (normal tanpa exception, atau baris pengganti). */
+  dihitung: boolean;
 }
 
 /** Item bentrok dari check_jadwal_conflicts / save_jadwal */

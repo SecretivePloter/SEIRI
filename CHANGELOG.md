@@ -4,6 +4,69 @@ Semua perubahan penting pada **Jadwal Sensei (PT Ichikara)** dicatat di file
 ini, mengikuti format [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 Versi mengikuti [Semantic Versioning](https://semver.org/).
 
+## [2.2.0] - 2026-08-18
+
+### Fitur Baru
+
+- **Exception per tanggal utk jadwal rutin** (terpisah dari status
+  aktif/nonaktif level jadwal_slot):
+  - Tabel `jadwal_exception` (slot_id + tanggal unik) dgn tipe
+    `'dibatalkan'` / `'ganti_sensei'`, sensei_pengganti, catatan, pembuat.
+  - Di modal detail jadwal (`JadwalDetailModal`): tombol **"Batalkan Hari
+    Ini"** (opsional catatan) dan **"Ganti Sensei Hari Ini"** (dropdown
+    sensei pengganti yg tersedia di jam itu + induk cek bentrok), plus
+    **undo** ("Batalkan Pembatalan" / "Batalkan Pergantian Sensei").
+  - Tombol lama di-modal diperjelas jadi **"Nonaktifkan Jadwal Rutin
+    Ini"** agar berbeda makna dr 2 tombol baru.
+  - Modal menampilkan badge status exception aktif utk tanggal itu
+    (mis. "Dibatalkan hari ini" / "Digantikan oleh [nama]").
+  - Rendering: blok dibatalkan & baris asli pengganti diredupkan + label;
+    baris di sensei PENGganti tampil normal + badge "Pengganti".
+    Konsisten di timeline, timeline ruangan, lobi, profil sensei.
+- **Payroll konsisten lewat resolve_jadwal** (single source of truth):
+  - `hitung_jam_mengajar` & `hitung_jam_per_kelas` hanya memakai baris
+    `dihitung` — sesi di-'batalkan' TIDAK dihitung siapa pun; sesi
+    'ganti_sensei' dihitung ke SENSEI PENGGANTI (sensei_efektif_id) utk
+    tanggal itu saja.
+- **Halaman Kanban baru** (`/kanban`): 3 kolom status waktu hari ini
+  (Akan Dimulai / Sedang Berlangsung / Selesai), card per kelas (kelas +
+  sensei + lokasi + jam), filter per jenis kelas, realtime + timer WIB.
+- **Filter toggle** di Timeline: "Tampilkan pembatalan/pergantian sensei"
+  (default ON).
+
+### Perubahan
+
+- `resolve_jadwal` di-rewrite: output kolom baru (sensei_efektif_id,
+  sensei_efektif_nama, sensei_pengganti_id/nama, is_rutin, exception_*,
+  is_pengganti, dihitung). Signature TIDAK berubah (kompatibel).
+- RPC baru: `simpan_exception_jadwal`, `hapus_exception_jadwal`,
+  `list_sensei_pengganti_tersedia`.
+- `src/lib/types/domain.ts`: `JadwalResolved` += field exception dll.
+- `src/lib/api/exception.ts`: service baru utk exception.
+- `src/features/timeline/ScheduleBlock.tsx`: label + redup utk exception.
+- `src/features/timeline/JadwalDetailModal.tsx`: tombol exception + undo +
+  badge status + rename tombol nonaktif.
+- `src/features/timeline/TimelinePage.tsx` & `timelineStore.ts`: toggle
+  tampilkan exception (default ON).
+- `src/features/lobby/LobbyDisplayPage.tsx` & `useLobbyData.ts`:
+  tampilkan label exception + listen jadwal_exception.
+- `src/features/kanban/KanbanPage.tsx` (baru) + route `/kanban` +
+  navigasi Sidebar & MobileDrawer.
+- `src/features/sensei-profile/SenseiProfilePage.tsx`: label exception di
+  DetailList.
+
+### Migration Database
+
+- `supabase/migrations/0010_exception.sql` — tabel `jadwal_exception` + RLS;
+  rewrite `resolve_jadwal`, `hitung_jam_mengajar`, `hitung_jam_per_kelas`;
+  RPC baru exception + grants.
+
+> ⚠️ **Urutan migration**: `0005` → ... → `0009` → `0010`. `resolve_jadwal`
+> di 0010 MENGIDENTIK-kan kolom output (additive kolom, signature sama).
+> Jangan menimpa dgn versi 0003/0006 setelah 0010 jalan (overwrite).
+
+---
+
 ## [2.1.0] - 2026-08-18
 
 ### Fitur Baru

@@ -355,6 +355,17 @@ function DetailList({ items, onSelect }: { items: JadwalResolved[]; onSelect: (j
                   ? '🏢 Kantor klien'
                   : '🏠 Rumah murid'}
             </span>
+            {j.exception_tipe === 'dibatalkan' && (
+              <span className="font-label-sm text-label-sm font-bold text-error">DIBATALKAN</span>
+            )}
+            {j.exception_tipe === 'ganti_sensei' && !j.is_pengganti && (
+              <span className="font-label-sm text-label-sm font-bold text-error">
+                Diganti {j.sensei_pengganti_nama ?? ''}
+              </span>
+            )}
+            {j.exception_tipe === 'ganti_sensei' && j.is_pengganti && (
+              <span className="font-label-sm text-label-sm font-bold text-cat-bimbel-accent">Pengganti</span>
+            )}
           </button>
         </li>
       ))}

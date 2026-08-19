@@ -62,7 +62,7 @@ export function ScheduleBlock({
 }) {
   const { ref, size } = useBlockSize();
   const s = jenisStyles[jadwal.kelas_jenis];
-  const dim = jadwal.status === 'planning' ? 'opacity-50' : '';
+  const dim = jadwal.status === 'planning' || !jadwal.dihitung ? 'opacity-50' : '';
 
   const timeLine =
     variant === 'lobby' ? (
@@ -95,6 +95,22 @@ export function ScheduleBlock({
       <p className="block-lokasi truncate font-label-sm text-label-sm text-on-surface-variant">
         {lokasiEmoji[jadwal.tipe_lokasi]} {lokasiLabel(jadwal)}
       </p>
+      {/* Exception per tanggal: redup + label utk dibatalkan / diganti sensei */}
+      {jadwal.exception_tipe === 'dibatalkan' && (
+        <p className="block-exc truncate font-label-sm text-label-sm font-bold text-error">
+          DIBATALKAN{jadwal.exception_catatan ? ` • ${jadwal.exception_catatan}` : ''}
+        </p>
+      )}
+      {jadwal.exception_tipe === 'ganti_sensei' && !jadwal.is_pengganti && (
+        <p className="block-exc truncate font-label-sm text-label-sm font-bold text-error">
+          Digantikan oleh {jadwal.sensei_pengganti_nama ?? 'sensei lain'}
+        </p>
+      )}
+      {jadwal.exception_tipe === 'ganti_sensei' && jadwal.is_pengganti && (
+        <p className="block-exc truncate font-label-sm text-label-sm font-bold text-cat-bimbel-accent">
+          Pengganti
+        </p>
+      )}
     </div>
   );
 }

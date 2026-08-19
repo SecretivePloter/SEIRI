@@ -11,6 +11,7 @@ import logoUrl from '@/assets/logo.png';
 const NAV_ITEMS = [
   { to: '/timeline', icon: 'calendar_view_day', label: 'Timeline' },
   { to: '/timeline/ruangan', icon: 'meeting_room', label: 'Timeline Ruangan' },
+  { to: '/kanban', icon: 'view_kanban', label: 'Kanban' },
   { to: '/jadwal', icon: 'event_note', label: 'Jadwal' },
   { to: '/kelas', icon: 'school', label: 'Daftar Kelas' },
   { to: '/sensei', icon: 'person_search', label: 'Sensei' },

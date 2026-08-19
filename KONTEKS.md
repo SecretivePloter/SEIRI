@@ -405,6 +405,29 @@ Kecuali `/lobby-display` memakai `barePage` (RequireAuth + boundary, TANPA AppSh
 
 ## 11. Status Proyek Saat Ini
 
+### v2.2 (2026-08-18) — exception per tanggal + kanban
+- ✅ EXCEPTION JADWAL RUTIN per tanggal (migration `0010_exception.sql`):
+  tabel `jadwal_exception` (slot_id+tanggal, tipe 'dibatalkan'/'ganti_sensei',
+  sensei_pengganti, catatan, pembuat). Terpisah dr status aktif/nonaktif level
+  slot. Di `JadwalDetailModal`: tombol "Batalkan Hari Ini" & "Ganti Sensei
+  Hari Ini" (dropdown sensei tersedia + induk cek bentrok) + undo
+  ("Batalkan Pembatalan"/"Batalkan Pergantian"); tombol nonaktif di-rename
+  jadi "Nonaktifkan Jadwal Rutin Ini"; badge status exception di atas modal.
+- ✅ ARSITEKTUR SINGLE SOURCE OF TRUTH: `resolve_jadwal` di-rewrite utk
+  meng-output baris exception (redup/label utk dibatalkan & baris asli pengganti;
+  baris normal+badge utk pengganti). Signature TIDAK berubah. SEMUA halaman
+  (timeline, timeline ruangan, lobi, profil sensei) + payroll otomatis konsisten
+  krn sama-sama pakai `resolve_jadwal`. Filter sensei diterapkan di level
+  OUTER (bukan base) sehingga profil sensei PENGGANTI juga melihat blok pengganti.
+- ✅ PAYROLL konsisten: `hitung_jam_mengajar` & `hitung_jam_per_kelas` hanya
+  memakai baris `dihitung` -> dibatalkan TIDAK dihitung siapa pun; ganti_sensei
+  dihitung ke sensei_efektif_id (pengganti) utk tanggal itu saja.
+- ✅ Halaman KANBAN baru (`/kanban`) — 3 kolom (Akan Dimulai/Sedang
+  Berlangsung/Selesai), card kelas+sensei+lokasi+jam, filter jenis, realtime +
+  timer WIB.
+- ✅ Toggle filter Timeline "Tampilkan pembatalan/pergantian sensei" (default
+  ON).
+
 ### v2 (2026-08-14) — fitur & perbaikan
 - ✅ HAPUS MASTER AMAN (Bagian 1, migration `0008_master_delete.sql`): tombol
   hapus sensei/kelas/ruangan di Admin + dialog `HapusMasterDialog`; RPC
@@ -486,11 +509,9 @@ Kecuali `/lobby-display` memakai `barePage` (RequireAuth + boundary, TANPA AppSh
 - 🚀 Deployment: GitHub + Vercel + Supabase (lihat §13).
 
 ### Migration yang sudah jalan (per 2026-08-18)
-- ✅ User sudah menjalankan `0001`–`0009` berurutan. JANGAN menjalankan
-  `0003` setelah `0007`/`0008` (overwrite `check_ketersediaan_sensei` versi
-  lama). Sisanya: pastikan "GST" sudah dihapus lewat tombol hapus di Admin
-  (Bagian 1) supaya denah bersih dari master tak terpakai, dan rawat data
-  ruangan denah lewat tab Admin → Ruangan.
+- ✅ User sudah menjalankan `0001`–`0010` berurutan. JANGAN menjalankan
+  `0003` setelah `0007`/`0008`/`0010` (overwrite `check_ketersediaan_sensei`
+  dan `resolve_jadwal` versi lama).
 
 ---
 
