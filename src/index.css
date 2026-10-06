@@ -2,6 +2,88 @@
 @tailwind components;
 @tailwind utilities;
 
+/* TPS visual management: papan harian desktop selalu mengisi viewport.
+   Tinggi setiap baris dihitung dari jumlah sensei, sehingga tidak ada jadwal
+   yang lenyap di bawah fold. Tampilan mobile tetap dapat digeser aman. */
+.tps-timeline-board {
+  display: flex;
+  height: 100%;
+  min-height: 0;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid #c5c5d4;
+  border-radius: 0.5rem;
+  background: #fff;
+}
+
+.tps-timeline-canvas {
+  min-height: 0;
+  flex: 1;
+}
+
+.tps-timeline-row {
+  height: calc((100% - 2.25rem) / var(--tps-row-count));
+  min-height: 18px;
+}
+
+.tps-timeline-row .block-time,
+.tps-timeline-row .block-lokasi,
+.tps-timeline-row .block-exc {
+  display: none;
+}
+
+.tps-timeline-row .block-nama {
+  font-size: clamp(8px, 0.8vw, 12px);
+  line-height: 1.1;
+}
+
+.tps-andon-strip {
+  display: flex;
+  min-height: 26px;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  border-top: 1px solid #c5c5d4;
+  background: #fff4f4;
+  padding: 0.25rem 0.75rem;
+  font-size: 11px;
+  color: #93000a;
+}
+
+@media (min-width: 768px) {
+  .tps-timeline-board {
+    min-width: 0;
+  }
+
+  .tps-timeline-canvas {
+    overflow: hidden;
+  }
+
+  .tps-row-sublabel {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .tps-timeline-board {
+    height: auto;
+    overflow-x: auto;
+  }
+
+  .tps-timeline-canvas {
+    min-width: 900px;
+  }
+
+  .tps-timeline-row {
+    height: 56px;
+  }
+
+  .tps-timeline-row .block-time,
+  .tps-timeline-row .block-lokasi {
+    display: block;
+  }
+}
+
 /* Material Symbols — dipakai via <Icon> & class .material-symbols-outlined */
 .material-symbols-outlined {
   font-family: 'Material Symbols Outlined';
