@@ -8,20 +8,23 @@ export interface DisplayScheduleItem {
   nama: string;
 }
 
-let interpreterClient: SupabaseClient | null = null;
+type InterpreterClient = SupabaseClient<any, 'ichikara', any>;
 
-function getInterpreterClient(): SupabaseClient {
+let interpreterClient: InterpreterClient | null = null;
+
+function getInterpreterClient(): InterpreterClient {
   if (interpreterClient) return interpreterClient;
 
   const url = import.meta.env.VITE_INTERPRETASYNC_SUPABASE_URL as string | undefined;
   const anonKey = import.meta.env.VITE_INTERPRETASYNC_SUPABASE_ANON_KEY as string | undefined;
   if (!url || !anonKey) throw new Error('Konfigurasi feed kalender interpreter belum diatur.');
 
-  interpreterClient = createClient(url, anonKey, {
+  const client: InterpreterClient = createClient(url, anonKey, {
     db: { schema: 'ichikara' },
     auth: { persistSession: false, autoRefreshToken: false },
   });
-  return interpreterClient;
+  interpreterClient = client;
+  return client;
 }
 
 async function unwrapSchedule<T>(request: PromiseLike<{ data: T | null; error: { message: string } | null }>): Promise<T> {
