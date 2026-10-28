@@ -1,3 +1,6 @@
 # Supabase — salin jadi .env.local dan isi dari Dashboard Supabase (Project Settings → API)
+# Interpretasync public display feed (publishable/anon key only; never use service_role)
+VITE_INTERPRETASYNC_SUPABASE_URL=https://your-project-ref.supabase.co
+VITE_INTERPRETASYNC_SUPABASE_ANON_KEY=sb_publishable_xxxxxxxxxxxxxxxxxxxx
 VITE_SUPABASE_URL=https://lulxlffsgswplbggivrm.supabase.co
 VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1bHhsZmZzZ3N3cGxiZ2dpdnJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY1Njc5OTgsImV4cCI6MjEwMjE0Mzk5OH0.TCw5agXjWClcmfzV7HK1MTZtKiVWL_TLttAPy7vjniE

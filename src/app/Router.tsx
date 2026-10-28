@@ -19,6 +19,7 @@ import { KetersediaanPage } from '@/features/ketersediaan/KetersediaanPage';
 import { DashboardPage } from '@/features/dashboard/DashboardPage';
 import { AdminPage } from '@/features/admin/AdminPage';
 import { LobbyDisplayPage } from '@/features/lobby/LobbyDisplayPage';
+import { DisplayPage } from '@/features/display/DisplayPage';
 
 function page(children: React.ReactNode) {
   return (
@@ -39,6 +40,11 @@ function barePage(children: React.ReactNode) {
   );
 }
 
+/** Public read-only signage route; no app shell or user session required. */
+function publicPage(children: React.ReactNode) {
+  return <RouteErrorBoundary>{children}</RouteErrorBoundary>;
+}
+
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
   { path: '/timeline', element: page(<TimelinePage />) },
@@ -54,6 +60,7 @@ export const router = createBrowserRouter([
   { path: '/dashboard', element: page(<DashboardPage />) },
   { path: '/admin', element: page(<AdminPage />) },
   { path: '/lobby-display', element: barePage(<LobbyDisplayPage />) },
+  { path: '/display', element: publicPage(<DisplayPage />) },
   { path: '/', element: <Navigate to="/timeline" replace /> },
   { path: '*', element: <Navigate to="/timeline" replace /> },
 ]);
