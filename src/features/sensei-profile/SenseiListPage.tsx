@@ -11,18 +11,21 @@ import { useAsyncData } from '@/app/useAsyncData';
 
 export function SenseiListPage() {
   const [search, setSearch] = useState('');
-  const q = useAsyncData(() => listSensei(), []);
+  const [showNonaktif, setShowNonaktif] = useState(false);
+  const q = useAsyncData(() => listSensei({ includeNonaktif: true }), []);
 
   const rows = useMemo(() => {
-    const list = q.data ?? [];
+    const list = (q.data ?? []).filter((x) => showNonaktif || x.is_aktif);
     if (!search) return list;
     const s = search.toLowerCase();
     return list.filter((x) => x.nama.toLowerCase().includes(s));
-  }, [q.data, search]);
+  }, [q.data, search, showNonaktif]);
+
+  const activeCount = q.data?.filter((s) => s.is_aktif).length ?? 0;
 
   return (
     <>
-      <TopBar title="Sensei" subtitle={`${q.data?.length ?? 0} sensei aktif`} />
+      <TopBar title="Sensei" subtitle={`${activeCount} sensei aktif`} />
       <main className="flex-1 overflow-y-auto p-container-padding">
         <div className="mx-auto flex max-w-[1200px] flex-col gap-4">
           <div className="flex justify-end">
@@ -31,13 +34,17 @@ export function SenseiListPage() {
               <Input className="pl-9" placeholder="Cari sensei..." value={search} onChange={(e) => setSearch(e.target.value)} />
             </div>
           </div>
+          <label className="flex cursor-pointer select-none items-center gap-2 font-label-sm text-label-sm text-secondary">
+            <input type="checkbox" checked={showNonaktif} onChange={(e) => setShowNonaktif(e.target.checked)} className="h-4 w-4 accent-primary" />
+            Tampilkan sensei nonaktif untuk melihat riwayat
+          </label>
 
           {q.loading ? (
             <LoadingState label="Memuat sensei..." />
           ) : q.error ? (
             <ErrorState message={q.error} onRetry={() => void q.reload()} />
           ) : rows.length === 0 ? (
-            <EmptyState icon="person_search" title="Tidak ada sensei ditemukan" description="Tambahkan sensei lewat halaman Admin." />
+            <EmptyState icon="person_search" title="Tidak ada sensei ditemukan" description={showNonaktif ? 'Coba ubah pencarian.' : 'Coba tampilkan sensei nonaktif atau tambahkan sensei lewat halaman Admin.'} />
           ) : (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {rows.map((s) => (
@@ -52,7 +59,7 @@ export function SenseiListPage() {
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-label-md text-label-md text-on-surface group-hover:text-primary">{s.nama}</p>
                     <p className="truncate font-label-sm text-label-sm text-secondary">
-                      {s.status}
+                      {!s.is_aktif ? 'Nonaktif · ' : ''}{s.status}
                       {s.jlpt_level ? ` • JLPT ${s.jlpt_level}` : ''}
                     </p>
                     <div className="mt-1 flex flex-wrap gap-1">

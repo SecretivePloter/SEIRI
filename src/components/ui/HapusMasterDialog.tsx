@@ -72,9 +72,9 @@ export function HapusMasterDialog({
     >
       {!hasil ? (
         <p className="font-body-md text-body-md text-on-surface-variant">
-          Sistem akan memeriksa apakah data ini masih dipakai jadwal. Penghapusan
-          permanen hanya terjadi jika belum pernah dipakai; data berriwayat akan
-          diarsipkan (soft delete) supaya laporan lama tetap utuh.
+          {tipe === 'sensei'
+            ? 'Sensei akan dipindahkan ke nonaktif. Jadwal berikutnya dihentikan dan jadwal yang sudah berlalu tetap tersimpan untuk pemeriksaan historis. Sensei hanya dihapus permanen jika belum pernah memiliki jadwal.'
+            : 'Sistem akan memeriksa apakah data ini masih dipakai jadwal. Data tanpa riwayat dapat dihapus permanen; data yang memiliki riwayat akan diarsipkan agar catatan lama tetap utuh.'}
         </p>
       ) : (
         <div

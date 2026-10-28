@@ -71,7 +71,9 @@ export function TimelinePage() {
     return [startOfMonth(anchorDate), endOfMonth(anchorDate)];
   }, [mode, anchorDate]);
 
-  const senseiQ = useAsyncData(listSensei, []);
+  // Sertakan sensei arsip agar jadwal historis tetap punya baris saat periode
+  // yang ditampilkan berada di masa lalu.
+  const senseiQ = useAsyncData(() => listSensei({ includeNonaktif: true }), []);
   const rpcStatus = statusToRpcParam(statusFilter);
   const { jadwal, loading, error, reload } = useResolvedJadwal(from, to, {
     status: rpcStatus,
@@ -110,11 +112,14 @@ export function TimelinePage() {
         : formatBulan(anchorDate);
 
   const senseiRows: TimelineRow[] = useMemo(
-    () =>
-      (senseiQ.data ?? [])
+    () => {
+      const senseiWithSchedule = new Set(jadwal.map((j) => j.sensei_id));
+      return (senseiQ.data ?? [])
+        .filter((s) => s.is_aktif || senseiWithSchedule.has(s.id))
         .filter((s) => (search ? s.nama.toLowerCase().includes(search.toLowerCase()) : true))
-        .map((s) => ({ id: s.id, label: s.nama, sublabel: s.status })),
-    [senseiQ.data, search],
+        .map((s) => ({ id: s.id, label: s.nama, sublabel: s.is_aktif ? s.status : 'Arsip historis' }));
+    },
+    [senseiQ.data, search, jadwal],
   );
 
   return (
