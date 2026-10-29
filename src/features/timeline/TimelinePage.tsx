@@ -1,7 +1,7 @@
 // TimelinePage — grid sensei × jam (Today), sensei × hari (Weekly),
 // kalender bulanan (Monthly). Realtime auto-refresh via useResolvedJadwal.
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { TopBar, ModeTabs, PeriodNav } from '@/components/layout/TopBar';
 import { Button } from '@/components/ui/Button';
@@ -13,7 +13,7 @@ import { TimelineGrid, type TimelineRow } from './TimelineGrid';
 import { ScheduleBlock } from './ScheduleBlock';
 import { useResolvedJadwal } from './useResolvedJadwal';
 import { JadwalDetailModal } from './JadwalDetailModal';
-import { listSensei } from '@/lib/api/sensei';
+import { listPublicDisplaySensei, listSensei } from '@/lib/api/sensei';
 import { useAsyncData } from '@/app/useAsyncData';
 import {
   useTimelineFilterStore,
@@ -40,7 +40,7 @@ function statusToRpcParam(status: StatusFilter): StatusSlot[] | undefined {
   return undefined; // semua
 }
 
-export function TimelinePage() {
+export function TimelinePage({ publicDisplay = false }: { publicDisplay?: boolean } = {}) {
   const {
     mode,
     setMode,
@@ -61,6 +61,13 @@ export function TimelinePage() {
   } = useTimelineFilterStore();
   const [selected, setSelected] = useState<JadwalResolved | null>(null);
 
+  useEffect(() => {
+    if (!publicDisplay) return;
+    const params = new URLSearchParams(window.location.search);
+    const requestedView = params.get('view');
+    setMode(requestedView === 'weekly' || requestedView === 'monthly' ? requestedView : 'today');
+  }, [publicDisplay, setMode]);
+
   // Rentang tanggal sesuai mode
   const [from, to] = useMemo<[string, string]>(() => {
     if (mode === 'today') return [anchorDate, anchorDate];
@@ -71,10 +78,16 @@ export function TimelinePage() {
     return [startOfMonth(anchorDate), endOfMonth(anchorDate)];
   }, [mode, anchorDate]);
 
-  const senseiQ = useAsyncData(listSensei, []);
+  // Sertakan sensei arsip agar jadwal historis tetap punya baris saat periode
+  // yang ditampilkan berada di masa lalu.
+  const senseiQ = useAsyncData(
+    () => publicDisplay ? listPublicDisplaySensei() : listSensei({ includeNonaktif: true }),
+    [publicDisplay],
+  );
   const rpcStatus = statusToRpcParam(statusFilter);
   const { jadwal, loading, error, reload } = useResolvedJadwal(from, to, {
     status: rpcStatus,
+    publicDisplay,
   });
 
   const filtered = useMemo(() => {
@@ -110,11 +123,14 @@ export function TimelinePage() {
         : formatBulan(anchorDate);
 
   const senseiRows: TimelineRow[] = useMemo(
-    () =>
-      (senseiQ.data ?? [])
+    () => {
+      const senseiWithSchedule = new Set(jadwal.map((j) => j.sensei_id));
+      return (senseiQ.data ?? [])
+        .filter((s) => s.is_aktif || senseiWithSchedule.has(s.id))
         .filter((s) => (search ? s.nama.toLowerCase().includes(search.toLowerCase()) : true))
-        .map((s) => ({ id: s.id, label: s.nama, sublabel: s.status })),
-    [senseiQ.data, search],
+        .map((s) => ({ id: s.id, label: s.nama, sublabel: s.is_aktif ? s.status : 'Arsip historis' }));
+    },
+    [senseiQ.data, search, jadwal],
   );
 
   return (
@@ -133,13 +149,13 @@ export function TimelinePage() {
             onChange={setMode}
           />
         }
-        actions={
+        actions={publicDisplay ? undefined : (
           <Link to="/jadwal/new">
             <Button>
               <Icon name="add" size={16} /> New Schedule
             </Button>
           </Link>
-        }
+        )}
       />
       <main className={`flex-1 p-container-padding ${mode === 'today' ? 'min-h-0 overflow-hidden' : 'overflow-y-auto'}`}>
         <div className={`mx-auto flex max-w-[1400px] flex-col gap-4 ${mode === 'today' ? 'h-full min-h-0' : ''}`}>
@@ -214,13 +230,13 @@ export function TimelinePage() {
             <>
               {mode === 'today' && (
                 <div className="min-h-0 flex-1">
-                  <TimelineGrid rows={senseiRows} jadwalByRow={groupBy(filtered, (j) => j.sensei_id)} onSelect={setSelected} />
+                <TimelineGrid rows={senseiRows} jadwalByRow={groupBy(filtered, (j) => j.sensei_id)} onSelect={publicDisplay ? undefined : setSelected} />
                 </div>
               )}
               {mode === 'weekly' && (
-                <WeeklyGrid days={dateRange(from, to)} rows={senseiRows} jadwal={filtered} onSelect={setSelected} />
+                <WeeklyGrid days={dateRange(from, to)} rows={senseiRows} jadwal={filtered} onSelect={publicDisplay ? () => {} : setSelected} />
               )}
-              {mode === 'monthly' && <MonthlyGrid from={from} to={to} jadwal={filtered} onSelect={setSelected} />}
+              {mode === 'monthly' && <MonthlyGrid from={from} to={to} jadwal={filtered} onSelect={publicDisplay ? () => {} : setSelected} />}
               {filtered.length === 0 && (
                 <EmptyState
                   icon="event_busy"
@@ -233,7 +249,7 @@ export function TimelinePage() {
         </div>
       </main>
 
-      <JadwalDetailModal jadwal={selected} onClose={() => setSelected(null)} onChanged={reload} />
+      {!publicDisplay && <JadwalDetailModal jadwal={selected} onClose={() => setSelected(null)} onChanged={reload} />}
     </>
   );
 }

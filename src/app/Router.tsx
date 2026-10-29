@@ -61,6 +61,7 @@ export const router = createBrowserRouter([
   { path: '/admin', element: page(<AdminPage />) },
   { path: '/lobby-display', element: barePage(<LobbyDisplayPage />) },
   { path: '/display', element: publicPage(<DisplayPage />) },
+  { path: '/display-source', element: publicPage(<TimelinePage publicDisplay />) },
   { path: '/', element: <Navigate to="/timeline" replace /> },
   { path: '*', element: <Navigate to="/timeline" replace /> },
 ]);

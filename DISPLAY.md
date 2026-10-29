@@ -1,19 +1,19 @@
 # Halaman display publik
 
-Halaman TV berada di `/display` dan tidak memerlukan login. Data dibaca melalui dua RPC publik khusus; endpoint hanya mengembalikan nama sensei/interpreter, tanggal, dan jam. Jangan menambahkan field seperti nama klien, lokasi, alamat, kontak, atau catatan internal ke feed ini.
+`/display` tetap menjadi halaman display lobby yang baru. Isinya menggunakan iframe ke jalur display baca-saja pada dua aplikasi dan mempertahankan komponen serta gaya halaman aslinya. Halaman lama `/lobby-display` tidak diubah.
 
 ## Mode
 
-- `/display` atau `/display?mode=cycle&interval=30`: berganti antara kalender interpreter mingguan dan timeline sensei hari ini, setiap 30 detik.
-- `/display?mode=cycle&interval=45`: interval dalam detik (10–600).
-- `/display?mode=single&view=interpreter`: kalender interpreter saja.
-- `/display?mode=single&view=sensei`: timeline sensei saja.
+- `/display` atau `/display?mode=cycle&interval=30`: berganti antara Kalender interpreter bulanan dan Timeline Sensei hari ini setiap 30 detik.
+- `interval` menerima nilai 10–600 detik.
+- `/display?mode=single&view=interpreter`: Kalender interpreter saja.
+- `/display?mode=single&view=sensei`: Timeline Sensei saja.
 
-## Setup deployment
+Jalur sumber publik yang dipakai iframe adalah `/display-source` pada kedua domain. Kalender memakai filter dan grid bulanan yang sama dengan `/kalender`; timeline memakai komponen yang sama dengan `/timeline`. Fitur edit dan modal detail tidak tersedia di jalur display.
 
-1. Terapkan `supabase/migrations/0011_public_display.sql` pada Supabase SEIRI.
-2. Terapkan `supabase/migrations/20261028_public_display_feed.sql` pada Supabase Interpretasync.
-3. Tambahkan `VITE_INTERPRETASYNC_SUPABASE_URL` dan `VITE_INTERPRETASYNC_SUPABASE_ANON_KEY` ke environment Vercel SEIRI. Gunakan URL serta publishable/anon key proyek Interpretasync; jangan gunakan service-role key.
-4. Deploy SEIRI ke `edukasi.ichikara.co.id` dan buka `/display`.
+## Migrasi database
 
-Feed hanya menerima rentang dalam minggu berjalan (WIB). Halaman memuat ulang kedua feed setiap 60 detik.
+1. Jalankan `supabase/migrations/0013_public_display_timeline.sql` pada Supabase SEIRI.
+2. Jalankan `supabase/migrations/20261029_public_display_calendar.sql` pada Supabase Interpretasync.
+
+RPC publik hanya dapat membaca field yang diperlukan untuk tampilan. Feed tidak mengembalikan alamat, nama ruangan spesifik, kontak, ataupun catatan internal. Gunakan publishable/anon key aplikasi, jangan pernah gunakan service-role key di browser.

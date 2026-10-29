@@ -13,6 +13,12 @@ export async function listSensei(opts?: { includeNonaktif?: boolean }): Promise<
   return unwrap(data, error) as Sensei[];
 }
 
+/** Minimal public roster for the read-only display route. */
+export async function listPublicDisplaySensei(): Promise<Sensei[]> {
+  const { data, error } = await supabase.rpc('public_display_sensei');
+  return unwrap(data, error) as Sensei[];
+}
+
 export async function getSensei(id: string): Promise<Sensei> {
   const { data, error } = await supabase.from('sensei').select('*').eq('id', id).single();
   return unwrap(data, error) as Sensei;
