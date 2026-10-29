@@ -30,7 +30,7 @@ export function DisplayPage() {
 
   const view = config.mode === 'single' ? config.view : activeView;
   const source = view === 'calendar'
-    ? 'https://app.ichikara.co.id/display-source?view=month'
+    ? 'https://interpretasync.vercel.app/display-source?view=month'
     : 'https://edukasi.ichikara.co.id/display-source?view=today';
 
   return (
