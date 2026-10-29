@@ -1,6 +1,5 @@
 // TimelineGrid — papan kendali harian berbasis TPS.
-// Seluruh sensei dipadatkan ke tinggi viewport pada desktop; tidak ada data
-// operasional yang tersembunyi oleh scroll vertikal. Garis merah adalah andon
+// Baris menjaga tinggi minimum agar label terbaca; jadwal bentrok memakai lajur terpisah. Garis merah adalah andon
 // waktu nyata: sekali lihat, admin tahu posisi waktu dan kelas yang berjalan.
 
 import { useEffect, useMemo, useState, type CSSProperties } from 'react';
@@ -59,7 +58,7 @@ export function TimelineGrid({
   return (
     <section className="tps-timeline-board" style={boardStyle} aria-label="Papan kendali jadwal sensei hari ini">
       <div className="tps-timeline-canvas">
-        <div className="grid h-9 border-b border-outline-variant bg-thead" style={{ gridTemplateColumns: '150px 1fr' }}>
+        <div className="sticky top-0 z-30 grid h-12 min-w-[1200px] border-b border-outline-variant bg-thead" style={{ gridTemplateColumns: '150px 1fr' }}>
           <div className="sticky left-0 z-20 flex items-center border-r border-outline-variant bg-thead px-3 font-label-sm text-label-sm text-secondary">
             SENSEI · WIB
           </div>
@@ -72,7 +71,7 @@ export function TimelineGrid({
                     minute % 60 === 0 ? 'bg-surface-container-low text-on-surface' : 'text-secondary'
                   }`}
                 >
-                  {minutesToTime(minute)}
+                  <span className="text-center leading-tight">{minutesToTime(minute)}<br /><span className="text-secondary">{minutesToTime(minute + 30)}</span></span>
                 </div>
               ))}
             </div>
@@ -81,9 +80,17 @@ export function TimelineGrid({
         </div>
 
         {rows.map((row) => {
-          const items = jadwalByRow.get(row.id) ?? [];
+          const items = [...(jadwalByRow.get(row.id) ?? [])].sort((a, b) => timeToMinutes(a.jam_mulai) - timeToMinutes(b.jam_mulai));
+          const laneEnds: number[] = [];
+          const placed = items.map((j) => {
+            const start = timeToMinutes(j.jam_mulai);
+            let lane = laneEnds.findIndex((end) => end <= start);
+            if (lane < 0) lane = laneEnds.length;
+            laneEnds[lane] = timeToMinutes(j.jam_selesai);
+            return { j, lane };
+          });
           return (
-            <div key={row.id} className="tps-timeline-row grid border-b border-outline-variant last:border-b-0" style={{ gridTemplateColumns: '150px 1fr' }}>
+            <div key={row.id} className="tps-timeline-row grid border-b border-outline-variant last:border-b-0" style={{ gridTemplateColumns: '150px 1fr', height: Math.max(1, laneEnds.length) * 56 }}>
               <div className="sticky left-0 z-10 flex min-w-0 flex-col justify-center border-r border-outline-variant bg-surface-container-lowest px-3">
                 <p className="truncate font-label-md text-label-md font-semibold text-on-surface">{row.label}</p>
                 {row.sublabel && <p className="tps-row-sublabel truncate font-label-sm text-label-sm text-secondary">{row.sublabel}</p>}
@@ -94,7 +101,7 @@ export function TimelineGrid({
                   return <div key={minute} className="absolute bottom-0 top-0 border-r border-outline-variant/30" style={{ left: `${pct}%` }} />;
                 })}
                 {nowInBoard && <NowMarker left={nowLeft} />}
-                {items.map((j) => {
+                {placed.map(({ j, lane }) => {
                   const start = timeToMinutes(j.jam_mulai);
                   const end = timeToMinutes(j.jam_selesai);
                   const clampedStart = Math.max(start, AXIS_START);
@@ -105,8 +112,8 @@ export function TimelineGrid({
                   return (
                     <div
                       key={`${j.slot_id}-${j.tanggal_efektif}-${j.is_pengganti ? 'pengganti' : 'asal'}`}
-                      className="absolute bottom-0.5 top-0.5 z-[1]"
-                      style={{ left: `${left}%`, width: `${width}%` }}
+                      className="absolute z-[1]"
+                      style={{ left: `${left}%`, width: `${width}%`, top: lane * 56 + 3, height: 50 }}
                     >
                       <ScheduleBlock jadwal={j} onClick={onSelect ? () => onSelect(j) : undefined} />
                     </div>
