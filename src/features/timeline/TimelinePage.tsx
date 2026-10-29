@@ -4,6 +4,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { TopBar, ModeTabs, PeriodNav } from '@/components/layout/TopBar';
+import { Modal } from '@/components/ui/Modal';
+import { JenisBadge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { LoadingState, ErrorState, EmptyState } from '@/components/ui/States';
@@ -59,6 +61,7 @@ export function TimelinePage({ publicDisplay = false }: { publicDisplay?: boolea
     resetFilters,
     hasActiveFilters,
   } = useTimelineFilterStore();
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [selected, setSelected] = useState<JadwalResolved | null>(null);
 
   useEffect(() => {
@@ -149,19 +152,72 @@ export function TimelinePage({ publicDisplay = false }: { publicDisplay?: boolea
             onChange={setMode}
           />
         }
-        actions={publicDisplay ? undefined : (
-          <Link to="/jadwal/new">
+        actions={(
+          <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={() => setFiltersOpen(true)}>
+            <Icon name="tune" size={16} /> Filter & tampilan{hasActiveFilters() ? ' •' : ''}
+          </Button>
+          {!publicDisplay && <Link to="/jadwal/new">
             <Button>
               <Icon name="add" size={16} /> New Schedule
             </Button>
-          </Link>
+          </Link>}
+          </div>
         )}
       />
       <main className={`flex-1 p-container-padding ${mode === 'today' ? 'tps-fit-page min-h-0 overflow-hidden' : 'overflow-y-auto'}`}>
         <div className={`mx-auto flex max-w-[1400px] flex-col gap-4 ${mode === 'today' ? 'h-full min-h-0' : ''}`}>
+          {/* Body */}
+          {senseiQ.loading || loading ? (
+            <LoadingState label="Memuat timeline…" />
+          ) : senseiQ.error || error ? (
+            <ErrorState
+              message={senseiQ.error ?? error ?? ''}
+              onRetry={() => {
+                void senseiQ.reload();
+                void reload();
+              }}
+            />
+          ) : (
+            <>
+              {mode === 'today' && (
+                <div className="min-h-0 flex-1">
+                <TimelineGrid rows={senseiRows} jadwalByRow={groupBy(filtered, (j) => j.sensei_id)} onSelect={publicDisplay ? undefined : setSelected} />
+                </div>
+              )}
+              {mode === 'weekly' && (
+                <WeeklyGrid days={dateRange(from, to)} rows={senseiRows} jadwal={filtered} onSelect={publicDisplay ? () => {} : setSelected} />
+              )}
+              {mode === 'monthly' && <MonthlyGrid from={from} to={to} jadwal={filtered} onSelect={publicDisplay ? () => {} : setSelected} />}
+              {filtered.length === 0 && (
+                <EmptyState
+                  icon="event_busy"
+                  title="Tidak ada jadwal di rentang ini"
+                  description="Coba ubah filter, atau buat jadwal baru."
+                />
+              )}
+            </>
+          )}
+          <aside aria-label="Keterangan timeline" className="shrink-0 rounded border border-outline-variant bg-surface-container-lowest px-3 py-2">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+              <strong className="text-xs text-on-surface">Jenis kelas</strong>
+              {JENIS_KELAS_LIST.map((jenis) => <JenisBadge key={jenis} jenis={jenis} />)}
+            </div>
+            <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-secondary">
+              <strong>Simbol</strong>
+              <span><span className="mr-1 inline-block h-3 border-l-2 border-error align-middle" /> Waktu sekarang (WIB)</span>
+              <span><span className="line-through">× Kelas</span> · Dibatalkan / digantikan</span>
+              <span><span className="opacity-60">Kelas pudar</span> · Planning</span>
+              <span>… · Nama lengkap saat diarahkan / dibuka</span>
+            </div>
+          </aside>
+        </div>
+      </main>
+      <Modal open={filtersOpen} onClose={() => setFiltersOpen(false)} title="Filter & tampilan timeline" wide
+        footer={<Button onClick={() => setFiltersOpen(false)}>Selesai</Button>}>
           {/* Filter bar: jenis kelas (9) + sensei + status + cari. AND. */}
           <div className="tps-filters shrink-0 flex flex-col gap-3 rounded-card border border-outline-variant bg-surface-container-lowest p-4">
-            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-2">
               <MultiSelect<JenisKelas>
                 label="Jenis kelas"
                 options={JENIS_KELAS_LIST.map((j) => ({ value: j, label: j }))}
@@ -215,39 +271,8 @@ export function TimelinePage({ publicDisplay = false }: { publicDisplay?: boolea
             </div>
           </div>
 
-          {/* Body */}
-          {senseiQ.loading || loading ? (
-            <LoadingState label="Memuat timeline…" />
-          ) : senseiQ.error || error ? (
-            <ErrorState
-              message={senseiQ.error ?? error ?? ''}
-              onRetry={() => {
-                void senseiQ.reload();
-                void reload();
-              }}
-            />
-          ) : (
-            <>
-              {mode === 'today' && (
-                <div className="min-h-0 flex-1">
-                <TimelineGrid rows={senseiRows} jadwalByRow={groupBy(filtered, (j) => j.sensei_id)} onSelect={publicDisplay ? undefined : setSelected} />
-                </div>
-              )}
-              {mode === 'weekly' && (
-                <WeeklyGrid days={dateRange(from, to)} rows={senseiRows} jadwal={filtered} onSelect={publicDisplay ? () => {} : setSelected} />
-              )}
-              {mode === 'monthly' && <MonthlyGrid from={from} to={to} jadwal={filtered} onSelect={publicDisplay ? () => {} : setSelected} />}
-              {filtered.length === 0 && (
-                <EmptyState
-                  icon="event_busy"
-                  title="Tidak ada jadwal di rentang ini"
-                  description="Coba ubah filter, atau buat jadwal baru."
-                />
-              )}
-            </>
-          )}
-        </div>
-      </main>
+
+      </Modal>
 
       {!publicDisplay && <JadwalDetailModal jadwal={selected} onClose={() => setSelected(null)} onChanged={reload} />}
     </>
