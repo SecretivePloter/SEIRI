@@ -26,7 +26,7 @@ export function HapusMasterDialog({
   id: string;
   nama: string;
   onClose: () => void;
-  onDone: () => void;
+  onDone: () => void | Promise<void>;
 }) {
   const [busy, setBusy] = useState(false);
   const [hasil, setHasil] = useState<HasilEvaluasiHapus | null>(null);
@@ -44,7 +44,12 @@ export function HapusMasterDialog({
       } else {
         toast.success('Data dihapus permanen', h.pesan);
       }
-      if (h.aksi !== 'block') onDone();
+      if (h.aksi !== 'block') {
+        await onDone();
+        // Close after a verified permanent deletion so the refreshed list is
+        // visible immediately. Archived records stay visible for history.
+        if (h.aksi === 'hard') onClose();
+      }
     } catch (e) {
       toast.error('Gagal menghapus', e instanceof Error ? e.message : undefined);
     } finally {
