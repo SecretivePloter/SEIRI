@@ -19,29 +19,68 @@ function readConfig(): { mode: DisplayMode; view: DisplayView; interval: number 
 export function DisplayPage() {
   const config = useMemo(readConfig, []);
   const [activeView, setActiveView] = useState<DisplayView>(config.view);
+  const [outgoingView, setOutgoingView] = useState<DisplayView | null>(null);
+  const [transitionPhase, setTransitionPhase] = useState<'idle' | 'prepare' | 'sliding'>('idle');
 
   useEffect(() => {
-    if (config.mode !== 'cycle') return;
-    const timer = window.setInterval(() => {
-      setActiveView((view) => view === 'calendar' ? 'timeline' : 'calendar');
-    }, config.interval * 1000);
-    return () => window.clearInterval(timer);
-  }, [config.mode, config.interval]);
+    if (config.mode !== 'cycle' || transitionPhase !== 'idle') return;
 
-  const view = config.mode === 'single' ? config.view : activeView;
-  const source = view === 'calendar'
+    const timer = window.setTimeout(() => {
+      const nextView = activeView === 'calendar' ? 'timeline' : 'calendar';
+      setOutgoingView(activeView);
+      setActiveView(nextView);
+      setTransitionPhase('prepare');
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => setTransitionPhase('sliding'));
+      });
+    }, config.interval * 1000);
+    return () => window.clearTimeout(timer);
+  }, [activeView, config.mode, config.interval, transitionPhase]);
+
+  useEffect(() => {
+    if (transitionPhase !== 'sliding') return;
+
+    const timer = window.setTimeout(() => {
+      setTransitionPhase('idle');
+      setOutgoingView(null);
+    }, 1000);
+    return () => window.clearTimeout(timer);
+  }, [transitionPhase]);
+
+  const views: DisplayView[] = config.mode === 'cycle'
+    ? ['calendar', 'timeline']
+    : [config.view];
+
+  const sourceFor = (view: DisplayView) => view === 'calendar'
     ? 'https://interpretasync.vercel.app/display-source?view=month'
     : 'https://edukasi.ichikara.co.id/display-source?view=today';
 
+  const positionClass = (view: DisplayView) => {
+    if (transitionPhase === 'sliding') {
+      return view === outgoingView ? '-translate-x-full' : 'translate-x-0';
+    }
+    if (transitionPhase === 'prepare') {
+      return view === outgoingView ? 'translate-x-0' : 'translate-x-full';
+    }
+    return view === activeView ? 'translate-x-0' : 'translate-x-full';
+  };
+
   return (
-    <main className="h-screen w-screen overflow-hidden bg-background">
-      <iframe
-        key={view}
-        title={view === 'calendar' ? 'Kalender interpreter' : 'Timeline sensei'}
-        src={source}
-        className="h-full w-full border-0"
-        allow="fullscreen"
-      />
+    <main className="relative h-screen w-screen overflow-hidden bg-background">
+      {views.map((view) => (
+        <iframe
+          key={view}
+          title={view === 'calendar' ? 'Kalender interpreter' : 'Timeline sensei'}
+          src={sourceFor(view)}
+          aria-hidden={view !== activeView}
+          className={`absolute inset-0 h-full w-full border-0 ${positionClass(view)} ${
+            transitionPhase === 'sliding'
+              ? 'transition-transform duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none'
+              : 'transition-none'
+          }`}
+          allow="fullscreen"
+        />
+      ))}
     </main>
   );
 }
