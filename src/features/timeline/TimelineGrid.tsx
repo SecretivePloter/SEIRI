@@ -1,9 +1,9 @@
 // TimelineGrid — papan kendali harian berbasis TPS.
-// Baris menjaga tinggi minimum agar label terbaca; jadwal bentrok memakai lajur terpisah. Garis merah adalah andon
+// Seluruh baris berbagi tinggi layar; jadwal bentrok memakai lajur terpisah. Garis merah adalah andon
 // waktu nyata: sekali lihat, admin tahu posisi waktu dan kelas yang berjalan.
 
 import { useEffect, useMemo, useState, type CSSProperties } from 'react';
-import { ScheduleBlock } from './ScheduleBlock';
+import { jenisStyles } from '@/components/ui/Badge';
 import type { JadwalResolved } from '@/lib/types/domain';
 import { nowTimeWIB, timeToMinutes, minutesToTime } from '@/lib/time';
 
@@ -53,12 +53,25 @@ export function TimelineGrid({
       ).length,
     [jadwalByRow, nowMinute],
   );
-  const boardStyle = { '--tps-row-count': String(Math.max(rows.length, 1)) } as CSSProperties;
+const layout = rows.map((row) => {
+          const items = [...(jadwalByRow.get(row.id) ?? [])].sort((a, b) => timeToMinutes(a.jam_mulai) - timeToMinutes(b.jam_mulai));
+          const laneEnds: number[] = [];
+          const placed = items.map((j) => {
+            const start = timeToMinutes(j.jam_mulai);
+            let lane = laneEnds.findIndex((end) => end <= start);
+            if (lane < 0) lane = laneEnds.length;
+            laneEnds[lane] = timeToMinutes(j.jam_selesai);
+            return { j, lane };
+          });
+          return { row, placed, laneCount: Math.max(1, laneEnds.length) };
+        });
+  const totalLanes = layout.reduce((sum, row) => sum + row.laneCount, 0) || 1;
+  const boardStyle = { '--tps-row-count': String(totalLanes) } as CSSProperties;
 
   return (
     <section className="tps-timeline-board" style={boardStyle} aria-label="Papan kendali jadwal sensei hari ini">
       <div className="tps-timeline-canvas">
-        <div className="sticky top-0 z-30 grid h-12 min-w-[1200px] border-b border-outline-variant bg-thead" style={{ gridTemplateColumns: '150px 1fr' }}>
+        <div className="tps-axis z-30 grid h-10 shrink-0 border-b border-outline-variant bg-thead" style={{ gridTemplateColumns: 'var(--tps-name-width) minmax(0, 1fr)' }}>
           <div className="sticky left-0 z-20 flex items-center border-r border-outline-variant bg-thead px-3 font-label-sm text-label-sm text-secondary">
             SENSEI · WIB
           </div>
@@ -79,18 +92,9 @@ export function TimelineGrid({
           </div>
         </div>
 
-        {rows.map((row) => {
-          const items = [...(jadwalByRow.get(row.id) ?? [])].sort((a, b) => timeToMinutes(a.jam_mulai) - timeToMinutes(b.jam_mulai));
-          const laneEnds: number[] = [];
-          const placed = items.map((j) => {
-            const start = timeToMinutes(j.jam_mulai);
-            let lane = laneEnds.findIndex((end) => end <= start);
-            if (lane < 0) lane = laneEnds.length;
-            laneEnds[lane] = timeToMinutes(j.jam_selesai);
-            return { j, lane };
-          });
+        {layout.map(({ row, placed, laneCount }) => {
           return (
-            <div key={row.id} className="tps-timeline-row grid border-b border-outline-variant last:border-b-0" style={{ gridTemplateColumns: '150px 1fr', height: Math.max(1, laneEnds.length) * 56 }}>
+            <div key={row.id} className="tps-timeline-row grid border-b border-outline-variant last:border-b-0" style={{ gridTemplateColumns: 'var(--tps-name-width) minmax(0, 1fr)', flex: `${laneCount} 1 0%`, minHeight: 0 }}>
               <div className="sticky left-0 z-10 flex min-w-0 flex-col justify-center border-r border-outline-variant bg-surface-container-lowest px-3">
                 <p className="truncate font-label-md text-label-md font-semibold text-on-surface">{row.label}</p>
                 {row.sublabel && <p className="tps-row-sublabel truncate font-label-sm text-label-sm text-secondary">{row.sublabel}</p>}
@@ -113,9 +117,16 @@ export function TimelineGrid({
                     <div
                       key={`${j.slot_id}-${j.tanggal_efektif}-${j.is_pengganti ? 'pengganti' : 'asal'}`}
                       className="absolute z-[1]"
-                      style={{ left: `${left}%`, width: `${width}%`, top: lane * 56 + 3, height: 50 }}
+                      style={{ left: `${left}%`, width: `${width}%`, top: `calc(${lane * 100 / laneCount}% + 1px)`, height: `calc(${100 / laneCount}% - 2px)` }}
                     >
-                      <ScheduleBlock jadwal={j} onClick={onSelect ? () => onSelect(j) : undefined} />
+                      <button
+                        type="button"
+                        onClick={onSelect ? () => onSelect(j) : undefined}
+                        title={`${j.kelas_nama} · ${j.jam_mulai}–${j.jam_selesai}${!j.dihitung ? ' · Dibatalkan/digantikan' : ''}`}
+                        className={`tps-fit-block ${jenisStyles[j.kelas_jenis].bg} ${jenisStyles[j.kelas_jenis].text} ${jenisStyles[j.kelas_jenis].border} ${j.status === 'planning' ? 'opacity-60' : ''}`}
+                      >
+                        <span className={!j.dihitung ? 'line-through' : ''}>{!j.dihitung ? '× ' : ''}{j.kelas_nama}</span>
+                      </button>
                     </div>
                   );
                 })}
