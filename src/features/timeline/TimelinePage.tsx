@@ -157,10 +157,10 @@ export function TimelinePage({ publicDisplay = false }: { publicDisplay?: boolea
           </Link>
         )}
       />
-      <main className={`flex-1 p-container-padding ${mode === 'today' ? 'min-h-0 overflow-hidden' : 'overflow-y-auto'}`}>
+      <main className={`flex-1 p-container-padding ${mode === 'today' ? 'tps-fit-page min-h-0 overflow-hidden' : 'overflow-y-auto'}`}>
         <div className={`mx-auto flex max-w-[1400px] flex-col gap-4 ${mode === 'today' ? 'h-full min-h-0' : ''}`}>
           {/* Filter bar: jenis kelas (9) + sensei + status + cari. AND. */}
-          <div className="shrink-0 flex flex-col gap-3 rounded-card border border-outline-variant bg-surface-container-lowest p-4">
+          <div className="tps-filters shrink-0 flex flex-col gap-3 rounded-card border border-outline-variant bg-surface-container-lowest p-4">
             <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
               <MultiSelect<JenisKelas>
                 label="Jenis kelas"
