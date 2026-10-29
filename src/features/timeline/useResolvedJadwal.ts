@@ -9,7 +9,7 @@ import type { JadwalResolved, StatusSlot } from '@/lib/types/domain';
 export function useResolvedJadwal(
   from: string,
   to: string,
-  opts?: { senseiId?: string; ruanganId?: string; status?: StatusSlot[] },
+  opts?: { senseiId?: string; ruanganId?: string; status?: StatusSlot[]; publicDisplay?: boolean },
 ) {
   const [jadwal, setJadwal] = useState<JadwalResolved[]>([]);
   const [loading, setLoading] = useState(true);
@@ -22,7 +22,12 @@ export function useResolvedJadwal(
     setLoading(true);
     setError(null);
     try {
-      const data = await resolveJadwal(from, to, opts);
+      const data = opts?.publicDisplay
+        ? await supabase.rpc('public_display_timeline', { p_from: from, p_to: to }).then(({ data, error }) => {
+            if (error) throw error;
+            return data as JadwalResolved[];
+          })
+        : await resolveJadwal(from, to, opts);
       setJadwal(data);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Gagal memuat jadwal');
@@ -30,14 +35,21 @@ export function useResolvedJadwal(
       setLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [from, to, opts?.senseiId, opts?.ruanganId, statusKey]);
+  }, [from, to, opts?.senseiId, opts?.ruanganId, opts?.publicDisplay, statusKey]);
 
   useEffect(() => {
     void load();
   }, [load]);
 
+  useEffect(() => {
+    if (!opts?.publicDisplay) return;
+    const timer = window.setInterval(() => void load(), 60_000);
+    return () => window.clearInterval(timer);
+  }, [load, opts?.publicDisplay]);
+
   // Realtime: perubahan jadwal_slot -> refetch rentang yang tampil
   useEffect(() => {
+    if (opts?.publicDisplay) return;
     const channel = supabase
       .channel(`timeline-${from}-${to}`)
       .on(
@@ -54,7 +66,7 @@ export function useResolvedJadwal(
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [load, from, to]);
+  }, [load, from, to, opts?.publicDisplay]);
 
   return useMemo(() => ({ jadwal, loading, error, reload: load }), [jadwal, loading, error, load]);
 }
