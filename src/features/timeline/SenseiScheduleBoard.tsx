@@ -89,7 +89,10 @@ export function SenseiScheduleBoard({ rows, schedules, date, rules, onSelect }: 
           })}
           <div className="sheet-total sheet-columns">
             <strong className="sheet-sticky">Total sesi</strong>
-            <div className="sheet-ticks">{BOARD_TICKS.map((tick) => <span key={tick}>{rules ? numberFormat.format(visibleSchedules.reduce((sum, item) => sum + intervalSessions(item, tick, rules), 0)) : '—'}</span>)}</div>
+            <div className="sheet-total-track">
+              <div className="sheet-ticks">{BOARD_TICKS.map((tick) => <span key={tick}>{rules ? numberFormat.format(visibleSchedules.reduce((sum, item) => sum + intervalSessions(item, tick, rules), 0)) : '—'}</span>)}</div>
+              {showNow && <div className="sheet-current-window sheet-current-total" style={markerStyle} />}
+            </div>
             <div className="sheet-session-values"><strong>{total === null ? '—' : totalFormat.format(total)}</strong><span>—</span></div>
           </div>
         </div>
