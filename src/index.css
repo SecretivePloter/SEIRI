@@ -2,6 +2,59 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Daily sensei board: room colors and half-hour allocations follow the Excel reference. */
+.sensei-sheet { --sheet-name-width: 150px; --sheet-session-width: 112px; display: flex; flex-direction: column; height: 100%; min-height: 0; min-width: 0; color: #171717; background: #fff; font-family: Arial, sans-serif; }
+.sensei-sheet-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 34px; flex-shrink: 0; padding: 0 0 6px; }
+.sensei-sheet-heading h3 { font-size: 13px; font-weight: 700; text-decoration: underline; }
+.sheet-date { display: block; padding: 4px 12px; background: #ffff00; font-size: 13px; font-weight: 600; }
+.sensei-sheet-scroll { flex: 1; min-height: 0; overflow: auto; border: 1px solid #444; }
+.sensei-sheet-table { display: flex; flex-direction: column; height: 100%; min-width: 1100px; min-height: calc(var(--sheet-lanes) * 30px + 78px); }
+.sheet-columns { display: grid; grid-template-columns: var(--sheet-name-width) minmax(0, 1fr) var(--sheet-session-width); }
+.sheet-axis { position: sticky; top: 0; flex-shrink: 0; z-index: 6; height: 44px; background: #fff; border-bottom: 1px solid #333; }
+.sheet-sticky { position: sticky; left: 0; z-index: 4; background: inherit; border-right: 1px solid #333; }
+.sheet-axis-name, .sheet-row-name { display: grid; grid-template-columns: 28px minmax(0, 1fr); align-items: center; }
+.sheet-axis-name > span, .sheet-row-name > span { height: 100%; display: flex; align-items: center; justify-content: center; border-right: 1px solid #555; }
+.sheet-axis-name strong, .sheet-row-name strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 5px; font-weight: 400; }
+.sheet-axis-name { font-size: 11px; }
+.sheet-time-axis, .sheet-row-track, .sheet-total-track { position: relative; min-width: 0; }
+.sheet-ticks, .sheet-grid-lines { display: grid; grid-template-columns: repeat(28, minmax(0, 1fr)); height: 100%; }
+.sheet-ticks > div { display: flex; flex-direction: column; justify-content: center; align-items: center; border-right: 1px dotted #777; font-size: clamp(8px, .65vw, 11px); line-height: 1.3; font-variant-numeric: tabular-nums; }
+.sheet-session-heading { border-left: 1px solid #333; text-align: center; font-size: 11px; }
+.sheet-session-heading > strong { display: block; height: 21px; border-bottom: 1px solid #555; font-weight: 400; }
+.sheet-session-heading > div, .sheet-session-values { display: grid; grid-template-columns: 1fr 1fr; }
+.sheet-session-heading span + span, .sheet-session-values > :last-child { border-left: 1px solid #555; }
+.sheet-row { flex: 1 0 0; border-bottom: 1px dotted #777; background: #fff; font-size: 12px; }
+.sheet-row:nth-child(even) { background: #d9d9d9; }
+.sheet-grid-lines { position: absolute; inset: 0; pointer-events: none; }
+.sheet-grid-lines > span { border-right: 1px dotted #777; }
+.sheet-session-values { height: 100%; border-left: 1px solid #333; font-variant-numeric: tabular-nums; text-align: center; font-size: 12px; }
+.sheet-session-values > * { display: flex; justify-content: center; align-items: flex-start; padding-top: 3px; }
+.sheet-class { position: absolute; display: flex; flex-direction: column; justify-content: space-between; min-width: 0; overflow: hidden; padding: 1px 0 2px; border: 0; text-align: center; z-index: 1; }
+.sheet-class-values { display: flex; width: 100%; flex: 1; min-height: 10px; align-items: center; font-variant-numeric: tabular-nums; }
+.sheet-class-values > span { flex-shrink: 0; overflow: hidden; border-right: 1px dotted currentColor; font-size: clamp(8px, .75vw, 13px); }
+.sheet-class-label { display: block; width: calc(100% - 4px); margin-inline: 2px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; border: 1px solid currentColor; border-radius: 3px; font-size: clamp(8px, .72vw, 12px); font-weight: 700; line-height: 1.2; padding: 1px 2px; }
+.sheet-class:focus-visible { outline: 3px solid #111; outline-offset: -3px; z-index: 3; }
+.sheet-class-cancelled { opacity: .45; }
+.sheet-class-cancelled .sheet-class-label { text-decoration: line-through; }
+.sheet-class-planning { opacity: .6; border: 1px dashed #333; }
+.sheet-current-window { position: absolute; top: 0; bottom: 0; border-left: 3px solid #f00000; border-right: 3px solid #f00000; pointer-events: none; z-index: 3; }
+.sheet-current-header { border-top: 3px solid #f00000; }
+.sheet-current-total { border-bottom: 3px solid #f00000; }
+.sheet-time-axis > .sheet-ticks { padding-top: 10px; }
+.sheet-now-arrow { position: absolute; top: 0; left: 50%; transform: translateX(-50%); color: #f00000; font-size: 10px; line-height: 1; }
+.sheet-total { flex-shrink: 0; min-height: 32px; border-top: 1px solid #444; background: #fff; }
+.sheet-total > .sheet-sticky { display: flex; align-items: center; padding-left: 8px; font-size: 11px; }
+.sheet-total .sheet-ticks > span { display: flex; justify-content: center; align-items: center; border-right: 1px dotted #777; font-size: 10px; font-variant-numeric: tabular-nums; }
+.sheet-total .sheet-session-values > strong { color: #d90000; }
+.sheet-legend { flex-shrink: 0; padding: 7px 0 0; font-size: 10px; line-height: 1.4; }
+.sheet-legend > strong { display: block; margin-bottom: 4px; font-size: 11px; }
+.sheet-room-key { display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.sheet-room-key > span { display: inline-flex; align-items: center; gap: 5px; min-width: 82px; }
+.sheet-room-key i { width: 27px; height: 15px; display: inline-flex; align-items: center; justify-content: center; font-style: normal; border: 1px solid #777; }
+.sheet-legend p { margin-top: 4px; color: #555; }
+.sheet-cancel-key { color: #e00000; font-weight: 700; }
+@media (max-width: 700px) { .sensei-sheet-heading { align-items: flex-start; } .sheet-date { font-size: 10px; padding: 4px; } .sensei-sheet-heading h3 { font-size: 11px; } }
+
 /* One-screen operational board. Names stay on one centered line. */
 .tps-timeline-board {
   --tps-name-width: clamp(88px, 10vw, 160px);

@@ -11,7 +11,9 @@ import { Input } from '@/components/ui/Input';
 import { LoadingState, ErrorState, EmptyState } from '@/components/ui/States';
 import { MultiSelect, ResetFiltersButton } from '@/components/ui/MultiSelect';
 import { Icon } from '@/components/ui/Icon';
-import { TimelineGrid, type TimelineRow } from './TimelineGrid';
+import type { TimelineRow } from './TimelineGrid';
+import { SenseiScheduleBoard } from './SenseiScheduleBoard';
+import { listKategoriSesi } from '@/lib/api/kategoriSesi';
 import { ScheduleBlock } from './ScheduleBlock';
 import { useResolvedJadwal } from './useResolvedJadwal';
 import { JadwalDetailModal } from './JadwalDetailModal';
@@ -39,7 +41,7 @@ import {
 function statusToRpcParam(status: StatusFilter): StatusSlot[] | undefined {
   if (status === 'aktif') return ['aktif', 'planning'];
   if (status === 'tidak_aktif') return ['tidak_aktif'];
-  return undefined; // semua
+  return ['aktif', 'planning', 'tidak_aktif'];
 }
 
 export function TimelinePage({ publicDisplay = false }: { publicDisplay?: boolean } = {}) {
@@ -87,6 +89,7 @@ export function TimelinePage({ publicDisplay = false }: { publicDisplay?: boolea
     () => publicDisplay ? listPublicDisplaySensei() : listSensei({ includeNonaktif: true }),
     [publicDisplay],
   );
+  const sesiQ = useAsyncData(() => publicDisplay ? Promise.resolve(null) : listKategoriSesi(), [publicDisplay]);
   const rpcStatus = statusToRpcParam(statusFilter);
   const { jadwal, loading, error, reload } = useResolvedJadwal(from, to, {
     status: rpcStatus,
@@ -130,10 +133,11 @@ export function TimelinePage({ publicDisplay = false }: { publicDisplay?: boolea
       const senseiWithSchedule = new Set(jadwal.map((j) => j.sensei_id));
       return (senseiQ.data ?? [])
         .filter((s) => s.is_aktif || senseiWithSchedule.has(s.id))
-        .filter((s) => (search ? s.nama.toLowerCase().includes(search.toLowerCase()) : true))
+        .filter((s) => senseiFilter.length === 0 || senseiFilter.includes(s.id))
+        .filter((s) => !search || s.nama.toLowerCase().includes(search.toLowerCase()) || filtered.some((item) => item.sensei_id === s.id))
         .map((s) => ({ id: s.id, label: s.nama, sublabel: s.is_aktif ? s.status : 'Arsip historis' }));
     },
-    [senseiQ.data, search, jadwal],
+    [senseiQ.data, search, jadwal, senseiFilter, filtered],
   );
 
   return (
@@ -168,28 +172,29 @@ export function TimelinePage({ publicDisplay = false }: { publicDisplay?: boolea
       <main className={`flex-1 p-container-padding ${mode === 'today' ? 'tps-fit-page min-h-0 overflow-hidden' : 'overflow-y-auto'}`}>
         <div className={`mx-auto flex max-w-[1400px] flex-col gap-4 ${mode === 'today' ? 'h-full min-h-0' : ''}`}>
           {/* Body */}
-          {senseiQ.loading || loading ? (
+          {senseiQ.loading || loading || sesiQ.loading ? (
             <LoadingState label="Memuat timeline…" />
-          ) : senseiQ.error || error ? (
+          ) : senseiQ.error || error || sesiQ.error ? (
             <ErrorState
-              message={senseiQ.error ?? error ?? ''}
+              message={senseiQ.error ?? error ?? sesiQ.error ?? ''}
               onRetry={() => {
                 void senseiQ.reload();
                 void reload();
+                void sesiQ.reload();
               }}
             />
           ) : (
             <>
               {mode === 'today' && (
                 <div className="min-h-0 flex-1">
-                <TimelineGrid rows={senseiRows} jadwalByRow={groupBy(filtered, (j) => j.sensei_id)} onSelect={publicDisplay ? undefined : setSelected} />
+                <SenseiScheduleBoard rows={senseiRows} schedules={filtered} date={anchorDate} rules={sesiQ.data ?? null} onSelect={publicDisplay ? undefined : setSelected} />
                 </div>
               )}
               {mode === 'weekly' && (
                 <WeeklyGrid days={dateRange(from, to)} rows={senseiRows} jadwal={filtered} onSelect={publicDisplay ? () => {} : setSelected} />
               )}
               {mode === 'monthly' && <MonthlyGrid from={from} to={to} jadwal={filtered} onSelect={publicDisplay ? () => {} : setSelected} />}
-              {filtered.length === 0 && (
+              {filtered.length === 0 && mode !== 'today' && (
                 <EmptyState
                   icon="event_busy"
                   title="Tidak ada jadwal di rentang ini"
@@ -198,7 +203,7 @@ export function TimelinePage({ publicDisplay = false }: { publicDisplay?: boolea
               )}
             </>
           )}
-          <aside aria-label="Keterangan timeline" className="shrink-0 rounded border border-outline-variant bg-surface-container-lowest px-3 py-2">
+          {mode !== 'today' && <aside aria-label="Keterangan timeline" className="shrink-0 rounded border border-outline-variant bg-surface-container-lowest px-3 py-2">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
               <strong className="text-xs text-on-surface">Jenis kelas</strong>
               {JENIS_KELAS_LIST.map((jenis) => <JenisBadge key={jenis} jenis={jenis} />)}
@@ -210,7 +215,7 @@ export function TimelinePage({ publicDisplay = false }: { publicDisplay?: boolea
               <span><span className="opacity-60">Kelas pudar</span> · Planning</span>
               <span>… · Nama lengkap saat diarahkan / dibuka</span>
             </div>
-          </aside>
+          </aside>}
         </div>
       </main>
       <Modal open={filtersOpen} onClose={() => setFiltersOpen(false)} title="Filter & tampilan timeline" wide
